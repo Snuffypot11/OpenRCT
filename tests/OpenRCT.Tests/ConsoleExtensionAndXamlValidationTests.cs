@@ -145,5 +145,20 @@ namespace OpenRCT.Tests
                 Assert.True(nonAscii == 0, $"Non-ASCII byte 0x{nonAscii:X2} found in {Path.GetFileName(script)} (breaks Windows PowerShell 5.1 without BOM).");
             }
         }
+
+        [Fact]
+        public void ConsoleExtensionXmlFiles_ArePureAscii()
+        {
+            var root = FindRepoRoot();
+            var xmlFiles = Directory.GetFiles(Path.Combine(root, "console-extensions"), "*.xml", SearchOption.AllDirectories);
+            Assert.NotEmpty(xmlFiles);
+
+            foreach (var xml in xmlFiles)
+            {
+                var bytes = File.ReadAllBytes(xml);
+                var nonAscii = bytes.FirstOrDefault(b => b > 127);
+                Assert.True(nonAscii == 0, $"Non-ASCII byte 0x{nonAscii:X2} found in {Path.GetFileName(xml)} (causes mojibake in MECM Console menus).");
+            }
+        }
     }
 }

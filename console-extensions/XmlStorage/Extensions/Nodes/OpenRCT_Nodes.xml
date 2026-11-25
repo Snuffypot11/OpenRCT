@@ -3,16 +3,42 @@
   OpenRCT Console Tree Nodes under Assets and Compliance -> Overview
   Deployed by installer to:
     <AdminConsole>\XmlStorage\Extensions\Nodes\<AssetsOverviewNodeGuid>\OpenRCT_Nodes.xml
+  NOTE: ViewAssemblyDescription resolves Assembly relative to <AdminConsole>\bin,
+  where Install-OpenRCT.ps1 deploys OpenRCT.ConsoleExtension.dll.
 -->
 <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000001"
                      Id="OpenRctRootNode"
                      DisplayName="OpenRCT"
-                     Description="Open Source Right Click Tools &amp; Dashboards">
+                     Description="Open Source Right Click Tools and Dashboards">
+  <ViewAssemblyDescriptions>
+    <ViewAssemblyDescription>
+      <Assembly>OpenRCT.ConsoleExtension.dll</Assembly>
+      <Type>OpenRCT.ConsoleExtension.OpenRctHomeConsoleView</Type>
+    </ViewAssemblyDescription>
+  </ViewAssemblyDescriptions>
+  <ActionDescriptions>
+    <ActionDescription Class="Executable" DisplayName="Open OpenRCT Standalone App" MnemonicDisplayName="Open OpenRCT Standalone App" Description="Launch OpenRCT standalone dashboard and tool window">
+      <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+      <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters></Parameters></Executable>
+    </ActionDescription>
+  </ActionDescriptions>
   <ChildNodes>
     <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000010"
                          Id="OpenRctRightClickToolsNode"
                          DisplayName="Right Click Tools"
                          Description="OpenRCT Dashboards and Reports">
+      <ViewAssemblyDescriptions>
+        <ViewAssemblyDescription>
+          <Assembly>OpenRCT.ConsoleExtension.dll</Assembly>
+          <Type>OpenRCT.ConsoleExtension.OpenRctHomeConsoleView</Type>
+        </ViewAssemblyDescription>
+      </ViewAssemblyDescriptions>
+      <ActionDescriptions>
+        <ActionDescription Class="Executable" DisplayName="Open OpenRCT Standalone App" MnemonicDisplayName="Open OpenRCT Standalone App" Description="Launch OpenRCT standalone dashboard and tool window">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters></Parameters></Executable>
+        </ActionDescription>
+      </ActionDescriptions>
       <ChildNodes>
         <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000101"
                              Id="OpenRctAdCleanupNode"
@@ -20,10 +46,16 @@
                              Description="Compare devices in Active Directory and ConfigMgr">
           <ViewAssemblyDescriptions>
             <ViewAssemblyDescription>
-              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Assembly>OpenRCT.ConsoleExtension.dll</Assembly>
               <Type>OpenRCT.ConsoleExtension.AdCleanupConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
+          <ActionDescriptions>
+            <ActionDescription Class="Executable" DisplayName="Open in New Window" MnemonicDisplayName="Open in New Window" Description="Open Active Directory Cleanup Tool in a separate window">
+              <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+              <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action Dashboard.AdCleanup</Parameters></Executable>
+            </ActionDescription>
+          </ActionDescriptions>
         </RootNodeDescription>
 
         <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000102"
@@ -32,7 +64,7 @@
                              Description="BitLocker Compliance Dashboard (Phase 2)">
           <ViewAssemblyDescriptions>
             <ViewAssemblyDescription>
-              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Assembly>OpenRCT.ConsoleExtension.dll</Assembly>
               <Type>OpenRCT.ConsoleExtension.BitLockerComplianceConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
@@ -44,7 +76,7 @@
                              Description="Content Distribution Monitor Dashboard (Phase 2)">
           <ViewAssemblyDescriptions>
             <ViewAssemblyDescription>
-              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Assembly>OpenRCT.ConsoleExtension.dll</Assembly>
               <Type>OpenRCT.ConsoleExtension.ContentDistributionConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
@@ -56,7 +88,7 @@
                              Description="Hardware and Firmware Audit Dashboard (Phase 2)">
           <ViewAssemblyDescriptions>
             <ViewAssemblyDescription>
-              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Assembly>OpenRCT.ConsoleExtension.dll</Assembly>
               <Type>OpenRCT.ConsoleExtension.HardwareFirmwareAuditConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
@@ -68,10 +100,16 @@
                              Description="Audit Legacy and Windows LAPS password and client install state">
           <ViewAssemblyDescriptions>
             <ViewAssemblyDescription>
-              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Assembly>OpenRCT.ConsoleExtension.dll</Assembly>
               <Type>OpenRCT.ConsoleExtension.LapsDashboardConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
+          <ActionDescriptions>
+            <ActionDescription Class="Executable" DisplayName="Open in New Window" MnemonicDisplayName="Open in New Window" Description="Open LAPS Dashboard in a separate window">
+              <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+              <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action Dashboard.Laps</Parameters></Executable>
+            </ActionDescription>
+          </ActionDescriptions>
         </RootNodeDescription>
 
         <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000106"
@@ -80,10 +118,16 @@
                              Description="Track Software Update compliance and missing updates by category">
           <ViewAssemblyDescriptions>
             <ViewAssemblyDescription>
-              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Assembly>OpenRCT.ConsoleExtension.dll</Assembly>
               <Type>OpenRCT.ConsoleExtension.SoftwareUpdatesConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
+          <ActionDescriptions>
+            <ActionDescription Class="Executable" DisplayName="Open in New Window" MnemonicDisplayName="Open in New Window" Description="Open Software Updates Deployment Status in a separate window">
+              <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+              <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action Dashboard.SoftwareUpdates</Parameters></Executable>
+            </ActionDescription>
+          </ActionDescriptions>
         </RootNodeDescription>
       </ChildNodes>
     </RootNodeDescription>

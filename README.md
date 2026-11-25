@@ -38,6 +38,15 @@
 
 ## Installation
 
+### Prerequisite (Required for MECM 2103 and newer)
+Starting in Configuration Manager 2103, Microsoft introduced an **Only allow console extensions that are approved for the hierarchy** restriction that blocks locally installed `XmlStorage\Extensions` add-ons (including open-source extensions like OpenRCT).
+
+Before installing or launching OpenRCT inside the MECM Admin Console:
+1. Open the Configuration Manager Console and navigate to **Administration → Site Configuration → Sites**.
+2. Click **Hierarchy Settings** in the top ribbon.
+3. On the **General** tab, **uncheck** **`Only allow console extensions that are approved for the hierarchy`**.
+4. Click **OK**, install OpenRCT, and **restart the Configuration Manager Console**.
+
 ### Option 1: MSI Installer (Recommended for Enterprise Deployment)
 Download `OpenRCT.msi` from [GitHub Releases](../../releases) and run interactively, or silently:
 
@@ -54,9 +63,7 @@ Extract `OpenRCT-portable.zip` and run from an elevated PowerShell prompt:
 .\scripts\Install-OpenRCT.ps1 -PsExecPath "C:\Tools\PsExec64.exe" -Mode Assembly
 ```
 
-Restart the Configuration Manager Console to load the new menus and dashboard nodes.
-
-> **Note (MECM 2103+)**: If console extensions do not appear after restarting, verify in **Administration → Site Configuration → Sites → Hierarchy Settings** that **"Only allow console extensions that are approved for the hierarchy"** is unchecked. Full installer diagnostics are written to `C:\ProgramData\OpenRCT\install.log`.
+Restart the Configuration Manager Console to load the new right-click menus and dashboard nodes under **Assets and Compliance → Overview → OpenRCT**. Full installer diagnostics are written to `C:\ProgramData\OpenRCT\install.log`.
 
 ### Uninstalling
 Uninstall via **Add or Remove Programs** (MSI) or run:

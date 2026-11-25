@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  OpenRCT Device Right-Click Menu Extension (AssemblyType — Native Multi-Select)
+  OpenRCT Device Right-Click Menu Extension (AssemblyType - Native Multi-Select)
   Deployed by installer to:
     <AdminConsole>\XmlStorage\Extensions\Actions\ed9dee86-eadd-4ac8-82a1-7234a4646e62\OpenRCT_DeviceActions.xml
     <AdminConsole>\XmlStorage\Extensions\Actions\3fd01cd1-9e01-461e-92cd-94866b8d1f39\OpenRCT_DeviceActions.xml
@@ -228,15 +228,15 @@
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender — Quick Scan" MnemonicDisplayName="Windows Defender — Quick Scan" Description="Run Windows Defender Quick Scan">
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Quick Scan" MnemonicDisplayName="Windows Defender - Quick Scan" Description="Run Windows Defender Quick Scan">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender — Full Scan" MnemonicDisplayName="Windows Defender — Full Scan" Description="Run Windows Defender Full Scan">
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Full Scan" MnemonicDisplayName="Windows Defender - Full Scan" Description="Run Windows Defender Full Scan">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender — Update Definitions" MnemonicDisplayName="Windows Defender — Update Definitions" Description="Update Windows Defender antimalware signatures">
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Update Definitions" MnemonicDisplayName="Windows Defender - Update Definitions" Description="Update Windows Defender antimalware signatures">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>

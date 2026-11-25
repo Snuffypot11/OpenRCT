@@ -73,6 +73,18 @@ if ($detectedConsole) {
             Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
         }
     }
+    $consoleBin = Join-Path $detectedConsole "bin"
+    foreach ($binFile in @("OpenRCT.ConsoleExtension.dll", "OpenRCT.installdir.txt")) {
+        $p = Join-Path $consoleBin $binFile
+        if (Test-Path $p) {
+            Write-Host "Removing console bin file: $p" -ForegroundColor Yellow
+            Remove-Item -Path $p -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+if (Test-Path "HKLM:\SOFTWARE\OpenRCT") {
+    Remove-Item -Path "HKLM:\SOFTWARE\OpenRCT" -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 if (-not $SkipBinaryRemove) {

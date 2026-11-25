@@ -134,7 +134,7 @@ function Resolve-AssetsOverviewNodeGuid {
     }
 
     try {
-        [xml]$doc = Get-Content -Path $assetXmlPath -Raw
+        [xml]$doc = Get-Content -Path $assetXmlPath -Raw -Encoding UTF8
         $allNodes = $doc.SelectNodes("//RootNodeDescription[@NamespaceGuid]")
         foreach ($node in $allNodes) {
             # In AssetManagementNode.xml, the Overview node is the parent of Users/Devices/Device Collections
@@ -177,7 +177,7 @@ function Find-TypeNamespaceInBin {
             try { $types = $asm.GetTypes() } catch [System.Reflection.ReflectionTypeLoadException] { $types = $_.Exception.Types | Where-Object { $_ -ne $null } }
             foreach ($t in $types) {
                 if ($t.Name -eq $TypeName) {
-                    return @{ Namespace = $t.Namespace; Assembly = $asmPath }
+                    return @{ Namespace = $t.Namespace; Assembly = $asmPath; Type = $t }
                 }
             }
         } catch {
@@ -185,6 +185,29 @@ function Find-TypeNamespaceInBin {
         }
     }
     return $null
+}
+
+function Write-TypeDiagnostic {
+    param([string]$TypeName, $FoundInfo)
+    if (-not $FoundInfo -or -not $FoundInfo.Type) {
+        Write-Log "SDK diagnostic: type '$TypeName' was NOT found in AdminConsole\bin." "WARN"
+        return
+    }
+    try {
+        $t = $FoundInfo.Type
+        $baseName = if ($t.BaseType) { $t.BaseType.FullName } else { "(none)" }
+        $flags = [System.Reflection.BindingFlags]"Public,NonPublic,Instance,DeclaredOnly"
+        $props = @($t.GetProperties($flags) | ForEach-Object { "$($_.PropertyType.Name) $($_.Name)" }) -join ", "
+        $methods = @($t.GetMethods($flags) | Where-Object { -not $_.IsSpecialName } | ForEach-Object {
+            $ps = @($_.GetParameters() | ForEach-Object { "$($_.ParameterType.Name) $($_.Name)" }) -join ", "
+            "$($_.ReturnType.Name) $($_.Name)($ps)"
+        }) -join "; "
+        Write-Log "SDK diagnostic [$TypeName]: FullName=$($t.FullName), Base=$baseName, Asm=$($FoundInfo.Assembly)"
+        Write-Log "SDK diagnostic [$TypeName] Props: $props"
+        Write-Log "SDK diagnostic [$TypeName] Methods: $methods"
+    } catch {
+        Write-Log "SDK diagnostic [$TypeName] failed: $($_.Exception.Message)" "WARN"
+    }
 }
 
 function Invoke-CscCompile {
@@ -213,27 +236,29 @@ function Build-LocalConsoleExtension {
         [string]$TargetDir,
         [string]$BridgeSourceDir
     )
+    $result = @{ ActionsBound = $false; DashboardsBound = $false }
+
     $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
     if (-not (Test-Path $csc)) {
         $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework\v4.0.30319\csc.exe"
     }
     if (-not (Test-Path $csc)) {
         Write-Log "csc.exe not found; using prebuilt OpenRCT.ConsoleExtension.dll." "WARN"
-        return $false
+        return $result
     }
 
     $cmExe = Join-Path $AdminConsoleBin "Microsoft.ConfigurationManagement.exe"
     $mgmtProvider = Join-Path $AdminConsoleBin "Microsoft.ConfigurationManagement.ManagementProvider.dll"
     if (-not (Test-Path $cmExe) -or -not (Test-Path $mgmtProvider)) {
         Write-Log "Required MECM Console assemblies missing in $AdminConsoleBin (checked Microsoft.ConfigurationManagement.exe and Microsoft.ConfigurationManagement.ManagementProvider.dll)." "WARN"
-        return $false
+        return $result
     }
 
     $handlerCs = Join-Path $BridgeSourceDir "OpenRctActionHandler.cs"
     $viewsCs = Join-Path $BridgeSourceDir "DashboardConsoleViews.cs"
     if (-not (Test-Path $handlerCs)) {
         Write-Log "Bridge source not found at $handlerCs." "WARN"
-        return $false
+        return $result
     }
 
     $outDll = Join-Path $TargetDir "OpenRCT.ConsoleExtension.dll"
@@ -279,8 +304,10 @@ function Build-LocalConsoleExtension {
         $viewsSourceToCompile = $viewsCs
         $extraUsings = @()
         $discoveredRefs = @()
+        $discoveredMap = @{}
         foreach ($typeName in @("OverviewControllerBase", "Overview", "IConsoleView2")) {
             $found = Find-TypeNamespaceInBin -AdminConsoleBin $AdminConsoleBin -TypeName $typeName
+            $discoveredMap[$typeName] = $found
             if ($found) {
                 Write-Log "Discovered $typeName in namespace '$($found.Namespace)' ($($found.Assembly))"
                 $refArg = "/r:`"$($found.Assembly)`""
@@ -295,7 +322,7 @@ function Build-LocalConsoleExtension {
         }
         if ($extraUsings.Count -gt 0) {
             $tempViews = Join-Path $env:TEMP "OpenRCT_DashboardConsoleViews_Bound.cs"
-            $rawViews = Get-Content -Path $viewsCs -Raw
+            $rawViews = Get-Content -Path $viewsCs -Raw -Encoding UTF8
             Set-Content -Path $tempViews -Value (($extraUsings -join "`r`n") + "`r`n" + $rawViews) -Encoding UTF8
             $viewsSourceToCompile = $tempViews
         }
@@ -304,20 +331,27 @@ function Build-LocalConsoleExtension {
         $code = Invoke-CscCompile -CscPath $csc -ArgsList $fullArgs
         if ($code -eq 0) {
             Write-Log "Successfully bound OpenRCT.ConsoleExtension.dll (Actions + Embedded Dashboards) to local MECM Console."
-            return $true
+            $result.ActionsBound = $true
+            $result.DashboardsBound = $true
+            return $result
         }
-        Write-Log "Full bridge compile exited with code $code; retrying with OpenRctActionHandler.cs only so Right-Click menus work." "WARN"
+
+        Write-Log "Full bridge compile exited with code $code; logging SDK diagnostics and retrying with OpenRctActionHandler.cs only." "WARN"
+        foreach ($typeName in @("OverviewControllerBase", "Overview", "IConsoleView2")) {
+            Write-TypeDiagnostic -TypeName $typeName -FoundInfo $discoveredMap[$typeName]
+        }
     }
 
     $handlerOnlyArgs = $baseRefs + @("`"$handlerCs`"")
     $code2 = Invoke-CscCompile -CscPath $csc -ArgsList $handlerOnlyArgs
     if ($code2 -eq 0) {
-        Write-Log "Successfully bound OpenRCT.ConsoleExtension.dll (Right-Click Actions) to local MECM Console."
-        return $true
+        Write-Log "Successfully bound OpenRCT.ConsoleExtension.dll (Right-Click Actions only) to local MECM Console."
+        $result.ActionsBound = $true
+        return $result
     }
 
     Write-Log "Local bridge binding failed (exit code $code2). See $script:LogFile for details." "ERROR"
-    return $false
+    return $result
 }
 
 try {
@@ -332,6 +366,14 @@ try {
     $packageRoot = Split-Path -Parent $scriptDir
 
     New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
+
+    # Record InstallDir in HKLM so OpenRCT.ConsoleExtension.dll can always locate OpenRCT.UI.dll
+    try {
+        New-Item -Path "HKLM:\SOFTWARE\OpenRCT" -Force | Out-Null
+        Set-ItemProperty -Path "HKLM:\SOFTWARE\OpenRCT" -Name "InstallDir" -Value $InstallDir
+    } catch {
+        Write-Log "Warning: could not write HKLM:\SOFTWARE\OpenRCT InstallDir: $($_.Exception.Message)" "WARN"
+    }
 
     if (-not $SkipBinaryCopy) {
         $binSource = Join-Path $packageRoot "bin"
@@ -360,11 +402,25 @@ try {
         if (-not (Test-Path $bridgeSource)) { $bridgeSource = Join-Path $packageRoot "console-bridge-src" }
 
         $effectiveMode = $Mode
+        $dashboardsBound = $false
         if ($Mode -eq "Assembly") {
-            $boundOk = Build-LocalConsoleExtension -AdminConsoleBin $consoleBin -TargetDir $InstallDir -BridgeSourceDir $bridgeSource
-            if (-not $boundOk) {
+            $bindResult = Build-LocalConsoleExtension -AdminConsoleBin $consoleBin -TargetDir $InstallDir -BridgeSourceDir $bridgeSource
+            $dashboardsBound = [bool]$bindResult.DashboardsBound
+            if (-not $bindResult.ActionsBound) {
                 Write-Log "Falling back to Executable mode XML (with Named-Pipe multi-select aggregator) because Assembly binding did not complete." "WARN"
                 $effectiveMode = "Executable"
+            } else {
+                # Deploy compiled bridge DLL + installdir marker into AdminConsole\bin (required by MECM ViewAssemblyDescription)
+                $builtBridgeDll = Join-Path $InstallDir "OpenRCT.ConsoleExtension.dll"
+                if (Test-Path $builtBridgeDll) {
+                    try {
+                        Copy-Item -Path $builtBridgeDll -Destination (Join-Path $consoleBin "OpenRCT.ConsoleExtension.dll") -Force
+                        Set-Content -Path (Join-Path $consoleBin "OpenRCT.installdir.txt") -Value $InstallDir -Encoding UTF8
+                        Write-Log "Deployed OpenRCT.ConsoleExtension.dll and OpenRCT.installdir.txt to $consoleBin"
+                    } catch {
+                        Write-Log "Could not copy OpenRCT.ConsoleExtension.dll to $consoleBin (close MECM Console and re-run Repair): $($_.Exception.Message)" "WARN"
+                    }
+                }
             }
         }
 
@@ -375,7 +431,7 @@ try {
         if (-not (Test-Path $xmlTemplatesRoot)) {
             $xmlTemplatesRoot = Join-Path (Split-Path -Parent $packageRoot) "console-extensions\XmlStorage\Extensions"
         }
-        Write-Log "Using XML templates from: $xmlTemplatesRoot (EffectiveMode=$effectiveMode)"
+        Write-Log "Using XML templates from: $xmlTemplatesRoot (EffectiveMode=$effectiveMode, DashboardsBound=$dashboardsBound)"
 
         $deviceActionTemplate = if ($effectiveMode -eq "Assembly") {
             Join-Path $xmlTemplatesRoot "Actions\OpenRCT_DeviceActions.xml"
@@ -393,7 +449,7 @@ try {
             $destDir = Join-Path $detectedConsole "XmlStorage\Extensions\Actions\$guid"
             New-Item -ItemType Directory -Path $destDir -Force | Out-Null
             $destFile = Join-Path $destDir "OpenRCT_DeviceActions.xml"
-            $xml = (Get-Content -Path $deviceActionTemplate -Raw).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
+            $xml = (Get-Content -Path $deviceActionTemplate -Raw -Encoding UTF8).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
             Set-Content -Path $destFile -Value $xml -Encoding UTF8
             Write-Log "Deployed Device Actions XML: $destFile"
         }
@@ -402,19 +458,24 @@ try {
             $colDestDir = Join-Path $detectedConsole "XmlStorage\Extensions\Actions\a92615d6-9df3-49ba-a8c9-6ecb0e8b956b"
             New-Item -ItemType Directory -Path $colDestDir -Force | Out-Null
             $colDestFile = Join-Path $colDestDir "OpenRCT_CollectionActions.xml"
-            $colXml = (Get-Content -Path $collectionActionTemplate -Raw).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
+            $colXml = (Get-Content -Path $collectionActionTemplate -Raw -Encoding UTF8).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
             Set-Content -Path $colDestFile -Value $colXml -Encoding UTF8
             Write-Log "Deployed Collection Actions XML: $colDestFile"
         }
 
-        if ($effectiveMode -eq "Assembly" -and (Test-Path $nodesTemplate)) {
+        if (Test-Path $nodesTemplate) {
             $overviewGuid = Resolve-AssetsOverviewNodeGuid -AdminConsoleRoot $detectedConsole
             $nodeDestDir = Join-Path $detectedConsole "XmlStorage\Extensions\Nodes\$overviewGuid"
             New-Item -ItemType Directory -Path $nodeDestDir -Force | Out-Null
             $nodeDestFile = Join-Path $nodeDestDir "OpenRCT_Nodes.xml"
-            $nodeXml = (Get-Content -Path $nodesTemplate -Raw).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
+            $nodeXml = (Get-Content -Path $nodesTemplate -Raw -Encoding UTF8).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
+            if (-not $dashboardsBound) {
+                # Never deploy ViewAssemblyDescriptions pointing to types that failed to compile, or MECM Console may crash on click.
+                Write-Log "Stripping inline ViewAssemblyDescriptions from OpenRCT_Nodes.xml because DashboardConsoleViews did not bind; right-click 'Open in New Window' actions remain active." "WARN"
+                $nodeXml = [System.Text.RegularExpressions.Regex]::Replace($nodeXml, "(?s)\s*<ViewAssemblyDescriptions>.*?</ViewAssemblyDescriptions>", "")
+            }
             Set-Content -Path $nodeDestFile -Value $nodeXml -Encoding UTF8
-            Write-Log "Deployed Console Dashboard Nodes XML: $nodeDestFile"
+            Write-Log "Deployed Console Dashboard Nodes XML: $nodeDestFile (InlineViews=$dashboardsBound)"
         }
 
         Write-Log "NOTE for MECM 2103+: If extensions still do not appear after restarting the Console, verify Hierarchy Settings -> 'Only allow console extensions that are approved for the hierarchy' is UNCHECKED (Administration -> Site Configuration -> Sites -> Hierarchy Settings)."

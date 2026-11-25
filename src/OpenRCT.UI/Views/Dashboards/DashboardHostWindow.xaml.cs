@@ -8,9 +8,9 @@ namespace OpenRCT.UI.Views.Dashboards
     {
         public DashboardHostWindow(string title, UIElement content, OpenRctSettings settings)
         {
-            InitializeComponent();
             ThemeManager.ApplyTheme(this, settings.Theme);
-            Title = $"OpenRCT — {title}";
+            InitializeComponent();
+            Title = $"OpenRCT - {title}";
             HostContent.Content = content;
         }
     }

@@ -8,8 +8,8 @@ namespace OpenRCT.UI.Views.Dashboards
     {
         public Phase2PlaceholderDashboardView(string title, string description, OpenRctSettings settings)
         {
-            InitializeComponent();
             ThemeManager.ApplyTheme(this, settings.Theme);
+            InitializeComponent();
             TitleText.Text = title;
             DescriptionText.Text = description;
         }

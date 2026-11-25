@@ -95,11 +95,11 @@
     <ActionDescription Class="Group" DisplayName="Security Tools" MnemonicDisplayName="Security Tools" Description="Run Security Tools across this Device Collection">
       <ShowOn><string>ContextMenu</string></ShowOn>
       <ActionGroups>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender — Quick Scan" MnemonicDisplayName="Windows Defender — Quick Scan" Description="Run Defender Quick Scan across collection">
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Quick Scan" MnemonicDisplayName="Windows Defender - Quick Scan" Description="Run Defender Quick Scan across collection">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender — Update Definitions" MnemonicDisplayName="Windows Defender — Update Definitions" Description="Update Defender definitions across collection">
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Update Definitions" MnemonicDisplayName="Windows Defender - Update Definitions" Description="Update Defender definitions across collection">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>

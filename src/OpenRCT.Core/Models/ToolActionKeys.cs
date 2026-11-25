@@ -59,6 +59,7 @@ namespace OpenRCT.Core.Models
         public const string OpenSettings = "Tool.Settings";
 
         // Dashboards (Phase 1 + Phase 2)
+        public const string DashboardHome = "Dashboard.Home";
         public const string DashboardAdCleanup = "Dashboard.AdCleanup";
         public const string DashboardLaps = "Dashboard.Laps";
         public const string DashboardSoftwareUpdates = "Dashboard.SoftwareUpdates";
@@ -115,9 +116,12 @@ namespace OpenRCT.Core.Models
             map["Restart System(s)"] = RestartSystems;
             map["Shutdown System(s)"] = ShutdownSystems;
 
-            // Security Tools
+            // Security Tools (pure ASCII hyphen names + legacy em-dash aliases)
             map["View LAPS Password"] = ViewLapsPassword;
             map["View BitLocker Recovery Key"] = ViewBitLockerRecoveryKey;
+            map["Windows Defender - Quick Scan"] = DefenderQuickScan;
+            map["Windows Defender - Full Scan"] = DefenderFullScan;
+            map["Windows Defender - Update Definitions"] = DefenderUpdateDefinitions;
             map["Windows Defender — Quick Scan"] = DefenderQuickScan;
             map["Windows Defender — Full Scan"] = DefenderFullScan;
             map["Windows Defender — Update Definitions"] = DefenderUpdateDefinitions;

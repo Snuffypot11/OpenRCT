@@ -37,6 +37,7 @@ namespace OpenRCT.UI
 
             return dashboardKey switch
             {
+                ToolActionKeys.DashboardHome => new OpenRctHomeDashboardView(smsServer, siteCode, settings),
                 ToolActionKeys.DashboardAdCleanup => new AdCleanupDashboardView(adClient, smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
                 ToolActionKeys.DashboardLaps => new LapsDashboardView(adClient, smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
                 ToolActionKeys.DashboardSoftwareUpdates => new SoftwareUpdatesDashboardView(smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
@@ -52,7 +53,7 @@ namespace OpenRCT.UI
                     "Hardware and Firmware Audit",
                     "Audits hardware models, BIOS/UEFI versions, TPM 2.0, and Secure Boot readiness across collections.",
                     settings),
-                _ => new Phase2PlaceholderDashboardView("OpenRCT", "Select a dashboard from the OpenRCT navigation tree.", settings)
+                _ => new OpenRctHomeDashboardView(smsServer, siteCode, settings)
             };
         }
 
@@ -243,11 +244,11 @@ namespace OpenRCT.UI
                     break;
 
                 case ToolActionKeys.OpenEventViewer:
-                    LaunchForAll(devices, d => endpointService.LaunchLocalMmcToolAsync(d, "eventvwr.msc", "\\\\{host}"));
+                    LaunchForAll(devices, d => endpointService.LaunchLocalMmcToolAsync(d, "eventvwr.msc", "/computer:\\\\{host}"));
                     break;
 
                 case ToolActionKeys.OpenRegedit:
-                    LaunchForAll(devices, d => endpointService.LaunchLocalMmcToolAsync(d, "regedit.exe", string.Empty));
+                    new RemoteRegistryWindow(devices, sysInfoCollector, settings).Show();
                     break;
 
                 case ToolActionKeys.PingSystems:
@@ -285,29 +286,15 @@ namespace OpenRCT.UI
                     break;
 
                 case ToolActionKeys.ScheduleRestartOrShutdown:
-                    var schedWin = new ScheduleRestartWindow(devices.Count, settings);
-                    if (schedWin.ShowDialog() == true)
-                    {
-                        var opts = schedWin.Options;
-                        var label = opts.IsShutdown ? "Schedule Shutdown" : "Schedule Restart";
-                        new BulkActionResultWindow(label, devices, (d, ct) => endpointService.SchedulePowerActionAsync(d, opts, ct), settings).Show();
-                    }
+                    ShowPowerActionDialog(devices, endpointService, settings, defaultShutdown: false);
                     break;
 
                 case ToolActionKeys.RestartSystems:
-                    if (ConfirmIfNeeded(settings, $"Restart {devices.Count} system(s) now?"))
-                    {
-                        var opts = new SchedulePowerOptions { IsShutdown = false, DelaySeconds = 15, ForceCloseApps = true, Message = "Restart initiated by IT administrator via OpenRCT." };
-                        new BulkActionResultWindow("Restart System(s)", devices, (d, ct) => endpointService.SchedulePowerActionAsync(d, opts, ct), settings).Show();
-                    }
+                    ShowPowerActionDialog(devices, endpointService, settings, defaultShutdown: false);
                     break;
 
                 case ToolActionKeys.ShutdownSystems:
-                    if (ConfirmIfNeeded(settings, $"Shut down {devices.Count} system(s) now?"))
-                    {
-                        var opts = new SchedulePowerOptions { IsShutdown = true, DelaySeconds = 15, ForceCloseApps = true, Message = "Shutdown initiated by IT administrator via OpenRCT." };
-                        new BulkActionResultWindow("Shutdown System(s)", devices, (d, ct) => endpointService.SchedulePowerActionAsync(d, opts, ct), settings).Show();
-                    }
+                    ShowPowerActionDialog(devices, endpointService, settings, defaultShutdown: true);
                     break;
 
                 // ---- Security Tools ----
@@ -339,6 +326,21 @@ namespace OpenRCT.UI
                 default:
                     MessageBox.Show($"Unknown OpenRCT action '{context.ActionKey}'.", "OpenRCT", MessageBoxButton.OK, MessageBoxImage.Warning);
                     break;
+            }
+        }
+
+        private static void ShowPowerActionDialog(
+            IReadOnlyList<TargetDevice> devices,
+            IEndpointActionService endpointService,
+            OpenRctSettings settings,
+            bool defaultShutdown)
+        {
+            var schedWin = new ScheduleRestartWindow(devices.Count, settings, defaultShutdown);
+            if (schedWin.ShowDialog() == true)
+            {
+                var opts = schedWin.Options;
+                var label = opts.IsShutdown ? "Shutdown System(s)" : "Restart System(s)";
+                new BulkActionResultWindow(label, devices, (d, ct) => endpointService.SchedulePowerActionAsync(d, opts, ct), settings).Show();
             }
         }
 

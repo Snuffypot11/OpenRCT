@@ -37,6 +37,7 @@ namespace OpenRCT.UI.Views.Dashboards
             OpenRctSettings settings,
             bool isPoppedOut = false)
         {
+            ThemeManager.ApplyTheme(this, settings.Theme);
             InitializeComponent();
             _adClient = adClient;
             _smsClient = smsClient;
@@ -44,7 +45,6 @@ namespace OpenRCT.UI.Views.Dashboards
             _siteCode = siteCode;
             _settings = settings;
 
-            ThemeManager.ApplyTheme(this, settings.Theme);
             ErrorDrawer.Errors = _errors;
             if (isPoppedOut) PopOutButton.Visibility = Visibility.Collapsed;
 

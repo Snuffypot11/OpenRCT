@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using Microsoft.ConfigurationManagement.AdminConsole;
 using Microsoft.ConfigurationManagement.AdminConsole.Schema;
 using Microsoft.ConfigurationManagement.ManagementProvider;
+using Microsoft.Win32;
 using OpenRCT.Core.Models;
 using OpenRCT.UI;
 
@@ -14,7 +16,8 @@ namespace OpenRCT.ConsoleExtension
 {
     /// <summary>
     /// Ensures OpenRCT.Core.dll, OpenRCT.Connectors.dll, and OpenRCT.UI.dll are resolved
-    /// from the OpenRCT installation folder when loaded inside Microsoft.ConfigurationManagement.exe.
+    /// from the OpenRCT installation folder when loaded inside Microsoft.ConfigurationManagement.exe
+    /// (including when OpenRCT.ConsoleExtension.dll is loaded from AdminConsole\bin).
     /// Written in pure C# 5.0 so Windows' built-in .NET 4.8 csc.exe compiles it cleanly on any workstation.
     /// </summary>
     internal static class OpenRctAssemblyResolver
@@ -31,6 +34,74 @@ namespace OpenRCT.ConsoleExtension
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
         }
 
+        internal static string ResolveInstallDirectory()
+        {
+            try
+            {
+                var asmDir = Path.GetDirectoryName(typeof(OpenRctAssemblyResolver).Assembly.Location);
+                if (!string.IsNullOrEmpty(asmDir))
+                {
+                    if (File.Exists(Path.Combine(asmDir, "OpenRCT.UI.dll")))
+                    {
+                        return asmDir;
+                    }
+
+                    var markerFile = Path.Combine(asmDir, "OpenRCT.installdir.txt");
+                    if (File.Exists(markerFile))
+                    {
+                        var markerDir = File.ReadAllText(markerFile).Trim().Trim('"');
+                        if (!string.IsNullOrEmpty(markerDir) && Directory.Exists(markerDir))
+                        {
+                            return markerDir;
+                        }
+                    }
+                }
+
+                try
+                {
+                    using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\OpenRCT"))
+                    {
+                        if (key != null)
+                        {
+                            var regDir = key.GetValue("InstallDir") as string;
+                            if (!string.IsNullOrEmpty(regDir) && Directory.Exists(regDir))
+                            {
+                                return regDir;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                }
+
+                var pf = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+                if (!string.IsNullOrEmpty(pf))
+                {
+                    var pfDir = Path.Combine(pf, "OpenRCT");
+                    if (File.Exists(Path.Combine(pfDir, "OpenRCT.UI.dll")))
+                    {
+                        return pfDir;
+                    }
+                }
+
+                var pf86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+                if (!string.IsNullOrEmpty(pf86))
+                {
+                    var pf86Dir = Path.Combine(pf86, "OpenRCT");
+                    if (File.Exists(Path.Combine(pf86Dir, "OpenRCT.UI.dll")))
+                    {
+                        return pf86Dir;
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
+
         private static Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
             try
@@ -41,7 +112,7 @@ namespace OpenRCT.ConsoleExtension
                     return null;
                 }
 
-                var dir = Path.GetDirectoryName(typeof(OpenRctAssemblyResolver).Assembly.Location);
+                var dir = ResolveInstallDirectory();
                 if (string.IsNullOrEmpty(dir))
                 {
                     return null;
@@ -84,39 +155,48 @@ namespace OpenRCT.ConsoleExtension
             OpenRctAssemblyResolver.EnsureRegistered();
             try
             {
-                var displayName = action != null ? action.DisplayName : null;
-                var actionKey = ToolActionKeys.ResolveByDisplayName(displayName);
-                if (string.IsNullOrEmpty(actionKey))
-                {
-                    MessageBox.Show(
-                        "OpenRCT could not map console action '" + (displayName ?? "(null)") + "'.",
-                        "OpenRCT",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                    return;
-                }
-
-                string smsServer;
-                string siteCode;
-                ExtractSmsConnection(scopeNode, selectedResultObject, out smsServer, out siteCode);
-
-                var context = BuildInvocationContext(actionKey, smsServer, siteCode, selectedResultObject);
-
-                if (Application.Current != null && Application.Current.Dispatcher != null)
-                {
-                    Application.Current.Dispatcher.Invoke(new Action(delegate
-                    {
-                        ToolDispatcher.Dispatch(context);
-                    }));
-                }
-                else
-                {
-                    ToolDispatcher.Dispatch(context);
-                }
+                ExecuteCore(scopeNode, action, selectedResultObject);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("OpenRCT failed to launch action: " + ex.Message, "OpenRCT", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ExecuteCore(
+            ScopeNode scopeNode,
+            ActionDescription action,
+            IResultObject selectedResultObject)
+        {
+            var displayName = action != null ? action.DisplayName : null;
+            var actionKey = ToolActionKeys.ResolveByDisplayName(displayName);
+            if (string.IsNullOrEmpty(actionKey))
+            {
+                MessageBox.Show(
+                    "OpenRCT could not map console action '" + (displayName ?? "(null)") + "'.",
+                    "OpenRCT",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            string smsServer;
+            string siteCode;
+            ExtractSmsConnection(scopeNode, selectedResultObject, out smsServer, out siteCode);
+
+            var context = BuildInvocationContext(actionKey, smsServer, siteCode, selectedResultObject);
+
+            if (Application.Current != null && Application.Current.Dispatcher != null)
+            {
+                Application.Current.Dispatcher.Invoke(new Action(delegate
+                {
+                    ToolDispatcher.Dispatch(context);
+                }));
+            }
+            else
+            {
+                ToolDispatcher.Dispatch(context);
             }
         }
 
