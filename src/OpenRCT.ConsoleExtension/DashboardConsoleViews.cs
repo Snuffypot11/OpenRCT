@@ -98,7 +98,7 @@ namespace OpenRCT.ConsoleExtension
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static object CreateDashboardControl(string dashboardKey, string server, string siteCode)
+        private static FrameworkElement CreateDashboardControl(string dashboardKey, string server, string siteCode)
         {
             return ToolDispatcher.CreateDashboardView(dashboardKey, server, siteCode);
         }
@@ -154,7 +154,7 @@ namespace OpenRCT.ConsoleExtension
             }
         }
 
-        private static UIElement BuildFallbackErrorPanel(string dashboardKey, Exception ex)
+        private static FrameworkElement BuildFallbackErrorPanel(string dashboardKey, Exception ex)
         {
             var panel = new StackPanel { Margin = new Thickness(24) };
             panel.Children.Add(new TextBlock
