@@ -112,6 +112,20 @@ namespace OpenRCT.ConsoleExtension
                     return null;
                 }
 
+                foreach (var loaded in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    try
+                    {
+                        if (string.Equals(loaded.GetName().Name, requestedName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return loaded;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+
                 var dir = ResolveInstallDirectory();
                 if (string.IsNullOrEmpty(dir))
                 {

@@ -32,8 +32,16 @@ namespace OpenRCT.ConsoleExtension
 
         public override void EndInit()
         {
-            base.EndInit();
             OpenRctAssemblyResolver.EnsureRegistered();
+
+            try
+            {
+                base.EndInit();
+            }
+            catch (Exception baseEx)
+            {
+                LogConsoleViewError(DashboardKey + ".BaseEndInit", baseEx);
+            }
 
             try
             {
@@ -42,7 +50,6 @@ namespace OpenRCT.ConsoleExtension
                 string siteCode;
                 OpenRctActionHandler.ExtractSmsConnection(scopeNode, null, out server, out siteCode);
 
-                // OverviewControllerBase on MECM CB exposes ConnectionManager directly
                 if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(siteCode))
                 {
                     var cm = TryResolveConnectionManager();
@@ -65,7 +72,23 @@ namespace OpenRCT.ConsoleExtension
                 var prop = this.GetType().GetProperty("ConnectionManager", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (prop != null)
                 {
-                    return prop.GetValue(this, null) as ConnectionManagerBase;
+                    var cm = prop.GetValue(this, null) as ConnectionManagerBase;
+                    if (cm != null) return cm;
+                }
+
+                var ctxProp = this.GetType().GetProperty("Context", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (ctxProp != null)
+                {
+                    var ctx = ctxProp.GetValue(this, null);
+                    if (ctx != null)
+                    {
+                        var ctxCmProp = ctx.GetType().GetProperty("ConnectionManager", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (ctxCmProp != null)
+                        {
+                            var cm2 = ctxCmProp.GetValue(ctx, null) as ConnectionManagerBase;
+                            if (cm2 != null) return cm2;
+                        }
+                    }
                 }
             }
             catch
@@ -90,6 +113,23 @@ namespace OpenRCT.ConsoleExtension
                     var val = prop.GetValue(this, null) as ScopeNode;
                     if (val != null) return val;
                 }
+
+                var ctxProp = this.GetType().GetProperty("Context", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (ctxProp != null)
+                {
+                    var ctx = ctxProp.GetValue(this, null);
+                    var asNode = ctx as ScopeNode;
+                    if (asNode != null) return asNode;
+                    if (ctx != null)
+                    {
+                        var ctxNodeProp = ctx.GetType().GetProperty("ScopeNode", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (ctxNodeProp != null)
+                        {
+                            var val2 = ctxNodeProp.GetValue(ctx, null) as ScopeNode;
+                            if (val2 != null) return val2;
+                        }
+                    }
+                }
             }
             catch
             {
@@ -98,7 +138,7 @@ namespace OpenRCT.ConsoleExtension
             return OpenRctDashboardViewDescriptionBase.LastScopeNode;
         }
 
-        private static void LogConsoleViewError(string dashboardKey, Exception ex)
+        internal static void LogConsoleViewError(string dashboardKey, Exception ex)
         {
             try
             {
@@ -163,6 +203,7 @@ namespace OpenRCT.ConsoleExtension
         }
     }
 
+    // BEGIN_VIEW_DESCRIPTION_BASE
     public abstract class OpenRctDashboardViewDescriptionBase : IConsoleView2
     {
         internal static ScopeNode LastScopeNode;
@@ -172,97 +213,130 @@ namespace OpenRCT.ConsoleExtension
             OpenRctAssemblyResolver.EnsureRegistered();
         }
 
-        protected override Type TypeOfView
+        protected OpenRctDashboardViewDescriptionBase()
+        {
+            OpenRctAssemblyResolver.EnsureRegistered();
+        }
+
+        protected abstract Type ControllerType { get; }
+
+        public Type TypeOfViewController
+        {
+            get { return ControllerType; }
+        }
+
+        public Type TypeOfView
         {
             get { return typeof(Overview); }
         }
 
-        public override bool TryConfigure(ref XmlElement persistedConfigurationData)
+        public bool TryConfigure(ref XmlElement persistedConfigurationData)
         {
             return false;
         }
 
-        public new bool TryInitialize(ScopeNode scopeNode, AssemblyDescription resourceAssembly, ViewAssemblyDescription viewAssemblyDescription)
+        public bool TryInitialize(ScopeNode scopeNode, AssemblyDescription resourceAssembly, ViewAssemblyDescription viewAssemblyDescription)
         {
-            OpenRctAssemblyResolver.EnsureRegistered();
-            LastScopeNode = scopeNode;
+            try
+            {
+                OpenRctAssemblyResolver.EnsureRegistered();
+                LastScopeNode = scopeNode;
+            }
+            catch
+            {
+            }
             return true;
         }
     }
+    // END_VIEW_DESCRIPTION_BASE
 
     // ---- Parent / Home Overview ----
 
     public sealed class OpenRctHomeController : OpenRctDashboardControllerBase
     {
+        public OpenRctHomeController() : base() { }
         protected override string DashboardKey { get { return ToolActionKeys.DashboardHome; } }
     }
 
     public sealed class OpenRctHomeConsoleView : OpenRctDashboardViewDescriptionBase
     {
-        protected override Type TypeOfViewController { get { return typeof(OpenRctHomeController); } }
+        public OpenRctHomeConsoleView() : base() { }
+        protected override Type ControllerType { get { return typeof(OpenRctHomeController); } }
     }
 
     // ---- Phase 1 Dashboards ----
 
     public sealed class AdCleanupController : OpenRctDashboardControllerBase
     {
+        public AdCleanupController() : base() { }
         protected override string DashboardKey { get { return ToolActionKeys.DashboardAdCleanup; } }
     }
 
     public sealed class AdCleanupConsoleView : OpenRctDashboardViewDescriptionBase
     {
-        protected override Type TypeOfViewController { get { return typeof(AdCleanupController); } }
+        public AdCleanupConsoleView() : base() { }
+        protected override Type ControllerType { get { return typeof(AdCleanupController); } }
     }
 
     public sealed class LapsDashboardController : OpenRctDashboardControllerBase
     {
+        public LapsDashboardController() : base() { }
         protected override string DashboardKey { get { return ToolActionKeys.DashboardLaps; } }
     }
 
     public sealed class LapsDashboardConsoleView : OpenRctDashboardViewDescriptionBase
     {
-        protected override Type TypeOfViewController { get { return typeof(LapsDashboardController); } }
+        public LapsDashboardConsoleView() : base() { }
+        protected override Type ControllerType { get { return typeof(LapsDashboardController); } }
     }
 
     public sealed class SoftwareUpdatesController : OpenRctDashboardControllerBase
     {
+        public SoftwareUpdatesController() : base() { }
         protected override string DashboardKey { get { return ToolActionKeys.DashboardSoftwareUpdates; } }
     }
 
     public sealed class SoftwareUpdatesConsoleView : OpenRctDashboardViewDescriptionBase
     {
-        protected override Type TypeOfViewController { get { return typeof(SoftwareUpdatesController); } }
+        public SoftwareUpdatesConsoleView() : base() { }
+        protected override Type ControllerType { get { return typeof(SoftwareUpdatesController); } }
     }
 
     // ---- Phase 2 Dashboards ----
 
     public sealed class BitLockerComplianceController : OpenRctDashboardControllerBase
     {
+        public BitLockerComplianceController() : base() { }
         protected override string DashboardKey { get { return ToolActionKeys.DashboardBitLockerCompliance; } }
     }
 
     public sealed class BitLockerComplianceConsoleView : OpenRctDashboardViewDescriptionBase
     {
-        protected override Type TypeOfViewController { get { return typeof(BitLockerComplianceController); } }
+        public BitLockerComplianceConsoleView() : base() { }
+        protected override Type ControllerType { get { return typeof(BitLockerComplianceController); } }
     }
 
     public sealed class ContentDistributionController : OpenRctDashboardControllerBase
     {
+        public ContentDistributionController() : base() { }
         protected override string DashboardKey { get { return ToolActionKeys.DashboardContentDistribution; } }
     }
 
     public sealed class ContentDistributionConsoleView : OpenRctDashboardViewDescriptionBase
     {
-        protected override Type TypeOfViewController { get { return typeof(ContentDistributionController); } }
+        public ContentDistributionConsoleView() : base() { }
+        protected override Type ControllerType { get { return typeof(ContentDistributionController); } }
     }
 
     public sealed class HardwareFirmwareAuditController : OpenRctDashboardControllerBase
     {
+        public HardwareFirmwareAuditController() : base() { }
         protected override string DashboardKey { get { return ToolActionKeys.DashboardHardwareFirmwareAudit; } }
     }
 
     public sealed class HardwareFirmwareAuditConsoleView : OpenRctDashboardViewDescriptionBase
     {
-        protected override Type TypeOfViewController { get { return typeof(HardwareFirmwareAuditController); } }
+        public HardwareFirmwareAuditConsoleView() : base() { }
+        protected override Type ControllerType { get { return typeof(HardwareFirmwareAuditController); } }
     }
 }

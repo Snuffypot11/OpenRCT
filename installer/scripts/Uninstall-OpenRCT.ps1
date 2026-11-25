@@ -81,6 +81,9 @@ if ($detectedConsole) {
             Remove-Item -Path $p -Force -ErrorAction SilentlyContinue
         }
     }
+    Get-ChildItem -Path $consoleBin -Filter "OpenRCT.ConsoleExtension.dll.old.*" -ErrorAction SilentlyContinue | ForEach-Object {
+        Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+    }
 }
 
 if (Test-Path "HKLM:\SOFTWARE\OpenRCT") {

@@ -7,9 +7,9 @@
     <Company>OpenRCT Contributors</Company>
     <Product>OpenRCT — Open Source Right Click Tools for MECM</Product>
     <Copyright>Copyright (c) 2026 OpenRCT Contributors. Licensed under the MIT License.</Copyright>
-    <Version>0.1.6</Version>
-    <AssemblyVersion>0.1.6.0</AssemblyVersion>
-    <FileVersion>0.1.6.0</FileVersion>
+    <Version>0.1.7</Version>
+    <AssemblyVersion>0.1.7.0</AssemblyVersion>
+    <FileVersion>0.1.7.0</FileVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 

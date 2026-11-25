@@ -84,11 +84,15 @@ namespace Microsoft.ConfigurationManagement.AdminConsole
         public virtual void EndInit() { }
     }
 
-    public abstract class IConsoleView2
+    public interface IConsoleView
     {
-        protected abstract Type TypeOfViewController { get; }
-        protected abstract Type TypeOfView { get; }
-        public virtual bool TryConfigure(ref XmlElement persistedConfigurationData) => false;
-        public virtual bool TryInitialize(ScopeNode scopeNode, AssemblyDescription resourceAssembly, ViewAssemblyDescription viewAssemblyDescription) => true;
+        Type TypeOfView { get; }
+        bool TryConfigure(ref XmlElement persistedConfigurationData);
+        bool TryInitialize(ScopeNode scopeNode, AssemblyDescription resourceAssembly, ViewAssemblyDescription viewAssemblyDescription);
+    }
+
+    public interface IConsoleView2 : IConsoleView
+    {
+        Type TypeOfViewController { get; }
     }
 }
