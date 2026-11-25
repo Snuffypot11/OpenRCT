@@ -32,10 +32,17 @@ namespace OpenRCT.Tests
             var xmlFiles = Directory.GetFiles(extDir, "*.xml", SearchOption.AllDirectories);
             Assert.NotEmpty(xmlFiles);
 
+            var allowedClasses = new[] { "Group", "AssemblyType", "Executable" };
             foreach (var file in xmlFiles)
             {
                 var doc = XDocument.Load(file);
                 Assert.NotNull(doc.Root);
+
+                foreach (var anyAction in doc.Descendants("ActionDescription"))
+                {
+                    var cls = (string?)anyAction.Attribute("Class");
+                    Assert.Contains(cls, allowedClasses, StringComparer.OrdinalIgnoreCase);
+                }
 
                 var assemblyActions = doc.Descendants("ActionDescription")
                     .Where(e => string.Equals((string?)e.Attribute("Class"), "AssemblyType", StringComparison.OrdinalIgnoreCase))

@@ -159,16 +159,20 @@ function Resolve-AssetsOverviewNodeGuid {
 
 function Find-TypeNamespaceInBin {
     param([string]$AdminConsoleBin, [string]$TypeName)
-    $candidates = @(
-        (Join-Path $AdminConsoleBin "Microsoft.ConfigurationManagement.exe"),
-        (Join-Path $AdminConsoleBin "AdminUI.ConsoleView.dll"),
-        (Join-Path $AdminConsoleBin "AdminUI.Common.dll"),
-        (Join-Path $AdminConsoleBin "Microsoft.ConfigurationManagement.AdminConsole.Common.dll")
-    ) | Where-Object { Test-Path $_ }
+    $candidates = @()
+    $cmExe = Join-Path $AdminConsoleBin "Microsoft.ConfigurationManagement.exe"
+    if (Test-Path $cmExe) { $candidates += $cmExe }
+    $candidates += (Get-ChildItem -Path $AdminConsoleBin -Filter "AdminUI*.dll" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName)
+    $candidates += (Get-ChildItem -Path $AdminConsoleBin -Filter "Microsoft.ConfigurationManagement*.dll" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName)
 
-    foreach ($asmPath in $candidates) {
+    foreach ($asmPath in ($candidates | Select-Object -Unique)) {
         try {
-            $asm = [System.Reflection.Assembly]::ReflectionOnlyLoadFrom($asmPath)
+            $asm = $null
+            try { $asm = [System.Reflection.Assembly]::LoadFrom($asmPath) } catch { }
+            if ($null -eq $asm) {
+                try { $asm = [System.Reflection.Assembly]::ReflectionOnlyLoadFrom($asmPath) } catch { }
+            }
+            if ($null -eq $asm) { continue }
             $types = @()
             try { $types = $asm.GetTypes() } catch [System.Reflection.ReflectionTypeLoadException] { $types = $_.Exception.Types | Where-Object { $_ -ne $null } }
             foreach ($t in $types) {
@@ -177,7 +181,7 @@ function Find-TypeNamespaceInBin {
                 }
             }
         } catch {
-            # Ignore assemblies that cannot be reflection-loaded without dependencies
+            # Ignore unreadable assembly
         }
     }
     return $null
@@ -259,6 +263,8 @@ function Build-LocalConsoleExtension {
         "AdminUI.ConsoleView.dll",
         "AdminUI.Common.dll",
         "AdminUI.Controls.dll",
+        "AdminUI.Overview.dll",
+        "AdminUI.UIResources.dll",
         "Microsoft.ConfigurationManagement.AdminConsole.Common.dll",
         "Microsoft.ConfigurationManagement.AdminConsole.Views.Common.dll"
     )) {
@@ -271,14 +277,20 @@ function Build-LocalConsoleExtension {
     # Try compiling both Right-Click Action Handler + Embedded Dashboard Views
     if (Test-Path $viewsCs) {
         $viewsSourceToCompile = $viewsCs
-        # Dynamically inject extra using statements if OverviewControllerBase/Overview live in a sub-namespace on this MECM build
         $extraUsings = @()
+        $discoveredRefs = @()
         foreach ($typeName in @("OverviewControllerBase", "Overview", "IConsoleView2")) {
             $found = Find-TypeNamespaceInBin -AdminConsoleBin $AdminConsoleBin -TypeName $typeName
-            if ($found -and $found.Namespace -and $found.Namespace -ne "Microsoft.ConfigurationManagement.AdminConsole") {
-                $stmt = "using $($found.Namespace);"
-                if ($extraUsings -notcontains $stmt) { $extraUsings += $stmt }
-                Write-Log "Discovered $typeName in namespace $($found.Namespace) ($($found.Assembly))"
+            if ($found) {
+                Write-Log "Discovered $typeName in namespace '$($found.Namespace)' ($($found.Assembly))"
+                $refArg = "/r:`"$($found.Assembly)`""
+                if ($baseRefs -notcontains $refArg -and $discoveredRefs -notcontains $refArg) {
+                    $discoveredRefs += $refArg
+                }
+                if ($found.Namespace -and $found.Namespace -ne "Microsoft.ConfigurationManagement.AdminConsole") {
+                    $stmt = "using $($found.Namespace);"
+                    if ($extraUsings -notcontains $stmt) { $extraUsings += $stmt }
+                }
             }
         }
         if ($extraUsings.Count -gt 0) {
@@ -288,7 +300,7 @@ function Build-LocalConsoleExtension {
             $viewsSourceToCompile = $tempViews
         }
 
-        $fullArgs = $baseRefs + @("`"$handlerCs`"", "`"$viewsSourceToCompile`"")
+        $fullArgs = $baseRefs + $discoveredRefs + @("`"$handlerCs`"", "`"$viewsSourceToCompile`"")
         $code = Invoke-CscCompile -CscPath $csc -ArgsList $fullArgs
         if ($code -eq 0) {
             Write-Log "Successfully bound OpenRCT.ConsoleExtension.dll (Actions + Embedded Dashboards) to local MECM Console."

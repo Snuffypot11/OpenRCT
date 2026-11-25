@@ -81,7 +81,6 @@
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="Separator" />
         <ActionDescription Class="AssemblyType" DisplayName="Cancel Pending Restart or Shutdown" MnemonicDisplayName="Cancel Pending Restart or Shutdown" Description="Cancel pending restart/shutdown on collection">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>

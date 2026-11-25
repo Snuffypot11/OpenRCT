@@ -114,7 +114,6 @@
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="Separator" />
         <ActionDescription Class="AssemblyType" DisplayName="Repair Client" MnemonicDisplayName="Repair Client" Description="Initiate ConfigMgr client repair">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
@@ -198,7 +197,6 @@
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="Separator" />
         <ActionDescription Class="AssemblyType" DisplayName="Cancel Pending Restart or Shutdown" MnemonicDisplayName="Cancel Pending Restart or Shutdown" Description="Abort scheduled restart or shutdown">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
@@ -230,7 +228,6 @@
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="Separator" />
         <ActionDescription Class="AssemblyType" DisplayName="Windows Defender — Quick Scan" MnemonicDisplayName="Windows Defender — Quick Scan" Description="Run Windows Defender Quick Scan">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
@@ -251,7 +248,6 @@
       <ShowOn><string>ContextMenu</string></ShowOn>
       <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
     </ActionDescription>
-    <ActionDescription Class="Separator" />
     <ActionDescription Class="AssemblyType" DisplayName="OpenRCT Settings" MnemonicDisplayName="OpenRCT Settings" Description="Configure PsExec path, concurrency, and preferences">
       <ShowOn><string>ContextMenu</string></ShowOn>
       <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
