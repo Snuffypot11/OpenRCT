@@ -17,9 +17,9 @@ namespace OpenRCT.UI.Views.Tools
 
         public ClientInfoWindow(IReadOnlyList<TargetDevice> devices, IEndpointActionService service, OpenRctSettings settings)
         {
-            InitializeComponent();
             _service = service;
             ThemeManager.ApplyTheme(this, settings.Theme);
+            InitializeComponent();
             ErrorDrawer.Errors = _errors;
             DeviceCombo.ItemsSource = devices;
             if (devices.Count > 0) DeviceCombo.SelectedIndex = 0;
@@ -40,6 +40,7 @@ namespace OpenRCT.UI.Views.Tools
             var dev = SelectedDevice;
             if (dev == null) return;
             Title = $"Client Information - {dev.DisplayName}";
+            _errors.Clear();
             try
             {
                 var info = await _service.GetClientInfoAsync(dev);
@@ -52,6 +53,11 @@ namespace OpenRCT.UI.Views.Tools
                 CacheUsageText.Text = $"{info.CacheUsedMb} MB / {info.CacheSizeMb} MB ({info.CacheItems.Count} items)";
                 ComponentsGrid.ItemsSource = info.Components;
                 CacheGrid.ItemsSource = info.CacheItems;
+
+                foreach (var w in info.Warnings)
+                {
+                    _errors.Add(new DeviceErrorEntry { Source = dev.DisplayName, Message = w });
+                }
             }
             catch (Exception ex)
             {

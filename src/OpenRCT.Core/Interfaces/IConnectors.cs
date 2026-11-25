@@ -61,6 +61,8 @@ namespace OpenRCT.Core.Interfaces
         Task<ActionExecutionResult> DeleteClientCacheItemAsync(TargetDevice device, string cacheId, CancellationToken ct = default);
         Task<IReadOnlyList<RemoteSoftwareCenterItem>> GetRemoteSoftwareCenterItemsAsync(TargetDevice device, CancellationToken ct = default);
         Task<ActionExecutionResult> InvokeRemoteSoftwareCenterItemAsync(TargetDevice device, RemoteSoftwareCenterItem item, bool uninstall, CancellationToken ct = default);
+        Task<ActionExecutionResult> RepairRemoteSoftwareCenterApplicationAsync(TargetDevice device, RemoteSoftwareCenterItem item, CancellationToken ct = default);
+        Task<ActionExecutionResult> InstallAllSoftwareUpdatesAsync(TargetDevice device, CancellationToken ct = default);
         Task<ActionExecutionResult> RefreshUpdatesComplianceStateAsync(TargetDevice device, CancellationToken ct = default);
         Task<ActionExecutionResult> RerunDeploymentAsync(TargetDevice device, CancellationToken ct = default);
         Task<ActionExecutionResult> RestartSmsAgentHostAsync(TargetDevice device, CancellationToken ct = default);

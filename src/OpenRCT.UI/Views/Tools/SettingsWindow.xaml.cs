@@ -99,6 +99,7 @@ namespace OpenRCT.UI.Views.Tools
             if (int.TryParse(ClipboardSecondsBox.Text, out var clipSec)) _settings.ClipboardClearSeconds = clipSec;
 
             _settingsService.Save(_settings);
+            ThemeManager.ApplyApplicationTheme(_settings.Theme);
             DialogResult = true;
             Close();
         }

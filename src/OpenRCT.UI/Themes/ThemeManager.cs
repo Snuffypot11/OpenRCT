@@ -1,5 +1,7 @@
 using System;
 using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Media;
 using Microsoft.Win32;
 using OpenRCT.Core.Settings;
 
@@ -10,6 +12,26 @@ namespace OpenRCT.UI.Themes
         public static void ApplyTheme(FrameworkElement element, AppThemePreference preference)
         {
             if (element == null) return;
+            var dict = LoadThemeDictionary(preference);
+            element.Resources.MergedDictionaries.Clear();
+            element.Resources.MergedDictionaries.Add(dict);
+
+            if (dict["PrimaryTextBrush"] is Brush fg)
+            {
+                TextElement.SetForeground(element, fg);
+            }
+        }
+
+        public static void ApplyApplicationTheme(AppThemePreference preference)
+        {
+            if (Application.Current == null) return;
+            var dict = LoadThemeDictionary(preference);
+            Application.Current.Resources.MergedDictionaries.Clear();
+            Application.Current.Resources.MergedDictionaries.Add(dict);
+        }
+
+        private static ResourceDictionary LoadThemeDictionary(AppThemePreference preference)
+        {
             var useDark = preference == AppThemePreference.Dark ||
                           (preference == AppThemePreference.System && IsWindowsDarkModeEnabled());
 
@@ -19,9 +41,7 @@ namespace OpenRCT.UI.Themes
                     : "pack://application:,,,/OpenRCT.UI;component/Themes/LightTheme.xaml",
                 UriKind.Absolute);
 
-            var dict = new ResourceDictionary { Source = uri };
-            element.Resources.MergedDictionaries.Clear();
-            element.Resources.MergedDictionaries.Add(dict);
+            return new ResourceDictionary { Source = uri };
         }
 
         private static bool IsWindowsDarkModeEnabled()

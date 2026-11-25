@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F8F9FA" />
   <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="InputBackgroundBrush" Color="#FFFFFF" />
   <SolidColorBrush x:Key="SidebarBrush" Color="#F3F5F8" />
   <SolidColorBrush x:Key="BorderBrushSubtle" Color="#DCDFE4" />
   <SolidColorBrush x:Key="PrimaryTextBrush" Color="#1F2937" />
@@ -15,6 +16,73 @@
   <SolidColorBrush x:Key="WarningBrush" Color="#C17D00" />
   <SolidColorBrush x:Key="DataGridHeaderBrush" Color="#F3F4F6" />
   <SolidColorBrush x:Key="DataGridAltRowBrush" Color="#FAFBFC" />
+
+  <!-- Implicit defaults so all controls inherit crisp contrast -->
+  <Style TargetType="TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+  </Style>
+
+  <Style TargetType="Label">
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+  </Style>
+
+  <Style TargetType="CheckBox">
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+  </Style>
+
+  <Style TargetType="RadioButton">
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+  </Style>
+
+  <Style TargetType="TextBox">
+    <Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    <Setter Property="CaretBrush" Value="{DynamicResource PrimaryTextBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSubtle}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style TargetType="TabControl">
+    <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSubtle}" />
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+  </Style>
+
+  <Style TargetType="TabItem">
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    <Setter Property="Padding" Value="12,6" />
+  </Style>
+
+  <Style TargetType="DataGridColumnHeader">
+    <Setter Property="Background" Value="{DynamicResource DataGridHeaderBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSubtle}" />
+    <Setter Property="BorderThickness" Value="0,0,1,1" />
+  </Style>
+
+  <Style TargetType="DataGridRow">
+    <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    <Style.Triggers>
+      <Trigger Property="IsSelected" Value="True">
+        <Setter Property="Background" Value="{DynamicResource SelectionFillBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+  <Style TargetType="DataGridCell">
+    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Style.Triggers>
+      <Trigger Property="IsSelected" Value="True">
+        <Setter Property="Background" Value="{DynamicResource SelectionFillBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+      </Trigger>
+    </Style.Triggers>
+  </Style>
 
   <Style TargetType="Button" x:Key="StandardButton">
     <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
@@ -44,6 +112,7 @@
     <Setter Property="IsReadOnly" Value="True" />
     <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
     <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    <Setter Property="RowBackground" Value="{DynamicResource SurfaceBrush}" />
     <Setter Property="AlternatingRowBackground" Value="{DynamicResource DataGridAltRowBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSubtle}" />
     <Setter Property="BorderThickness" Value="1" />

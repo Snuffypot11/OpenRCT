@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:OpenRCT.UI.Controls"
         Title="Remote Software Center"
-        Width="980" Height="580"
+        Width="1120" Height="650"
+        MinWidth="860" MinHeight="500"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource AppBackgroundBrush}">
   <Grid Margin="14">
@@ -13,27 +14,91 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
+    <!-- Top Device Selector + Search + Refresh -->
     <DockPanel Grid.Row="0" Margin="0,0,0,10">
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-        <Button Content="Install / Run" Style="{DynamicResource PrimaryButton}" Margin="0,0,6,0" Click="Install_Click" />
-        <Button Content="Uninstall" Style="{DynamicResource DangerButton}" Margin="0,0,6,0" Click="Uninstall_Click" />
-        <Button Content="Refresh" Style="{DynamicResource StandardButton}" Click="Refresh_Click" />
+        <Button Content="Refresh All" Style="{DynamicResource PrimaryButton}" Click="Refresh_Click" />
       </StackPanel>
       <ComboBox x:Name="DeviceCombo" Width="220" DisplayMemberPath="DisplayName" HorizontalAlignment="Left" Margin="0,0,10,0" SelectionChanged="DeviceCombo_SelectionChanged" />
-      <TextBox x:Name="FilterBox" Padding="6,4" TextChanged="FilterBox_TextChanged" />
+      <TextBox x:Name="FilterBox" Padding="8,5" Margin="0,0,10,0" VerticalContentAlignment="Center" TextChanged="FilterBox_TextChanged" />
     </DockPanel>
 
-    <DataGrid x:Name="ItemsGrid" Grid.Row="1" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
-      <DataGrid.Columns>
-        <DataGridTextColumn Header="Type" Binding="{Binding ItemType}" Width="125" />
-        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="260" />
-        <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" />
-        <DataGridTextColumn Header="Version / KB" Binding="{Binding SoftwareVersion}" Width="105" />
-        <DataGridTextColumn Header="Install State" Binding="{Binding InstallState}" Width="115" />
-        <DataGridTextColumn Header="Evaluation State" Binding="{Binding EvaluationState}" Width="*" />
-      </DataGrid.Columns>
-    </DataGrid>
+    <!-- Dedicated Applications, Software Updates, and Packages / Task Sequences Tabs -->
+    <TabControl x:Name="MainTabs" Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" Margin="0,0,0,8">
+      <!-- Tab 1: Applications -->
+      <TabItem x:Name="AppsTab" Header="Applications (0)">
+        <DockPanel Margin="10">
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Install" Style="{DynamicResource PrimaryButton}" Margin="0,0,6,0" Click="InstallApp_Click" />
+            <Button Content="Uninstall" Style="{DynamicResource DangerButton}" Margin="0,0,6,0" Click="UninstallApp_Click" />
+            <Button Content="Repair" Style="{DynamicResource StandardButton}" Margin="0,0,14,0" Click="RepairApp_Click" />
+            <Button Content="Trigger App Deployment Evaluation" Style="{DynamicResource StandardButton}" Click="TriggerAppEval_Click" />
+          </StackPanel>
+          <DataGrid x:Name="AppsGrid" Style="{DynamicResource OpenRctDataGrid}">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="230" />
+              <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" />
+              <DataGridTextColumn Header="Version" Binding="{Binding SoftwareVersion}" Width="95" />
+              <DataGridTextColumn Header="Install State" Binding="{Binding InstallState}" Width="105" />
+              <DataGridTextColumn Header="Evaluation State" Binding="{Binding EvaluationState}" Width="185" />
+              <DataGridTextColumn Header="Applicability" Binding="{Binding ApplicabilityState}" Width="105" />
+              <DataGridTextColumn Header="Allowed Actions" Binding="{Binding AllowedActions}" Width="140" />
+              <DataGridTextColumn Header="%" Binding="{Binding PercentComplete}" Width="45" />
+              <DataGridTextColumn Header="Error" Binding="{Binding ErrorCodeHex}" Width="85" />
+              <DataGridTextColumn Header="Deadline" Binding="{Binding Deadline, StringFormat=yyyy-MM-dd HH:mm}" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
 
-    <controls:ErrorDrawerControl x:Name="ErrorDrawer" Grid.Row="2" />
+      <!-- Tab 2: Software Updates -->
+      <TabItem x:Name="UpdatesTab" Header="Software Updates (0)">
+        <DockPanel Margin="10">
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Install Selected Update(s)" Style="{DynamicResource PrimaryButton}" Margin="0,0,6,0" Click="InstallUpdate_Click" />
+            <Button Content="Install All Available Updates" Style="{DynamicResource StandardButton}" Margin="0,0,14,0" Click="InstallAllUpdates_Click" />
+            <Button Content="Trigger Update Scan" Style="{DynamicResource StandardButton}" Margin="0,0,6,0" Click="TriggerUpdateScan_Click" />
+            <Button Content="Trigger Update Eval" Style="{DynamicResource StandardButton}" Click="TriggerUpdateEval_Click" />
+          </StackPanel>
+          <DataGrid x:Name="UpdatesGrid" Style="{DynamicResource OpenRctDataGrid}">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Article / KB" Binding="{Binding SoftwareVersion}" Width="100" />
+              <DataGridTextColumn Header="Update Name" Binding="{Binding Name}" Width="330" />
+              <DataGridTextColumn Header="Compliance" Binding="{Binding ComplianceState}" Width="125" />
+              <DataGridTextColumn Header="Evaluation State" Binding="{Binding EvaluationState}" Width="145" />
+              <DataGridTextColumn Header="%" Binding="{Binding PercentComplete}" Width="45" />
+              <DataGridTextColumn Header="Error" Binding="{Binding ErrorCodeHex}" Width="85" />
+              <DataGridTextColumn Header="Deadline" Binding="{Binding Deadline, StringFormat=yyyy-MM-dd HH:mm}" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+
+      <!-- Tab 3: Packages & Task Sequences -->
+      <TabItem x:Name="PackagesTab" Header="Packages &amp; Task Sequences (0)">
+        <DockPanel Margin="10">
+          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Run Selected" Style="{DynamicResource PrimaryButton}" Click="RunPackage_Click" />
+          </StackPanel>
+          <DataGrid x:Name="PackagesGrid" Style="{DynamicResource OpenRctDataGrid}">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Package ID" Binding="{Binding Id}" Width="100" />
+              <DataGridTextColumn Header="Package Name" Binding="{Binding PackageName}" Width="220" />
+              <DataGridTextColumn Header="Program / TS Name" Binding="{Binding Name}" Width="240" />
+              <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="130" />
+              <DataGridTextColumn Header="Task Sequence" Binding="{Binding IsTaskSequence}" Width="95" />
+              <DataGridTextColumn Header="Last Run Status" Binding="{Binding InstallState}" Width="*" />
+            </DataGrid.Columns>
+          </DataGrid>
+        </DockPanel>
+      </TabItem>
+    </TabControl>
+
+    <!-- Bottom Status Bar -->
+    <DockPanel Grid.Row="2">
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
+      <TextBlock x:Name="StatusText" DockPanel.Dock="Right" Margin="0,0,14,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
+      <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
+    </DockPanel>
   </Grid>
 </Window>

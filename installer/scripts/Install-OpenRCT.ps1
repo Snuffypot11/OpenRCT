@@ -70,7 +70,7 @@ function Find-MecmConsoleRoot {
         if ($resolved) { return $resolved }
     }
 
-    # 1. Environment variables (both process and Machine scope — handles ...\AdminConsole\bin\i386)
+    # 1. Environment variables (both process and Machine scope - handles ...\AdminConsole\bin\i386)
     $envCandidates = @(
         $env:SMS_ADMIN_UI_PATH,
         [Environment]::GetEnvironmentVariable("SMS_ADMIN_UI_PATH", "Machine"),
@@ -416,7 +416,7 @@ try {
         $shortcut = $wsh.CreateShortcut((Join-Path $startMenuDir "OpenRCT.lnk"))
         $shortcut.TargetPath = Join-Path $InstallDir "OpenRCT.App.exe"
         $shortcut.WorkingDirectory = $InstallDir
-        $shortcut.Description = "OpenRCT — Open Source Right Click Tools for MECM"
+        $shortcut.Description = "OpenRCT - Open Source Right Click Tools for MECM"
         $shortcut.Save()
     }
 

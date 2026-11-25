@@ -16,6 +16,7 @@ namespace OpenRCT.Core.Models
         public string CcmExecStatus { get; set; } = string.Empty;
         public List<ClientComponentInfo> Components { get; set; } = new List<ClientComponentInfo>();
         public List<ClientCacheItem> CacheItems { get; set; } = new List<ClientCacheItem>();
+        public List<string> Warnings { get; set; } = new List<string>();
     }
 
     public sealed class ClientComponentInfo
@@ -50,11 +51,21 @@ namespace OpenRCT.Core.Models
         public string Id { get; set; } = string.Empty;
         public string Revision { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
+        public string PackageName { get; set; } = string.Empty;
         public string Publisher { get; set; } = string.Empty;
         public string SoftwareVersion { get; set; } = string.Empty;
+        public string BulletinId { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public string InstallState { get; set; } = string.Empty;
         public string EvaluationState { get; set; } = string.Empty;
+        public string ApplicabilityState { get; set; } = string.Empty;
+        public string ComplianceState { get; set; } = string.Empty;
+        public string AllowedActions { get; set; } = string.Empty;
+        public int PercentComplete { get; set; }
+        public uint ErrorCode { get; set; }
+        public string ErrorCodeHex => ErrorCode == 0 ? string.Empty : $"0x{ErrorCode:X8}";
         public bool IsMachineTarget { get; set; }
+        public bool IsTaskSequence { get; set; }
         public DateTime? Deadline { get; set; }
     }
 

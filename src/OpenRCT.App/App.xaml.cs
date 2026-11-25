@@ -65,6 +65,8 @@ namespace OpenRCT.App
 
             try
             {
+                OpenRCT.UI.Themes.ThemeManager.ApplyApplicationTheme(new OpenRCT.Core.Settings.SettingsService().Load().Theme);
+
                 if (e.Args == null || e.Args.Length == 0)
                 {
                     new MainLauncherWindow().Show();

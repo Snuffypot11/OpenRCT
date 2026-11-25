@@ -63,51 +63,95 @@ namespace OpenRCT.Connectors.Services
             var host = device.ConnectAddress;
             var summary = new ClientInfoSummary { DeviceName = device.DisplayName };
 
-            var clientRows = await _wmi.QueryAsync(host, @"root\ccm", "SELECT ClientVersion, ClientID FROM SMS_Client", ct: ct).ConfigureAwait(false);
+            // 1. ClientVersion from root\ccm:SMS_Client (SMS_Client does NOT have ClientID)
+            var clientRows = await _wmi.QueryAsync(host, @"root\ccm", "SELECT * FROM SMS_Client", ct: ct).ConfigureAwait(false);
             var c = clientRows.FirstOrDefault();
             if (c != null)
             {
                 summary.ClientVersion = WmiClient.GetString(c, "ClientVersion");
-                summary.ClientGuid = WmiClient.GetString(c, "ClientID");
             }
 
+            // 2. Client GUID from root\ccm:CCM_Client
+            try
+            {
+                var ccmRows = await _wmi.QueryAsync(host, @"root\ccm", "SELECT * FROM CCM_Client", ct: ct).ConfigureAwait(false);
+                var ccm = ccmRows.FirstOrDefault();
+                if (ccm != null)
+                {
+                    summary.ClientGuid = WmiClient.GetString(ccm, "ClientId");
+                    if (string.IsNullOrWhiteSpace(summary.ClientGuid))
+                    {
+                        summary.ClientGuid = WmiClient.GetString(ccm, "PreviousClientId");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                summary.Warnings.Add($"CCM_Client: {ex.Message}");
+            }
+
+            // 3. Assigned Site Code via SMS_Client.GetAssignedSite()
             try
             {
                 using var siteOut = await _wmi.InvokeStaticMethodAsync(host, @"root\ccm", "SMS_Client", "GetAssignedSite", ct: ct).ConfigureAwait(false);
                 summary.AssignedSiteCode = siteOut?["sSiteCode"]?.ToString() ?? string.Empty;
             }
-            catch { }
-
-            try
+            catch (Exception ex)
             {
-                var mpRows = await _wmi.QueryAsync(host, @"root\ccm", "SELECT Name FROM SMS_Authority", ct: ct).ConfigureAwait(false);
-                summary.ManagementPoint = mpRows.Select(r => WmiClient.GetString(r, "Name")).FirstOrDefault() ?? string.Empty;
+                summary.Warnings.Add($"GetAssignedSite: {ex.Message}");
             }
-            catch { }
 
+            // 4. Current Management Point from root\ccm:SMS_Authority
             try
             {
-                var svcRows = await _wmi.QueryAsync(host, @"root\cimv2", "SELECT State FROM Win32_Service WHERE Name = 'CcmExec'", ct: ct).ConfigureAwait(false);
-                summary.CcmExecStatus = svcRows.Select(r => WmiClient.GetString(r, "State")).FirstOrDefault() ?? "Not Found";
+                var mpRows = await _wmi.QueryAsync(host, @"root\ccm", "SELECT * FROM SMS_Authority", ct: ct).ConfigureAwait(false);
+                var mpRow = mpRows.FirstOrDefault();
+                if (mpRow != null)
+                {
+                    var mp = WmiClient.GetString(mpRow, "CurrentManagementPoint");
+                    summary.ManagementPoint = !string.IsNullOrWhiteSpace(mp) ? mp : WmiClient.GetString(mpRow, "Name");
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                summary.Warnings.Add($"SMS_Authority: {ex.Message}");
+            }
 
+            // 5. CcmExec service state
             try
             {
-                var compRows = await _wmi.QueryAsync(host, @"root\ccm", "SELECT Name, DisplayName, Version, Enabled FROM SMS_ClientComponent", ct: ct).ConfigureAwait(false);
+                var svcRows = await _wmi.QueryAsync(host, @"root\cimv2", "SELECT State, StartMode FROM Win32_Service WHERE Name = 'CcmExec'", ct: ct).ConfigureAwait(false);
+                var svc = svcRows.FirstOrDefault();
+                summary.CcmExecStatus = svc != null
+                    ? $"{WmiClient.GetString(svc, "State")} ({WmiClient.GetString(svc, "StartMode")})"
+                    : "Not Found";
+            }
+            catch (Exception ex)
+            {
+                summary.Warnings.Add($"Win32_Service(CcmExec): {ex.Message}");
+            }
+
+            // 6. Installed Client Components from root\ccm:CCM_InstalledComponent
+            try
+            {
+                var compRows = await _wmi.QueryAsync(host, @"root\ccm", "SELECT * FROM CCM_InstalledComponent", ct: ct).ConfigureAwait(false);
                 summary.Components = compRows.Select(r => new ClientComponentInfo
                 {
                     Name = WmiClient.GetString(r, "Name"),
                     DisplayName = WmiClient.GetString(r, "DisplayName"),
                     Version = WmiClient.GetString(r, "Version"),
-                    State = WmiClient.GetBool(r, "Enabled") ? "Enabled" : "Disabled"
+                    State = "Installed"
                 }).OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase).ToList();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                summary.Warnings.Add($"CCM_InstalledComponent: {ex.Message}");
+            }
 
+            // 7. Client Cache Config & Items from root\ccm\SoftMgmtAgent
             try
             {
-                var cacheCfg = await _wmi.QueryAsync(host, @"root\ccm\SoftMgmtAgent", "SELECT Location, Size FROM CacheConfig", ct: ct).ConfigureAwait(false);
+                var cacheCfg = await _wmi.QueryAsync(host, @"root\ccm\SoftMgmtAgent", "SELECT * FROM CacheConfig", ct: ct).ConfigureAwait(false);
                 var cfg = cacheCfg.FirstOrDefault();
                 if (cfg != null)
                 {
@@ -115,8 +159,7 @@ namespace OpenRCT.Connectors.Services
                     summary.CacheSizeMb = WmiClient.GetInt32(cfg, "Size");
                 }
 
-                var cacheItems = await _wmi.QueryAsync(host, @"root\ccm\SoftMgmtAgent",
-                    "SELECT CacheElementID, ContentID, ContentVersion, Location, ContentSize, LastReferenceTime FROM CacheInfoEx", ct: ct).ConfigureAwait(false);
+                var cacheItems = await _wmi.QueryAsync(host, @"root\ccm\SoftMgmtAgent", "SELECT * FROM CacheInfoEx", ct: ct).ConfigureAwait(false);
 
                 summary.CacheItems = cacheItems.Select(r => new ClientCacheItem
                 {
@@ -125,12 +168,15 @@ namespace OpenRCT.Connectors.Services
                     ContentVersion = WmiClient.GetString(r, "ContentVersion"),
                     Location = WmiClient.GetString(r, "Location"),
                     SizeMb = Math.Round(WmiClient.GetInt64(r, "ContentSize") / 1024.0, 2),
-                    LastReferenced = WmiClient.GetDmtfDateTime(r, "LastReferenceTime")
+                    LastReferenced = WmiClient.GetDmtfDateTime(r, "LastReferenced") ?? WmiClient.GetDmtfDateTime(r, "LastReferenceTime")
                 }).OrderByDescending(i => i.SizeMb).ToList();
 
                 summary.CacheUsedMb = (int)Math.Round(summary.CacheItems.Sum(i => i.SizeMb));
             }
-            catch { }
+            catch (Exception ex)
+            {
+                summary.Warnings.Add($"CacheInfoEx: {ex.Message}");
+            }
 
             return summary;
         }
@@ -153,14 +199,20 @@ namespace OpenRCT.Connectors.Services
         {
             var host = device.ConnectAddress;
             var items = new List<RemoteSoftwareCenterItem>();
+            var queryErrors = new List<string>();
 
+            // 1. Applications (root\ccm\ClientSDK:CCM_Application)
             try
             {
-                var apps = await _wmi.QueryAsync(host, @"root\ccm\ClientSDK",
-                    "SELECT Id, Revision, Name, Publisher, SoftwareVersion, InstallState, EvaluationState, IsMachineTarget, Deadline FROM CCM_Application",
-                    ct: ct).ConfigureAwait(false);
+                var apps = await _wmi.QueryAsync(host, @"root\ccm\ClientSDK", "SELECT * FROM CCM_Application", ct: ct).ConfigureAwait(false);
                 foreach (var a in apps)
                 {
+                    var allowed = string.Empty;
+                    if (a.TryGetValue("AllowedActions", out var allowedObj) && allowedObj is string[] allowedArr)
+                    {
+                        allowed = string.Join(", ", allowedArr);
+                    }
+
                     items.Add(new RemoteSoftwareCenterItem
                     {
                         DeviceName = device.DisplayName,
@@ -170,61 +222,93 @@ namespace OpenRCT.Connectors.Services
                         Name = WmiClient.GetString(a, "Name"),
                         Publisher = WmiClient.GetString(a, "Publisher"),
                         SoftwareVersion = WmiClient.GetString(a, "SoftwareVersion"),
+                        Description = WmiClient.GetString(a, "Description"),
                         InstallState = WmiClient.GetString(a, "InstallState"),
                         EvaluationState = MapAppEvalState(WmiClient.GetInt32(a, "EvaluationState")),
+                        ApplicabilityState = WmiClient.GetString(a, "ApplicabilityState"),
+                        AllowedActions = allowed,
+                        PercentComplete = WmiClient.GetInt32(a, "PercentComplete"),
+                        ErrorCode = WmiClient.GetUInt32(a, "ErrorCode"),
                         IsMachineTarget = WmiClient.GetBool(a, "IsMachineTarget"),
-                        Deadline = WmiClient.GetDmtfDateTime(a, "Deadline")
+                        Deadline = WmiClient.GetDmtfDateTime(a, "EnforcementDeadline") ?? WmiClient.GetDmtfDateTime(a, "StartTime")
                     });
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                queryErrors.Add($"CCM_Application: {ex.Message}");
+            }
 
+            // 2. Software Updates (root\ccm\ClientSDK:CCM_SoftwareUpdate)
             try
             {
-                var updates = await _wmi.QueryAsync(host, @"root\ccm\ClientSDK",
-                    "SELECT UpdateID, ArticleID, Name, Publisher, EvaluationState, Deadline FROM CCM_SoftwareUpdate",
-                    ct: ct).ConfigureAwait(false);
+                var updates = await _wmi.QueryAsync(host, @"root\ccm\ClientSDK", "SELECT * FROM CCM_SoftwareUpdate", ct: ct).ConfigureAwait(false);
                 foreach (var u in updates)
                 {
+                    var compVal = WmiClient.GetInt32(u, "ComplianceState");
+                    var compliance = compVal == 1 ? "Installed" : "Missing / Required";
+                    var articleId = WmiClient.GetString(u, "ArticleID");
+
                     items.Add(new RemoteSoftwareCenterItem
                     {
                         DeviceName = device.DisplayName,
                         ItemType = SoftwareCenterItemType.SoftwareUpdate,
                         Id = WmiClient.GetString(u, "UpdateID"),
                         Name = WmiClient.GetString(u, "Name"),
-                        Publisher = WmiClient.GetString(u, "Publisher"),
-                        SoftwareVersion = WmiClient.GetString(u, "ArticleID"),
-                        InstallState = "Available/Required",
+                        BulletinId = WmiClient.GetString(u, "BulletinID"),
+                        SoftwareVersion = string.IsNullOrWhiteSpace(articleId) ? string.Empty : (articleId.StartsWith("KB", StringComparison.OrdinalIgnoreCase) ? articleId : $"KB{articleId}"),
+                        Description = WmiClient.GetString(u, "Description"),
+                        InstallState = compliance,
+                        ComplianceState = compliance,
                         EvaluationState = MapUpdateEvalState(WmiClient.GetInt32(u, "EvaluationState")),
+                        PercentComplete = WmiClient.GetInt32(u, "PercentComplete"),
+                        ErrorCode = WmiClient.GetUInt32(u, "ErrorCode"),
                         IsMachineTarget = true,
-                        Deadline = WmiClient.GetDmtfDateTime(u, "Deadline")
+                        Deadline = WmiClient.GetDmtfDateTime(u, "Deadline") ?? WmiClient.GetDmtfDateTime(u, "StartTime")
                     });
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                queryErrors.Add($"CCM_SoftwareUpdate: {ex.Message}");
+            }
 
+            // 3. Packages & Task Sequences (root\ccm\ClientSDK:CCM_Program)
             try
             {
-                var progs = await _wmi.QueryAsync(host, @"root\ccm\ClientSDK",
-                    "SELECT PackageID, ProgramID, Name, Publisher, LastRunStatus FROM CCM_Program",
-                    ct: ct).ConfigureAwait(false);
+                var progs = await _wmi.QueryAsync(host, @"root\ccm\ClientSDK", "SELECT * FROM CCM_Program", ct: ct).ConfigureAwait(false);
                 foreach (var p in progs)
                 {
+                    var pkgName = WmiClient.GetString(p, "PackageName");
+                    var progName = WmiClient.GetString(p, "Name");
+                    if (string.IsNullOrWhiteSpace(progName)) progName = WmiClient.GetString(p, "FullName");
+
                     items.Add(new RemoteSoftwareCenterItem
                     {
                         DeviceName = device.DisplayName,
                         ItemType = SoftwareCenterItemType.PackageOrTaskSequence,
                         Id = WmiClient.GetString(p, "PackageID"),
                         Revision = WmiClient.GetString(p, "ProgramID"),
-                        Name = WmiClient.GetString(p, "Name"),
+                        Name = progName,
+                        PackageName = pkgName,
                         Publisher = WmiClient.GetString(p, "Publisher"),
+                        Description = WmiClient.GetString(p, "Description"),
                         InstallState = WmiClient.GetString(p, "LastRunStatus"),
-                        EvaluationState = WmiClient.GetString(p, "LastRunStatus"),
-                        IsMachineTarget = true
+                        EvaluationState = MapAppEvalState(WmiClient.GetInt32(p, "EvaluationState")),
+                        IsMachineTarget = true,
+                        IsTaskSequence = WmiClient.GetBool(p, "TaskSequence")
                     });
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                queryErrors.Add($"CCM_Program: {ex.Message}");
+            }
+
+            if (items.Count == 0 && queryErrors.Count == 3)
+            {
+                throw new InvalidOperationException("Failed to query root\\ccm\\ClientSDK: " + string.Join(" | ", queryErrors));
+            }
 
             return items.OrderBy(i => i.ItemType).ThenBy(i => i.Name, StringComparer.OrdinalIgnoreCase).ToList();
         }
@@ -272,6 +356,40 @@ namespace OpenRCT.Connectors.Services
             await _wmi.InvokeStaticMethodAsync(host, @"root\ccm\ClientSDK", "CCM_ProgramsManager", "ExecuteProgram",
                 new Dictionary<string, object?> { ["PackageID"] = item.Id, ["ProgramID"] = item.Revision }, ct: ct).ConfigureAwait(false);
             return ActionExecutionResult.Success(device.DisplayName, "Run Package/Task Sequence", $"Started '{item.Name}'.", sw.Elapsed);
+        }
+
+        public async Task<ActionExecutionResult> RepairRemoteSoftwareCenterApplicationAsync(
+            TargetDevice device,
+            RemoteSoftwareCenterItem item,
+            CancellationToken ct = default)
+        {
+            var sw = Stopwatch.StartNew();
+            await _wmi.InvokeStaticMethodAsync(device.ConnectAddress, @"root\ccm\ClientSDK", "CCM_Application", "Repair",
+                new Dictionary<string, object?>
+                {
+                    ["Id"] = item.Id,
+                    ["Revision"] = item.Revision,
+                    ["IsMachineTarget"] = item.IsMachineTarget,
+                    ["EnforcePreference"] = 0u,
+                    ["Priority"] = "Normal",
+                    ["IsRebootIfNeeded"] = false
+                }, ct: ct).ConfigureAwait(false);
+            return ActionExecutionResult.Success(device.DisplayName, "Software Center Repair", $"Repair invoked for '{item.Name}'.", sw.Elapsed);
+        }
+
+        public async Task<ActionExecutionResult> InstallAllSoftwareUpdatesAsync(TargetDevice device, CancellationToken ct = default)
+        {
+            var sw = Stopwatch.StartNew();
+            var scope = _wmi.CreateScope(device.ConnectAddress, @"root\ccm\ClientSDK");
+            using var searcher = new ManagementObjectSearcher(scope, new ObjectQuery("SELECT * FROM CCM_SoftwareUpdate WHERE ComplianceState = 0"));
+            var missing = searcher.Get().Cast<ManagementBaseObject>().ToArray();
+            if (missing.Length == 0)
+            {
+                return ActionExecutionResult.Warning(device.DisplayName, "Install All Updates", "No pending/missing software updates found on client.", sw.Elapsed);
+            }
+            await _wmi.InvokeStaticMethodAsync(device.ConnectAddress, @"root\ccm\ClientSDK", "CCM_SoftwareUpdatesManager", "InstallUpdates",
+                new Dictionary<string, object?> { ["CCMUpdates"] = missing }, ct: ct).ConfigureAwait(false);
+            return ActionExecutionResult.Success(device.DisplayName, "Install All Updates", $"Triggered installation of {missing.Length} pending software update(s).", sw.Elapsed);
         }
 
         public async Task<ActionExecutionResult> RefreshUpdatesComplianceStateAsync(TargetDevice device, CancellationToken ct = default)

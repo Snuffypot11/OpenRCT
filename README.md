@@ -56,6 +56,8 @@ Extract `OpenRCT-portable.zip` and run from an elevated PowerShell prompt:
 
 Restart the Configuration Manager Console to load the new menus and dashboard nodes.
 
+> **Note (MECM 2103+)**: If console extensions do not appear after restarting, verify in **Administration → Site Configuration → Sites → Hierarchy Settings** that **"Only allow console extensions that are approved for the hierarchy"** is unchecked. Full installer diagnostics are written to `C:\ProgramData\OpenRCT\install.log`.
+
 ### Uninstalling
 Uninstall via **Add or Remove Programs** (MSI) or run:
 

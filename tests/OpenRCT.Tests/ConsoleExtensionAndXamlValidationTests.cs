@@ -123,5 +123,20 @@ namespace OpenRCT.Tests
                 Assert.DoesNotMatch(new Regex(@"\bstring\?"), code);    // no C# 8 nullable annotations
             }
         }
+
+        [Fact]
+        public void PowerShellInstallerScripts_ArePureAsciiForPowerShell51()
+        {
+            var root = FindRepoRoot();
+            var scripts = Directory.GetFiles(Path.Combine(root, "installer"), "*.ps1", SearchOption.AllDirectories);
+            Assert.NotEmpty(scripts);
+
+            foreach (var script in scripts)
+            {
+                var bytes = File.ReadAllBytes(script);
+                var nonAscii = bytes.FirstOrDefault(b => b > 127);
+                Assert.True(nonAscii == 0, $"Non-ASCII byte 0x{nonAscii:X2} found in {Path.GetFileName(script)} (breaks Windows PowerShell 5.1 without BOM).");
+            }
+        }
     }
 }
