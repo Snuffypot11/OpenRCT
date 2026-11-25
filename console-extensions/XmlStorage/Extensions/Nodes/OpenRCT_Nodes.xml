@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  OpenRCT Console Tree Nodes under Assets and Compliance -> Overview
+  Deployed by installer to:
+    <AdminConsole>\XmlStorage\Extensions\Nodes\<AssetsOverviewNodeGuid>\OpenRCT_Nodes.xml
+-->
+<RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000001"
+                     Id="OpenRctRootNode"
+                     DisplayName="OpenRCT"
+                     Description="Open Source Right Click Tools &amp; Dashboards">
+  <ChildNodes>
+    <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000010"
+                         Id="OpenRctRightClickToolsNode"
+                         DisplayName="Right Click Tools"
+                         Description="OpenRCT Dashboards and Reports">
+      <ChildNodes>
+        <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000101"
+                             Id="OpenRctAdCleanupNode"
+                             DisplayName="Active Directory Cleanup Tool"
+                             Description="Compare devices in Active Directory and ConfigMgr">
+          <ViewAssemblyDescriptions>
+            <ViewAssemblyDescription>
+              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Type>OpenRCT.ConsoleExtension.AdCleanupConsoleView</Type>
+            </ViewAssemblyDescription>
+          </ViewAssemblyDescriptions>
+        </RootNodeDescription>
+
+        <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000102"
+                             Id="OpenRctBitLockerComplianceNode"
+                             DisplayName="BitLocker Compliance"
+                             Description="BitLocker Compliance Dashboard (Phase 2)">
+          <ViewAssemblyDescriptions>
+            <ViewAssemblyDescription>
+              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Type>OpenRCT.ConsoleExtension.BitLockerComplianceConsoleView</Type>
+            </ViewAssemblyDescription>
+          </ViewAssemblyDescriptions>
+        </RootNodeDescription>
+
+        <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000103"
+                             Id="OpenRctContentDistributionNode"
+                             DisplayName="Content Distribution Monitor"
+                             Description="Content Distribution Monitor Dashboard (Phase 2)">
+          <ViewAssemblyDescriptions>
+            <ViewAssemblyDescription>
+              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Type>OpenRCT.ConsoleExtension.ContentDistributionConsoleView</Type>
+            </ViewAssemblyDescription>
+          </ViewAssemblyDescriptions>
+        </RootNodeDescription>
+
+        <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000104"
+                             Id="OpenRctHardwareFirmwareAuditNode"
+                             DisplayName="Hardware and Firmware Audit"
+                             Description="Hardware and Firmware Audit Dashboard (Phase 2)">
+          <ViewAssemblyDescriptions>
+            <ViewAssemblyDescription>
+              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Type>OpenRCT.ConsoleExtension.HardwareFirmwareAuditConsoleView</Type>
+            </ViewAssemblyDescription>
+          </ViewAssemblyDescriptions>
+        </RootNodeDescription>
+
+        <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000105"
+                             Id="OpenRctLapsDashboardNode"
+                             DisplayName="LAPS Dashboard"
+                             Description="Audit Legacy and Windows LAPS password and client install state">
+          <ViewAssemblyDescriptions>
+            <ViewAssemblyDescription>
+              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Type>OpenRCT.ConsoleExtension.LapsDashboardConsoleView</Type>
+            </ViewAssemblyDescription>
+          </ViewAssemblyDescriptions>
+        </RootNodeDescription>
+
+        <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000106"
+                             Id="OpenRctSoftwareUpdatesNode"
+                             DisplayName="Software Updates Deployment Status"
+                             Description="Track Software Update compliance and missing updates by category">
+          <ViewAssemblyDescriptions>
+            <ViewAssemblyDescription>
+              <Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly>
+              <Type>OpenRCT.ConsoleExtension.SoftwareUpdatesConsoleView</Type>
+            </ViewAssemblyDescription>
+          </ViewAssemblyDescriptions>
+        </RootNodeDescription>
+      </ChildNodes>
+    </RootNodeDescription>
+  </ChildNodes>
+</RootNodeDescription>

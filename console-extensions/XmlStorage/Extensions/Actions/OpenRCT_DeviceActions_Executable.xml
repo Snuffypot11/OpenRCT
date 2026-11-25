@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  OpenRCT Fallback Executable Mode Device Actions
+  Used when installing with -Mode Executable (no in-process DLL loaded into MECM Console).
+  OpenRCT.App.exe aggregates multi-selected assets over a 350ms local named pipe into a single window.
+-->
+<ActionDescription Class="Group" DisplayName="OpenRCT" MnemonicDisplayName="OpenRCT" Description="Open Source Right Click Tools for MECM (Executable Mode)" SqmDataPoint="53">
+  <ShowOn><string>ContextMenu</string></ShowOn>
+  <ActionGroups>
+    <ActionDescription Class="Group" DisplayName="Client Actions" MnemonicDisplayName="Client Actions" Description="Trigger ConfigMgr Client Actions">
+      <ShowOn><string>ContextMenu</string></ShowOn>
+      <ActionGroups>
+        <ActionDescription Class="Executable" DisplayName="Application Deployment Evaluation Cycle" MnemonicDisplayName="Application Deployment Evaluation Cycle" Description="Trigger Application Deployment Evaluation Cycle">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ClientAction.AppDeploymentEval --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Hardware Inventory Cycle" MnemonicDisplayName="Hardware Inventory Cycle" Description="Trigger Hardware Inventory Cycle">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ClientAction.HardwareInventory --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Machine Policy Retrieval and Evaluation Cycle" MnemonicDisplayName="Machine Policy Retrieval and Evaluation Cycle" Description="Trigger Machine Policy Retrieval and Evaluation Cycle">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ClientAction.MachinePolicyRetrievalAndEval --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Software Updates Scan Cycle" MnemonicDisplayName="Software Updates Scan Cycle" Description="Trigger Software Updates Scan Cycle">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ClientAction.SoftwareUpdatesScan --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+      </ActionGroups>
+    </ActionDescription>
+
+    <ActionDescription Class="Group" DisplayName="Console Tools" MnemonicDisplayName="Console Tools" Description="Console Tools">
+      <ShowOn><string>ContextMenu</string></ShowOn>
+      <ActionGroups>
+        <ActionDescription Class="Executable" DisplayName="System Information" MnemonicDisplayName="System Information" Description="Open System Information">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.SystemInformation --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Interactive Command Prompt" MnemonicDisplayName="Interactive Command Prompt" Description="Open Interactive Command Prompt (PsExec)">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.InteractiveCommandPrompt --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Ping System(s)" MnemonicDisplayName="Ping System(s)" Description="Ping System(s)">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.PingSystems --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+      </ActionGroups>
+    </ActionDescription>
+
+    <ActionDescription Class="Executable" DisplayName="OpenRCT Settings" MnemonicDisplayName="OpenRCT Settings" Description="Configure OpenRCT Settings">
+      <ShowOn><string>ContextMenu</string></ShowOn>
+      <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--settings</Parameters></Executable>
+    </ActionDescription>
+  </ActionGroups>
+</ActionDescription>

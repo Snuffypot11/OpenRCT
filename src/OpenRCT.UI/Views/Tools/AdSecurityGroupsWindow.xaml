@@ -1,0 +1,33 @@
+<Window x:Class="OpenRCT.UI.Views.Tools.AdSecurityGroupsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:OpenRCT.UI.Controls"
+        Title="AD Security Groups"
+        Width="860" Height="520"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource AppBackgroundBrush}">
+  <Grid Margin="14">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <DockPanel Grid.Row="0" Margin="0,0,0,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <Button Content="Add to Group..." Style="{StaticResource PrimaryButton}" Margin="0,0,6,0" Click="AddGroup_Click" />
+        <Button Content="Remove Selected" Style="{StaticResource DangerButton}" Margin="0,0,6,0" Click="RemoveGroup_Click" />
+        <Button Content="Refresh" Style="{StaticResource StandardButton}" Click="Refresh_Click" />
+      </StackPanel>
+      <TextBlock x:Name="HeaderText" VerticalAlignment="Center" FontSize="15" FontWeight="SemiBold" />
+    </DockPanel>
+    <DataGrid x:Name="GroupsGrid" Grid.Row="1" Style="{StaticResource OpenRctDataGrid}" Margin="0,0,0,8">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="140" />
+        <DataGridTextColumn Header="Group Name" Binding="{Binding GroupName}" Width="220" />
+        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200" />
+        <DataGridTextColumn Header="Distinguished Name" Binding="{Binding DistinguishedName}" Width="*" />
+      </DataGrid.Columns>
+    </DataGrid>
+    <controls:ErrorDrawerControl x:Name="ErrorDrawer" Grid.Row="2" />
+  </Grid>
+</Window>

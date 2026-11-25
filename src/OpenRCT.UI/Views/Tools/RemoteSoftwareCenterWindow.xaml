@@ -1,0 +1,39 @@
+<Window x:Class="OpenRCT.UI.Views.Tools.RemoteSoftwareCenterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:OpenRCT.UI.Controls"
+        Title="Remote Software Center"
+        Width="980" Height="580"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource AppBackgroundBrush}">
+  <Grid Margin="14">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <DockPanel Grid.Row="0" Margin="0,0,0,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <Button Content="Install / Run" Style="{StaticResource PrimaryButton}" Margin="0,0,6,0" Click="Install_Click" />
+        <Button Content="Uninstall" Style="{StaticResource DangerButton}" Margin="0,0,6,0" Click="Uninstall_Click" />
+        <Button Content="Refresh" Style="{StaticResource StandardButton}" Click="Refresh_Click" />
+      </StackPanel>
+      <ComboBox x:Name="DeviceCombo" Width="220" DisplayMemberPath="DisplayName" HorizontalAlignment="Left" Margin="0,0,10,0" SelectionChanged="DeviceCombo_SelectionChanged" />
+      <TextBox x:Name="FilterBox" Padding="6,4" TextChanged="FilterBox_TextChanged" />
+    </DockPanel>
+
+    <DataGrid x:Name="ItemsGrid" Grid.Row="1" Style="{StaticResource OpenRctDataGrid}" Margin="0,0,0,8">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Type" Binding="{Binding ItemType}" Width="125" />
+        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="260" />
+        <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" />
+        <DataGridTextColumn Header="Version / KB" Binding="{Binding SoftwareVersion}" Width="105" />
+        <DataGridTextColumn Header="Install State" Binding="{Binding InstallState}" Width="115" />
+        <DataGridTextColumn Header="Evaluation State" Binding="{Binding EvaluationState}" Width="*" />
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <controls:ErrorDrawerControl x:Name="ErrorDrawer" Grid.Row="2" />
+  </Grid>
+</Window>

@@ -1,0 +1,99 @@
+<Window x:Class="OpenRCT.UI.Views.Tools.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="OpenRCT Settings"
+        Width="660" Height="560"
+        MinWidth="580" MinHeight="480"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource AppBackgroundBrush}">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+      <Button Content="Save" Width="90" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}" Click="Save_Click" />
+      <Button Content="Cancel" Width="90" Style="{StaticResource StandardButton}" IsCancel="True" />
+    </StackPanel>
+
+    <TabControl Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}">
+      <!-- Tab 1: External Tools (Optional PsExec) -->
+      <TabItem Header="External Tools (PsExec)">
+        <StackPanel Margin="16">
+          <TextBlock Text="Optional External Tool — Sysinternals PsExec" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
+          <TextBlock Text="OpenRCT has zero mandatory external dependencies. PsExec is only required if you want to use Console Tools → Interactive Command Prompt."
+                     TextWrapping="Wrap" Margin="0,6,0,14" Foreground="{DynamicResource SecondaryTextBrush}" />
+
+          <TextBlock Text="Path to PsExec.exe or PsExec64.exe:" Margin="0,0,0,4" />
+          <DockPanel Margin="0,0,0,6">
+            <Button Content="Browse..." DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource StandardButton}" Click="BrowsePsExec_Click" />
+            <TextBox x:Name="PsExecPathBox" Padding="6,4" TextChanged="PsExecPathBox_TextChanged" />
+          </DockPanel>
+          <TextBlock x:Name="PsExecStatusText" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14" />
+
+          <CheckBox x:Name="PsExecSystemCheck" Content="Run Interactive Command Prompt as Local SYSTEM (-s)" Margin="0,4" />
+          <CheckBox x:Name="PsExecEulaCheck" Content="Automatically pass -accepteula" Margin="0,4" />
+
+          <TextBlock Text="Additional PsExec Arguments (optional):" Margin="0,12,0,4" />
+          <TextBox x:Name="PsExecArgsBox" Padding="6,4" />
+        </StackPanel>
+      </TabItem>
+
+      <!-- Tab 2: Connections & Concurrency -->
+      <TabItem Header="Connections &amp; Performance">
+        <StackPanel Margin="16">
+          <TextBlock Text="Remote Management &amp; Bulk Execution" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12" />
+
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="220" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="10" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="10" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="10" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="10" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Preferred Remote Transport:" VerticalAlignment="Center" />
+            <ComboBox x:Name="TransportCombo" Grid.Row="0" Grid.Column="1" />
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Connection Timeout (seconds):" VerticalAlignment="Center" />
+            <TextBox x:Name="TimeoutBox" Grid.Row="2" Grid.Column="1" Padding="6,4" />
+
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Max Concurrent Devices (1–64):" VerticalAlignment="Center" />
+            <TextBox x:Name="ConcurrencyBox" Grid.Row="4" Grid.Column="1" Padding="6,4" />
+
+            <TextBlock Grid.Row="6" Grid.Column="0" Text="Default SMS Provider Server (optional):" VerticalAlignment="Center" />
+            <TextBox x:Name="SmsServerBox" Grid.Row="6" Grid.Column="1" Padding="6,4" />
+
+            <TextBlock Grid.Row="8" Grid.Column="0" Text="Default Site Code (optional):" VerticalAlignment="Center" />
+            <TextBox x:Name="SiteCodeBox" Grid.Row="8" Grid.Column="1" Padding="6,4" MaxLength="3" />
+          </Grid>
+        </StackPanel>
+      </TabItem>
+
+      <!-- Tab 3: Appearance & Security -->
+      <TabItem Header="Appearance &amp; Security">
+        <StackPanel Margin="16">
+          <TextBlock Text="Theme &amp; Safety Preferences" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12" />
+
+          <DockPanel Margin="0,0,0,14">
+            <TextBlock Text="UI Theme:" Width="160" VerticalAlignment="Center" />
+            <ComboBox x:Name="ThemeCombo" />
+          </DockPanel>
+
+          <CheckBox x:Name="ConfirmDestructiveCheck" Content="Prompt for confirmation before destructive actions (Delete, Uninstall, Restart/Shutdown)" Margin="0,6" />
+          <CheckBox x:Name="AutoClearClipboardCheck" Content="Automatically clear clipboard after copying LAPS passwords or BitLocker recovery keys" Margin="0,6" />
+
+          <DockPanel Margin="0,10,0,0">
+            <TextBlock Text="Clear clipboard after (seconds):" Width="210" VerticalAlignment="Center" />
+            <TextBox x:Name="ClipboardSecondsBox" Width="90" HorizontalAlignment="Left" Padding="6,4" />
+          </DockPanel>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>

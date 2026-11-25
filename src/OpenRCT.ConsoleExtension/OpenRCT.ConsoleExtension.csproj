@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>OpenRCT.ConsoleExtension</RootNamespace>
+    <AssemblyName>OpenRCT.ConsoleExtension</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenRCT.Core\OpenRCT.Core.csproj" />
+    <ProjectReference Include="..\OpenRCT.UI\OpenRCT.UI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+
+  <!-- When building on a machine with MECM Admin Console installed, pass -p:ConfigMgrConsolePath="C:\Program Files (x86)\Microsoft Endpoint Manager\AdminConsole\bin" -->
+  <ItemGroup Condition="'$(ConfigMgrConsolePath)' != '' AND Exists('$(ConfigMgrConsolePath)\Microsoft.ConfigurationManagement.ManagementProvider.dll')">
+    <Reference Include="Microsoft.ConfigurationManagement">
+      <HintPath>$(ConfigMgrConsolePath)\Microsoft.ConfigurationManagement.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.ConfigurationManagement.ManagementProvider">
+      <HintPath>$(ConfigMgrConsolePath)\Microsoft.ConfigurationManagement.ManagementProvider.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AdminUI.ConsoleView">
+      <HintPath>$(ConfigMgrConsolePath)\AdminUI.ConsoleView.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Otherwise compile cleanly against compile-time stubs (never shipped at runtime) -->
+  <ItemGroup Condition="'$(ConfigMgrConsolePath)' == '' OR !Exists('$(ConfigMgrConsolePath)\Microsoft.ConfigurationManagement.ManagementProvider.dll')">
+    <ProjectReference Include="..\OpenRCT.ConfigMgrSdk.Stubs\OpenRCT.ConfigMgrSdk.Stubs.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

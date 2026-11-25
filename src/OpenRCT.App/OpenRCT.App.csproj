@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>OpenRCT.App</RootNamespace>
+    <AssemblyName>OpenRCT.App</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenRCT.Core\OpenRCT.Core.csproj" />
+    <ProjectReference Include="..\OpenRCT.Connectors\OpenRCT.Connectors.csproj" />
+    <ProjectReference Include="..\OpenRCT.UI\OpenRCT.UI.csproj" />
+  </ItemGroup>
+</Project>
