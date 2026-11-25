@@ -28,6 +28,23 @@ jobs:
       - name: Run unit tests
         run: dotnet test tests/OpenRCT.Tests/OpenRCT.Tests.csproj -c Release --no-build --verbosity normal
 
+      - name: Validate installer scripts with Windows PowerShell 5.1 parser
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $scripts = Get-ChildItem -Path "installer" -Recurse -Filter "*.ps1"
+          if ($scripts.Count -eq 0) { throw "No PowerShell scripts found under installer/." }
+          foreach ($s in $scripts) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($s.FullName, [ref]$tokens, [ref]$errors)
+            if ($errors -and $errors.Count -gt 0) {
+              $msg = ($errors | ForEach-Object { "$($s.Name):$($_.Extent.StartLineNumber):$($_.Extent.StartColumnNumber) $($_.Message)" }) -join "`n"
+              throw "PowerShell 5.1 syntax errors detected:`n$msg"
+            }
+            Write-Host "PowerShell 5.1 parse OK: $($s.FullName)"
+          }
+
       - name: Build WiX v4 MSI installer
         run: dotnet build installer/OpenRCT.Installer/OpenRCT.Installer.wixproj -c Release
 

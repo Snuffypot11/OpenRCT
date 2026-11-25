@@ -143,6 +143,17 @@ namespace OpenRCT.Tests
                 var bytes = File.ReadAllBytes(script);
                 var nonAscii = bytes.FirstOrDefault(b => b > 127);
                 Assert.True(nonAscii == 0, $"Non-ASCII byte 0x{nonAscii:X2} found in {Path.GetFileName(script)} (breaks Windows PowerShell 5.1 without BOM).");
+
+                // Catch PowerShell $var: parser errors (e.g. "$consoleBin:" instead of "$($consoleBin):")
+                // Allow valid PowerShell scope/drive prefixes: $env:, $script:, $global:, $local:, $private:, $using:
+                var text = File.ReadAllText(script);
+                var matches = Regex.Matches(text, @"\$(?<name>[A-Za-z_][A-Za-z0-9_]*):");
+                var allowedScopes = new[] { "env", "script", "global", "local", "private", "using", "variable", "function" };
+                foreach (Match m in matches)
+                {
+                    var name = m.Groups["name"].Value;
+                    Assert.Contains(name, allowedScopes, StringComparer.OrdinalIgnoreCase);
+                }
             }
         }
 

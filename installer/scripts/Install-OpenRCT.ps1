@@ -645,7 +645,7 @@ try {
                     try {
                         Set-Content -Path (Join-Path $consoleBin "OpenRCT.installdir.txt") -Value $InstallDir -Encoding UTF8
                     } catch {
-                        Write-Log "Could not write OpenRCT.installdir.txt in $consoleBin: $($_.Exception.Message)" "WARN"
+                        Write-Log "Could not write OpenRCT.installdir.txt in $($consoleBin): $($_.Exception.Message)" "WARN"
                     }
                     if ($binCopied) {
                         Write-Log "Deployed OpenRCT.ConsoleExtension.dll and OpenRCT.installdir.txt to $consoleBin"
