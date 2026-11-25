@@ -16,8 +16,8 @@
 
     <DockPanel Grid.Row="0" Margin="0,0,0,10">
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-        <Button x:Name="RetryFailedButton" Content="Retry Failed" Style="{StaticResource StandardButton}" Margin="0,0,6,0" IsEnabled="False" Click="RetryFailed_Click" />
-        <Button x:Name="CancelButton" Content="Cancel" Style="{StaticResource DangerButton}" Click="Cancel_Click" />
+        <Button x:Name="RetryFailedButton" Content="Retry Failed" Style="{DynamicResource StandardButton}" Margin="0,0,6,0" IsEnabled="False" Click="RetryFailed_Click" />
+        <Button x:Name="CancelButton" Content="Cancel" Style="{DynamicResource DangerButton}" Click="Cancel_Click" />
       </StackPanel>
       <StackPanel>
         <TextBlock x:Name="HeaderTitleText" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
@@ -27,7 +27,7 @@
 
     <ProgressBar x:Name="ProgressBar" Grid.Row="1" Height="6" Margin="0,0,0,10" Minimum="0" Maximum="100" />
 
-    <DataGrid x:Name="ResultsGrid" Grid.Row="2" Style="{StaticResource OpenRctDataGrid}" Margin="0,0,0,8">
+    <DataGrid x:Name="ResultsGrid" Grid.Row="2" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="165" />
         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="95" />
@@ -37,7 +37,7 @@
     </DataGrid>
 
     <DockPanel Grid.Row="3">
-      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{StaticResource StandardButton}" Click="ExportCsv_Click" />
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
       <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
     </DockPanel>
   </Grid>

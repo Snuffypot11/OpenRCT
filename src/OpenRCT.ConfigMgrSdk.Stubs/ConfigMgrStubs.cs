@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Windows.Forms;
+using System.Xml;
 
 namespace Microsoft.ConfigurationManagement.ManagementProvider
 {
@@ -28,7 +28,6 @@ namespace Microsoft.ConfigurationManagement.ManagementProvider
 
     public class ConnectionManagerBase
     {
-        public string? NamedValueDictionaryServer { get; set; }
         public IDictionary<string, object> NamedValueDictionary { get; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
     }
 }
@@ -39,13 +38,25 @@ namespace Microsoft.ConfigurationManagement.AdminConsole.Schema
     {
         public string? DisplayName { get; set; }
         public string? Description { get; set; }
-        public string? Parameters { get; set; }
         public string? MnemonicDisplayName { get; set; }
+    }
+
+    public class AssemblyDescription
+    {
+        public string? Assembly { get; set; }
+        public string? Type { get; set; }
+    }
+
+    public class ViewAssemblyDescription
+    {
+        public string? Assembly { get; set; }
+        public string? Type { get; set; }
     }
 }
 
 namespace Microsoft.ConfigurationManagement.AdminConsole
 {
+    using Microsoft.ConfigurationManagement.AdminConsole.Schema;
     using Microsoft.ConfigurationManagement.ManagementProvider;
 
     public delegate void PropertyDataUpdated(object sender, EventArgs e);
@@ -64,11 +75,20 @@ namespace Microsoft.ConfigurationManagement.AdminConsole
 
     public class ConsoleParentNode : ScopeNode { }
 
-    public interface IConsoleView2
+    public class Overview { }
+
+    public class OverviewControllerBase
     {
-        Control? ViewControl { get; }
-        void Initialize(ScopeNode scopeNode);
-        void Refresh();
-        void Dispose();
+        public object? Content { get; set; }
+        public ScopeNode? ScopeNode { get; set; }
+        public virtual void EndInit() { }
+    }
+
+    public abstract class IConsoleView2
+    {
+        protected abstract Type TypeOfViewController { get; }
+        protected abstract Type TypeOfView { get; }
+        public virtual bool TryConfigure(ref XmlElement persistedConfigurationData) => false;
+        public virtual bool TryInitialize(ScopeNode scopeNode, AssemblyDescription resourceAssembly, ViewAssemblyDescription viewAssemblyDescription) => true;
     }
 }

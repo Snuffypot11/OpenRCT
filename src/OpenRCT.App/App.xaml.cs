@@ -7,52 +7,104 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using OpenRCT.Core.Ipc;
 using OpenRCT.Core.Models;
-using OpenRCT.Core.Settings;
 using OpenRCT.UI;
 
 namespace OpenRCT.App
 {
     public partial class App : Application
     {
+        public App()
+        {
+            DispatcherUnhandledException += OnDispatcherUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
+        }
+
+        private static void LogFatal(Exception? ex, string source)
+        {
+            try
+            {
+                var logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OpenRCT");
+                Directory.CreateDirectory(logDir);
+                var logFile = Path.Combine(logDir, "openrct.log");
+                File.AppendAllText(logFile, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{source}] {ex}\r\n\r\n");
+            }
+            catch { }
+        }
+
+        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            LogFatal(e.Exception, "DispatcherUnhandledException");
+            MessageBox.Show(
+                $"OpenRCT encountered an unexpected error:\n\n{e.Exception.Message}\n\nDetails were logged to %LocalAppData%\\OpenRCT\\openrct.log.",
+                "OpenRCT Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            e.Handled = true;
+        }
+
+        private void OnDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var ex = e.ExceptionObject as Exception;
+            LogFatal(ex, "AppDomainUnhandledException");
+            if (ex != null)
+            {
+                MessageBox.Show(
+                    $"OpenRCT encountered a fatal error:\n\n{ex.Message}\n\nDetails were logged to %LocalAppData%\\OpenRCT\\openrct.log.",
+                    "OpenRCT Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            if (e.Args == null || e.Args.Length == 0)
+            try
             {
-                new MainLauncherWindow().Show();
-                return;
-            }
-
-            var context = ParseCliArguments(e.Args);
-            if (string.IsNullOrWhiteSpace(context.ActionKey))
-            {
-                new MainLauncherWindow().Show();
-                return;
-            }
-
-            // Named-Pipe Multi-Select Batch Aggregator:
-            // When launched via MECM Class="Executable" on N selected devices, MECM spawns N processes nearly simultaneously.
-            // The first process acquires the per-action mutex and collects all sibling device payloads over a 350ms window
-            // so all selected assets open together in ONE unified window.
-            if (context.Devices.Length == 1 && !string.IsNullOrWhiteSpace(context.ActionKey))
-            {
-                var aggregated = await CoordinateMultiSelectBatchAsync(context);
-                if (aggregated == null)
+                if (e.Args == null || e.Args.Length == 0)
                 {
-                    // Handed off our device to the primary coordinator instance; exit cleanly.
-                    Shutdown(0);
+                    new MainLauncherWindow().Show();
                     return;
                 }
-                context = aggregated;
-            }
 
-            ToolDispatcher.Dispatch(context);
-            if (Windows.Count == 0)
+                var context = ParseCliArguments(e.Args);
+                if (string.IsNullOrWhiteSpace(context.ActionKey))
+                {
+                    new MainLauncherWindow().Show();
+                    return;
+                }
+
+                // Named-Pipe Multi-Select Batch Aggregator for Executable fallback mode
+                if (context.Devices.Length == 1 && !string.IsNullOrWhiteSpace(context.ActionKey))
+                {
+                    var aggregated = await CoordinateMultiSelectBatchAsync(context);
+                    if (aggregated == null)
+                    {
+                        Shutdown(0);
+                        return;
+                    }
+                    context = aggregated;
+                }
+
+                ToolDispatcher.Dispatch(context);
+                if (Windows.Count == 0)
+                {
+                    Shutdown(0);
+                }
+            }
+            catch (Exception ex)
             {
-                Shutdown(0);
+                LogFatal(ex, "OnStartup");
+                MessageBox.Show(
+                    $"Failed to start OpenRCT:\n\n{ex.Message}\n\nDetails were logged to %LocalAppData%\\OpenRCT\\openrct.log.",
+                    "OpenRCT Startup Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                Shutdown(1);
             }
         }
 
@@ -75,7 +127,6 @@ namespace OpenRCT.App
                 }
                 catch
                 {
-                    // Coordinator already closed its batch window; proceed standalone
                     return initial;
                 }
             }

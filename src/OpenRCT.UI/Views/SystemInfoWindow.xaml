@@ -80,15 +80,15 @@
         <!-- Contextual Toolbar -->
         <DockPanel Grid.Row="0" Margin="0,0,0,10">
           <StackPanel x:Name="ContextualActionsPanel" DockPanel.Dock="Right" Orientation="Horizontal">
-            <Button x:Name="RefreshButton" Content="Refresh" Style="{StaticResource StandardButton}" Margin="8,0,0,0" Click="Refresh_Click" />
-            <Button x:Name="UninstallAppButton" Content="Uninstall" Style="{StaticResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="UninstallApp_Click" />
-            <Button x:Name="StartServiceButton" Content="Start" Style="{StaticResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="StartService_Click" />
-            <Button x:Name="StopServiceButton" Content="Stop" Style="{StaticResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="StopService_Click" />
-            <Button x:Name="RestartServiceButton" Content="Restart" Style="{StaticResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="RestartService_Click" />
-            <Button x:Name="DeleteProfileButton" Content="Delete Profile" Style="{StaticResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="DeleteProfile_Click" />
+            <Button x:Name="RefreshButton" Content="Refresh" Style="{DynamicResource StandardButton}" Margin="8,0,0,0" Click="Refresh_Click" />
+            <Button x:Name="UninstallAppButton" Content="Uninstall" Style="{DynamicResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="UninstallApp_Click" />
+            <Button x:Name="StartServiceButton" Content="Start" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="StartService_Click" />
+            <Button x:Name="StopServiceButton" Content="Stop" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="StopService_Click" />
+            <Button x:Name="RestartServiceButton" Content="Restart" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="RestartService_Click" />
+            <Button x:Name="DeleteProfileButton" Content="Delete Profile" Style="{DynamicResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="DeleteProfile_Click" />
             <ComboBox x:Name="LocalGroupCombo" Width="165" Margin="6,0,0,0" Visibility="Collapsed" SelectionChanged="LocalGroupCombo_SelectionChanged" />
-            <Button x:Name="AddLocalMemberButton" Content="Add Member" Style="{StaticResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="AddLocalMember_Click" />
-            <Button x:Name="RemoveLocalMemberButton" Content="Remove" Style="{StaticResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="RemoveLocalMember_Click" />
+            <Button x:Name="AddLocalMemberButton" Content="Add Member" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="AddLocalMember_Click" />
+            <Button x:Name="RemoveLocalMemberButton" Content="Remove" Style="{DynamicResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="RemoveLocalMember_Click" />
           </StackPanel>
 
           <TextBox x:Name="SearchBox"
@@ -100,7 +100,7 @@
         <!-- Loading indicator overlay + DataGrids per tab -->
         <Grid Grid.Row="1">
           <!-- Tab 1: Operating Systems -->
-          <DataGrid x:Name="OsGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Visible">
+          <DataGrid x:Name="OsGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Visible">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
               <DataGridTextColumn Header="Caption" Binding="{Binding Caption}" Width="240" />
@@ -114,7 +114,7 @@
           </DataGrid>
 
           <!-- Tab 2: Hardware -->
-          <DataGrid x:Name="HardwareGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Collapsed">
+          <DataGrid x:Name="HardwareGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
               <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="130" />
@@ -128,7 +128,7 @@
           </DataGrid>
 
           <!-- Tab 3: Disks -->
-          <DataGrid x:Name="DisksGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Collapsed">
+          <DataGrid x:Name="DisksGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
               <DataGridTextColumn Header="Drive" Binding="{Binding DriveLetter}" Width="70" />
@@ -143,7 +143,7 @@
 
           <!-- Tab 4: Applications (matches image_7.png columns + checkboxes + expandable row details) -->
           <DataGrid x:Name="ApplicationsGrid"
-                    Style="{StaticResource OpenRctDataGrid}"
+                    Style="{DynamicResource OpenRctDataGrid}"
                     IsReadOnly="False"
                     Visibility="Collapsed">
             <DataGrid.Columns>
@@ -169,7 +169,7 @@
           </DataGrid>
 
           <!-- Tab 5: Windows Updates -->
-          <DataGrid x:Name="UpdatesGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Collapsed">
+          <DataGrid x:Name="UpdatesGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
               <DataGridTextColumn Header="KB / HotFix ID" Binding="{Binding HotFixId}" Width="120" />
@@ -181,7 +181,7 @@
           </DataGrid>
 
           <!-- Tab 6: Services -->
-          <DataGrid x:Name="ServicesGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Collapsed">
+          <DataGrid x:Name="ServicesGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="160" />
               <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="240" />
@@ -192,7 +192,7 @@
           </DataGrid>
 
           <!-- Tab 7: Drivers -->
-          <DataGrid x:Name="DriversGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Collapsed">
+          <DataGrid x:Name="DriversGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Device Name" Binding="{Binding FriendlyName}" Width="240" />
               <DataGridTextColumn Header="Class" Binding="{Binding DeviceClass}" Width="110" />
@@ -205,7 +205,7 @@
           </DataGrid>
 
           <!-- Tab 8: User Profiles -->
-          <DataGrid x:Name="ProfilesGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Collapsed">
+          <DataGrid x:Name="ProfilesGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Account" Binding="{Binding AccountName}" Width="180" />
               <DataGridTextColumn Header="Local Path" Binding="{Binding LocalPath}" Width="240" />
@@ -217,7 +217,7 @@
           </DataGrid>
 
           <!-- Tab 9: Local Group Members -->
-          <DataGrid x:Name="LocalGroupsGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Collapsed">
+          <DataGrid x:Name="LocalGroupsGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Group" Binding="{Binding GroupName}" Width="160" />
               <DataGridTextColumn Header="Member" Binding="{Binding FullName}" Width="260" />
@@ -227,7 +227,7 @@
           </DataGrid>
 
           <!-- Tab 10: Batteries -->
-          <DataGrid x:Name="BatteriesGrid" Style="{StaticResource OpenRctDataGrid}" Visibility="Collapsed">
+          <DataGrid x:Name="BatteriesGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
               <DataGridTextColumn Header="Battery Name" Binding="{Binding Name}" Width="180" />
@@ -260,7 +260,7 @@
       <DockPanel>
         <Button Content="Export to CSV"
                 DockPanel.Dock="Right"
-                Style="{StaticResource StandardButton}"
+                Style="{DynamicResource StandardButton}"
                 Click="ExportCsv_Click" />
         <TextBlock x:Name="StatusSummaryText"
                    DockPanel.Dock="Right"

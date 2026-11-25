@@ -14,7 +14,7 @@
     </Grid.RowDefinitions>
 
     <DockPanel Grid.Row="0" Margin="0,0,0,10">
-      <Button Content="Refresh" DockPanel.Dock="Right" Style="{StaticResource StandardButton}" Click="Refresh_Click" />
+      <Button Content="Refresh" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="Refresh_Click" />
       <ComboBox x:Name="DeviceCombo" Width="240" DisplayMemberPath="DisplayName" HorizontalAlignment="Left" SelectionChanged="DeviceCombo_SelectionChanged" />
     </DockPanel>
 
@@ -47,7 +47,7 @@
       </TabItem>
 
       <TabItem Header="Components">
-        <DataGrid x:Name="ComponentsGrid" Style="{StaticResource OpenRctDataGrid}" Margin="8">
+        <DataGrid x:Name="ComponentsGrid" Style="{DynamicResource OpenRctDataGrid}" Margin="8">
           <DataGrid.Columns>
             <DataGridTextColumn Header="Component" Binding="{Binding Name}" Width="200" />
             <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="*" />
@@ -60,9 +60,9 @@
       <TabItem Header="Cache">
         <DockPanel Margin="8">
           <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
-            <Button Content="Delete Selected Cache Item" Style="{StaticResource DangerButton}" Click="DeleteCacheItem_Click" />
+            <Button Content="Delete Selected Cache Item" Style="{DynamicResource DangerButton}" Click="DeleteCacheItem_Click" />
           </StackPanel>
-          <DataGrid x:Name="CacheGrid" Style="{StaticResource OpenRctDataGrid}">
+          <DataGrid x:Name="CacheGrid" Style="{DynamicResource OpenRctDataGrid}">
             <DataGrid.Columns>
               <DataGridTextColumn Header="Content ID" Binding="{Binding ContentId}" Width="150" />
               <DataGridTextColumn Header="Ver" Binding="{Binding ContentVersion}" Width="55" />

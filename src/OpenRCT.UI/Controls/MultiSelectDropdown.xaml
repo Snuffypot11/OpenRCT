@@ -37,8 +37,8 @@
                    Padding="6,3"
                    TextChanged="SearchBox_TextChanged" />
           <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
-            <Button Content="All" Style="{StaticResource StandardButton}" Padding="8,2" Margin="0,0,6,0" Click="SelectAll_Click" />
-            <Button Content="None" Style="{StaticResource StandardButton}" Padding="8,2" Click="SelectNone_Click" />
+            <Button Content="All" Style="{DynamicResource StandardButton}" Padding="8,2" Margin="0,0,6,0" Click="SelectAll_Click" />
+            <Button Content="None" Style="{DynamicResource StandardButton}" Padding="8,2" Click="SelectNone_Click" />
           </StackPanel>
           <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ItemsControl x:Name="ItemsList">

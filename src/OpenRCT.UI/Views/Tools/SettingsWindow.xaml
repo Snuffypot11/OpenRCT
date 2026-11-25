@@ -8,8 +8,8 @@
         Background="{DynamicResource AppBackgroundBrush}">
   <DockPanel Margin="16">
     <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-      <Button Content="Save" Width="90" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}" Click="Save_Click" />
-      <Button Content="Cancel" Width="90" Style="{StaticResource StandardButton}" IsCancel="True" />
+      <Button Content="Save" Width="90" Margin="0,0,8,0" Style="{DynamicResource PrimaryButton}" Click="Save_Click" />
+      <Button Content="Cancel" Width="90" Style="{DynamicResource StandardButton}" IsCancel="True" />
     </StackPanel>
 
     <TabControl Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}">
@@ -22,7 +22,7 @@
 
           <TextBlock Text="Path to PsExec.exe or PsExec64.exe:" Margin="0,0,0,4" />
           <DockPanel Margin="0,0,0,6">
-            <Button Content="Browse..." DockPanel.Dock="Right" Margin="8,0,0,0" Style="{StaticResource StandardButton}" Click="BrowsePsExec_Click" />
+            <Button Content="Browse..." DockPanel.Dock="Right" Margin="8,0,0,0" Style="{DynamicResource StandardButton}" Click="BrowsePsExec_Click" />
             <TextBox x:Name="PsExecPathBox" Padding="6,4" TextChanged="PsExecPathBox_TextChanged" />
           </DockPanel>
           <TextBlock x:Name="PsExecStatusText" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14" />

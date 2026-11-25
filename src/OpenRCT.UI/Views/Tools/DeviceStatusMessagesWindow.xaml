@@ -26,12 +26,12 @@
           <ComboBoxItem Content="Warning" />
           <ComboBoxItem Content="Informational" />
         </ComboBox>
-        <Button Content="Refresh" Style="{StaticResource PrimaryButton}" Click="Refresh_Click" />
+        <Button Content="Refresh" Style="{DynamicResource PrimaryButton}" Click="Refresh_Click" />
       </StackPanel>
       <TextBox x:Name="SearchBox" Padding="6,4" Margin="0,0,10,0" TextChanged="SearchBox_TextChanged" />
     </DockPanel>
 
-    <DataGrid x:Name="MessagesGrid" Grid.Row="1" Style="{StaticResource OpenRctDataGrid}" Margin="0,0,0,8">
+    <DataGrid x:Name="MessagesGrid" Grid.Row="1" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="130" />
         <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="140" />
@@ -44,7 +44,7 @@
     </DataGrid>
 
     <DockPanel Grid.Row="2">
-      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{StaticResource StandardButton}" Click="ExportCsv_Click" />
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
       <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
     </DockPanel>
   </Grid>

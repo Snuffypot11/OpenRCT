@@ -1,4 +1,6 @@
 using System.Windows;
+using OpenRCT.Core.Settings;
+using OpenRCT.UI.Themes;
 
 namespace OpenRCT.UI.Views
 {
@@ -8,6 +10,7 @@ namespace OpenRCT.UI.Views
 
         public InputPromptWindow(string title, string prompt, string defaultValue = "")
         {
+            ThemeManager.ApplyTheme(this, new SettingsService().Load().Theme);
             InitializeComponent();
             Title = title;
             PromptLabel.Text = prompt;

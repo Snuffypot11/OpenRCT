@@ -9,8 +9,8 @@
     <TextBlock x:Name="PromptLabel" Margin="0,0,0,8" TextWrapping="Wrap" Foreground="{DynamicResource PrimaryTextBrush}" />
     <TextBox x:Name="InputBox" Padding="6,4" Margin="0,0,0,14" />
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-      <Button Content="OK" IsDefault="True" Width="80" Margin="0,0,8,0" Style="{StaticResource PrimaryButton}" Click="Ok_Click" />
-      <Button Content="Cancel" IsCancel="True" Width="80" Style="{StaticResource StandardButton}" />
+      <Button Content="OK" IsDefault="True" Width="80" Margin="0,0,8,0" Style="{DynamicResource PrimaryButton}" Click="Ok_Click" />
+      <Button Content="Cancel" IsCancel="True" Width="80" Style="{DynamicResource StandardButton}" />
     </StackPanel>
   </StackPanel>
 </Window>

@@ -15,13 +15,13 @@
 
     <DockPanel Grid.Row="0" Margin="0,0,0,10">
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-        <Button Content="Terminate Selected" Style="{StaticResource DangerButton}" Margin="0,0,6,0" Click="Terminate_Click" />
-        <Button Content="Refresh" Style="{StaticResource StandardButton}" Click="Refresh_Click" />
+        <Button Content="Terminate Selected" Style="{DynamicResource DangerButton}" Margin="0,0,6,0" Click="Terminate_Click" />
+        <Button Content="Refresh" Style="{DynamicResource StandardButton}" Click="Refresh_Click" />
       </StackPanel>
       <TextBox x:Name="FilterBox" Padding="6,4" Margin="0,0,10,0" TextChanged="FilterBox_TextChanged" />
     </DockPanel>
 
-    <DataGrid x:Name="ProcessGrid" Grid.Row="1" Style="{StaticResource OpenRctDataGrid}" Margin="0,0,0,8">
+    <DataGrid x:Name="ProcessGrid" Grid.Row="1" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="140" />
         <DataGridTextColumn Header="PID" Binding="{Binding ProcessId}" Width="70" />

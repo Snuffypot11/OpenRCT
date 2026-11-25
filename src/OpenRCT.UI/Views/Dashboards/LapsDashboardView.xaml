@@ -23,7 +23,7 @@
               ToolTip="Open in separate window"
               Margin="10,0,0,0"
               Padding="7,2"
-              Style="{StaticResource StandardButton}"
+              Style="{DynamicResource StandardButton}"
               Click="PopOut_Click" />
     </StackPanel>
 
@@ -36,7 +36,7 @@
       </Grid.ColumnDefinitions>
       <TextBlock Grid.Column="0" Text="OUs:" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
       <controls:MultiSelectDropdown x:Name="OuDropdown" Grid.Column="1" />
-      <Button x:Name="ScanButton" Grid.Column="2" Content="Scan" Margin="10,0,0,0" Style="{StaticResource PrimaryButton}" Click="Scan_Click" />
+      <Button x:Name="ScanButton" Grid.Column="2" Content="Scan" Margin="10,0,0,0" Style="{DynamicResource PrimaryButton}" Click="Scan_Click" />
     </Grid>
 
     <!-- Two Side-by-Side Pie Charts matching image_2.png -->
@@ -57,7 +57,7 @@
     </Grid>
 
     <!-- 8-Column DataGrid matching image_2.png -->
-    <DataGrid x:Name="ResultsGrid" Grid.Row="3" Style="{StaticResource OpenRctDataGrid}" Margin="0,0,0,8">
+    <DataGrid x:Name="ResultsGrid" Grid.Row="3" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
       <DataGrid.ContextMenu>
         <ContextMenu>
           <MenuItem Header="View LAPS Password" Click="ViewLapsPassword_Click" />
@@ -77,7 +77,7 @@
     </DataGrid>
 
     <DockPanel Grid.Row="4">
-      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{StaticResource StandardButton}" Click="ExportCsv_Click" />
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
       <TextBlock x:Name="FilterStatusText" DockPanel.Dock="Right" Margin="0,0,14,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
       <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
     </DockPanel>

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace OpenRCT.Core.Models
 {
     /// <summary>
@@ -44,7 +47,7 @@ namespace OpenRCT.Core.Models
         public const string RestartSystems = "ConsoleTool.RestartSystems";
         public const string ShutdownSystems = "ConsoleTool.ShutdownSystems";
 
-        // Security Tools (4)
+        // Security Tools (5)
         public const string ViewLapsPassword = "SecurityTool.ViewLapsPassword";
         public const string ViewBitLockerRecoveryKey = "SecurityTool.ViewBitLockerRecoveryKey";
         public const string DefenderQuickScan = "SecurityTool.DefenderQuickScan";
@@ -62,5 +65,74 @@ namespace OpenRCT.Core.Models
         public const string DashboardBitLockerCompliance = "Dashboard.BitLockerCompliance";
         public const string DashboardContentDistribution = "Dashboard.ContentDistribution";
         public const string DashboardHardwareFirmwareAudit = "Dashboard.HardwareFirmwareAudit";
+
+        private static readonly Dictionary<string, string> DisplayNameToKey = BuildDisplayNameMap();
+
+        private static Dictionary<string, string> BuildDisplayNameMap()
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var action in ClientActionRegistry.All)
+            {
+                map[action.DisplayName] = action.Key;
+            }
+
+            // Client Tools
+            map["Add Device(s) to Collection"] = AddDevicesToCollection;
+            map["Client Information"] = ClientInformation;
+            map["Open Client Installation Log File Folder"] = OpenClientInstallLogs;
+            map["Open Client Log File Folder"] = OpenClientLogs;
+            map["Refresh Updates Compliance State"] = RefreshUpdatesComplianceState;
+            map["Remote Software Center"] = RemoteSoftwareCenter;
+            map["Rerun Deployment"] = RerunDeployment;
+            map["Restart SMS Agent Host Service"] = RestartSmsAgentHost;
+            map["Run Client Check"] = RunClientCheck;
+            map["Stop ConfigMgr Client Activities"] = StopConfigMgrClientActivities;
+            map["Show Collections - Advanced"] = ShowCollectionsAdvanced;
+            map["Repair Client"] = RepairClient;
+            map["Uninstall SCCM Client"] = UninstallSccmClient;
+
+            // Console Tools
+            map["AD Security Groups"] = AdSecurityGroups;
+            map["Connect to C$"] = ConnectToCShare;
+            map["Delete Device(s) from Active Directory"] = DeleteFromActiveDirectory;
+            map["Delete Device(s) From ConfigMgr"] = DeleteFromConfigMgr;
+            map["Disable Device(s) in Active Directory"] = DisableInActiveDirectory;
+            map["Enable Device(s) in Active Directory"] = EnableInActiveDirectory;
+            map["Group Policy Update"] = GroupPolicyUpdate;
+            map["Interactive Command Prompt"] = InteractiveCommandPrompt;
+            map["Interactive PowerShell Prompt"] = InteractivePowerShellPrompt;
+            map["Manage Computer"] = ManageComputer;
+            map["Open Event Viewer"] = OpenEventViewer;
+            map["Open Regedit"] = OpenRegedit;
+            map["Ping System(s)"] = PingSystems;
+            map["Running Processes"] = RunningProcesses;
+            map["Send Notification"] = SendNotification;
+            map["System Information"] = SystemInformation;
+            map["Wake On LAN"] = WakeOnLan;
+            map["Cancel Pending Restart or Shutdown"] = CancelPendingRestart;
+            map["Schedule Restart or Shutdown"] = ScheduleRestartOrShutdown;
+            map["Restart System(s)"] = RestartSystems;
+            map["Shutdown System(s)"] = ShutdownSystems;
+
+            // Security Tools
+            map["View LAPS Password"] = ViewLapsPassword;
+            map["View BitLocker Recovery Key"] = ViewBitLockerRecoveryKey;
+            map["Windows Defender — Quick Scan"] = DefenderQuickScan;
+            map["Windows Defender — Full Scan"] = DefenderFullScan;
+            map["Windows Defender — Update Definitions"] = DefenderUpdateDefinitions;
+
+            // Other
+            map["Device Status Messages"] = DeviceStatusMessages;
+            map["OpenRCT Settings"] = OpenSettings;
+
+            return map;
+        }
+
+        public static string? ResolveByDisplayName(string? displayName)
+        {
+            if (string.IsNullOrWhiteSpace(displayName)) return null;
+            return DisplayNameToKey.TryGetValue(displayName!.Trim(), out var key) ? key : null;
+        }
     }
 }

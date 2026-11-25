@@ -1,7 +1,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="OpenRCT — Open Source Right Click Tools for MECM"
            Manufacturer="OpenRCT Contributors"
-           Version="0.1.0.0"
+           Version="0.1.1.0"
            UpgradeCode="9f41d2e8-5c3a-4b11-9a10-7e4b6c112201"
            Scope="perMachine">
 
@@ -93,23 +93,23 @@
       <RegistryValue Root="HKCU" Key="Software\OpenRCT" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
     </Component>
 
-    <!-- Register & unregister MECM Console XML extensions cleanly -->
+    <!-- Register & unregister MECM Console XML extensions cleanly (trailing '.' prevents \" quote-escaping in powershell.exe) -->
     <CustomAction Id="RegisterConsoleExtensions"
                   Directory="INSTALLFOLDER"
-                  ExeCommand="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;[ScriptsFolder]Install-OpenRCT.ps1&quot; -InstallDir &quot;[INSTALLFOLDER]&quot; -Mode &quot;[INSTALLMODE]&quot; -ConsoleRoot &quot;[CONSOLEROOT]&quot; -PsExecPath &quot;[PSEXECPATH]&quot;"
+                  ExeCommand="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;[ScriptsFolder]Install-OpenRCT.ps1&quot; -InstallDir &quot;[INSTALLFOLDER].&quot; -Mode &quot;[INSTALLMODE]&quot; -ConsoleRoot &quot;[CONSOLEROOT]&quot; -PsExecPath &quot;[PSEXECPATH]&quot; -SkipBinaryCopy"
                   Execute="deferred"
                   Impersonate="no"
                   Return="ignore" />
 
     <CustomAction Id="UnregisterConsoleExtensions"
                   Directory="INSTALLFOLDER"
-                  ExeCommand="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;[ScriptsFolder]Uninstall-OpenRCT.ps1&quot; -InstallDir &quot;[INSTALLFOLDER]&quot; -ConsoleRoot &quot;[CONSOLEROOT]&quot;"
+                  ExeCommand="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;[ScriptsFolder]Uninstall-OpenRCT.ps1&quot; -InstallDir &quot;[INSTALLFOLDER].&quot; -ConsoleRoot &quot;[CONSOLEROOT]&quot; -SkipBinaryRemove"
                   Execute="deferred"
                   Impersonate="no"
                   Return="ignore" />
 
     <InstallExecuteSequence>
-      <Custom Action="RegisterConsoleExtensions" After="InstallFiles" Condition="NOT Installed" />
+      <Custom Action="RegisterConsoleExtensions" After="InstallFiles" Condition="NOT Installed OR REINSTALL" />
       <Custom Action="UnregisterConsoleExtensions" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot;" />
     </InstallExecuteSequence>
   </Package>

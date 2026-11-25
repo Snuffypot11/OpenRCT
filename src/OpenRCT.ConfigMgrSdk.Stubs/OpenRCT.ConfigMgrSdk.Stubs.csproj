@@ -4,8 +4,4 @@
     <RootNamespace>OpenRCT.ConfigMgrSdk.Stubs</RootNamespace>
     <AssemblyName>OpenRCT.ConfigMgrSdk.Stubs</AssemblyName>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
-  </ItemGroup>
 </Project>

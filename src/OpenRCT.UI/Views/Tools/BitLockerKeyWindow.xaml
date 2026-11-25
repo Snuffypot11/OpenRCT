@@ -15,13 +15,13 @@
 
     <DockPanel Grid.Row="0" Margin="0,0,0,10">
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-        <Button Content="Copy Selected Recovery Key" Style="{StaticResource PrimaryButton}" Margin="0,0,6,0" Click="CopyKey_Click" />
-        <Button Content="Refresh" Style="{StaticResource StandardButton}" Click="Refresh_Click" />
+        <Button Content="Copy Selected Recovery Key" Style="{DynamicResource PrimaryButton}" Margin="0,0,6,0" Click="CopyKey_Click" />
+        <Button Content="Refresh" Style="{DynamicResource StandardButton}" Click="Refresh_Click" />
       </StackPanel>
       <TextBlock Text="BitLocker Recovery Keys (Active Directory &amp; ConfigMgr)" FontWeight="SemiBold" VerticalAlignment="Center" />
     </DockPanel>
 
-    <DataGrid x:Name="KeysGrid" Grid.Row="1" Style="{StaticResource OpenRctDataGrid}" Margin="0,0,0,8">
+    <DataGrid x:Name="KeysGrid" Grid.Row="1" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="135" />
         <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="115" />

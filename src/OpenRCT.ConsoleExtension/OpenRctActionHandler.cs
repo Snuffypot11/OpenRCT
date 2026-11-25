@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Reflection;
 using System.Windows;
 using Microsoft.ConfigurationManagement.AdminConsole;
@@ -13,12 +13,66 @@ using OpenRCT.UI;
 namespace OpenRCT.ConsoleExtension
 {
     /// <summary>
-    /// MECM Console AssemblyType action handler.
+    /// Ensures OpenRCT.Core.dll, OpenRCT.Connectors.dll, and OpenRCT.UI.dll are resolved
+    /// from the OpenRCT installation folder when loaded inside Microsoft.ConfigurationManagement.exe.
+    /// Written in pure C# 5.0 so Windows' built-in .NET 4.8 csc.exe compiles it cleanly on any workstation.
+    /// </summary>
+    internal static class OpenRctAssemblyResolver
+    {
+        private static int _registered;
+
+        public static void EnsureRegistered()
+        {
+            if (System.Threading.Interlocked.Exchange(ref _registered, 1) != 0)
+            {
+                return;
+            }
+
+            AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
+        }
+
+        private static Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            try
+            {
+                var requestedName = new AssemblyName(args.Name).Name;
+                if (string.IsNullOrEmpty(requestedName) || !requestedName.StartsWith("OpenRCT.", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                var dir = Path.GetDirectoryName(typeof(OpenRctAssemblyResolver).Assembly.Location);
+                if (string.IsNullOrEmpty(dir))
+                {
+                    return null;
+                }
+
+                var candidate = Path.Combine(dir, requestedName + ".dll");
+                if (File.Exists(candidate))
+                {
+                    return Assembly.LoadFrom(candidate);
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// MECM Console AssemblyType action handler (pure C# 5.0).
     /// Captures single OR multiple selected devices (or a Device Collection) plus the console's
     /// active SMS Provider connection in a single invocation, and dispatches into OpenRCT.UI.
     /// </summary>
     public static class OpenRctActionHandler
     {
+        static OpenRctActionHandler()
+        {
+            OpenRctAssemblyResolver.EnsureRegistered();
+        }
+
         public static void Execute(
             object sender,
             ScopeNode scopeNode,
@@ -27,21 +81,33 @@ namespace OpenRCT.ConsoleExtension
             PropertyDataUpdated dataUpdatedDelegate,
             Status status)
         {
+            OpenRctAssemblyResolver.EnsureRegistered();
             try
             {
-                var actionKey = action?.Parameters?.Trim();
-                if (string.IsNullOrWhiteSpace(actionKey))
+                var displayName = action != null ? action.DisplayName : null;
+                var actionKey = ToolActionKeys.ResolveByDisplayName(displayName);
+                if (string.IsNullOrEmpty(actionKey))
                 {
-                    MessageBox.Show("OpenRCT action XML is missing <Parameters> action key.", "OpenRCT", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(
+                        "OpenRCT could not map console action '" + (displayName ?? "(null)") + "'.",
+                        "OpenRCT",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
                     return;
                 }
 
-                var (smsServer, siteCode) = ExtractSmsConnection(scopeNode, selectedResultObject);
-                var context = BuildInvocationContext(actionKey!, smsServer, siteCode, selectedResultObject);
+                string smsServer;
+                string siteCode;
+                ExtractSmsConnection(scopeNode, selectedResultObject, out smsServer, out siteCode);
 
-                if (Application.Current?.Dispatcher != null)
+                var context = BuildInvocationContext(actionKey, smsServer, siteCode, selectedResultObject);
+
+                if (Application.Current != null && Application.Current.Dispatcher != null)
                 {
-                    Application.Current.Dispatcher.Invoke(() => ToolDispatcher.Dispatch(context));
+                    Application.Current.Dispatcher.Invoke(new Action(delegate
+                    {
+                        ToolDispatcher.Dispatch(context);
+                    }));
                 }
                 else
                 {
@@ -50,19 +116,19 @@ namespace OpenRCT.ConsoleExtension
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"OpenRCT failed to launch action: {ex.Message}", "OpenRCT", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("OpenRCT failed to launch action: " + ex.Message, "OpenRCT", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private static ToolInvocationContext BuildInvocationContext(
             string actionKey,
-            string? smsServer,
-            string? siteCode,
-            IResultObject? selected)
+            string smsServer,
+            string siteCode,
+            IResultObject selected)
         {
             var devices = new List<TargetDevice>();
-            string? collectionId = null;
-            string? collectionName = null;
+            string collectionId = null;
+            string collectionName = null;
 
             foreach (var item in EnumerateSelectedObjects(selected))
             {
@@ -70,21 +136,25 @@ namespace OpenRCT.ConsoleExtension
                 var resourceId = TryGetProp(item, "ResourceID");
                 var name = TryGetProp(item, "Name");
 
-                // Device Collection node has CollectionID without ResourceID
-                if (!string.IsNullOrWhiteSpace(colId) && string.IsNullOrWhiteSpace(resourceId))
+                if (!string.IsNullOrEmpty(colId) && string.IsNullOrEmpty(resourceId))
                 {
                     collectionId = colId;
                     collectionName = name;
                     break;
                 }
 
-                if (!string.IsNullOrWhiteSpace(name))
+                if (!string.IsNullOrEmpty(name))
                 {
-                    var domain = TryGetProp(item, "Domain") ?? TryGetProp(item, "ResourceDomainORWorkgroup");
+                    var domain = TryGetProp(item, "Domain");
+                    if (string.IsNullOrEmpty(domain)) domain = TryGetProp(item, "ResourceDomainORWorkgroup");
+
+                    var fqdn = TryGetProp(item, "FQDN");
+                    if (string.IsNullOrEmpty(fqdn)) fqdn = TryGetProp(item, "FullDomainName");
+
                     devices.Add(new TargetDevice
                     {
-                        Name = name!,
-                        Fqdn = TryGetProp(item, "FQDN") ?? TryGetProp(item, "FullDomainName"),
+                        Name = name,
+                        Fqdn = fqdn,
                         ResourceId = resourceId,
                         Domain = domain,
                         SiteCode = siteCode,
@@ -104,29 +174,32 @@ namespace OpenRCT.ConsoleExtension
             };
         }
 
-        private static IEnumerable<IResultObject> EnumerateSelectedObjects(IResultObject? selected)
+        private static IEnumerable<IResultObject> EnumerateSelectedObjects(IResultObject selected)
         {
             if (selected == null) yield break;
 
-            // Multi-select in MECM Console populates ResultObjectList or enumerates child IResultObjects
             var listProp = selected.GetType().GetProperty("ResultObjectList", BindingFlags.Public | BindingFlags.Instance);
-            if (listProp?.GetValue(selected) is IEnumerable listObj)
+            if (listProp != null)
             {
-                bool yieldedAny = false;
-                foreach (var entry in listObj)
+                var listObj = listProp.GetValue(selected, null) as IEnumerable;
+                if (listObj != null)
                 {
-                    if (entry is IResultObject ro)
+                    bool yieldedAny = false;
+                    foreach (var entry in listObj)
                     {
-                        yieldedAny = true;
-                        yield return ro;
+                        var ro = entry as IResultObject;
+                        if (ro != null)
+                        {
+                            yieldedAny = true;
+                            yield return ro;
+                        }
                     }
+                    if (yieldedAny) yield break;
                 }
-                if (yieldedAny) yield break;
             }
 
-            // Fallback: check if selected itself has Name/CollectionID properties (single selection)
-            if (!string.IsNullOrWhiteSpace(TryGetProp(selected, "Name")) ||
-                !string.IsNullOrWhiteSpace(TryGetProp(selected, "CollectionID")))
+            if (!string.IsNullOrEmpty(TryGetProp(selected, "Name")) ||
+                !string.IsNullOrEmpty(TryGetProp(selected, "CollectionID")))
             {
                 yield return selected;
                 yield break;
@@ -134,14 +207,15 @@ namespace OpenRCT.ConsoleExtension
 
             foreach (var child in selected)
             {
-                if (child is IResultObject ro) yield return ro;
+                var ro = child as IResultObject;
+                if (ro != null) yield return ro;
             }
         }
 
-        internal static (string? Server, string? SiteCode) ExtractSmsConnection(ScopeNode? scopeNode, IResultObject? selected)
+        internal static void ExtractSmsConnection(ScopeNode scopeNode, IResultObject selected, out string server, out string siteCode)
         {
-            string? server = null;
-            string? siteCode = null;
+            server = null;
+            siteCode = null;
 
             try
             {
@@ -152,47 +226,62 @@ namespace OpenRCT.ConsoleExtension
                     siteCode = ParseSiteCodeFromNamespace(ns);
                 }
 
-                var connMgr = (scopeNode as ConsoleParentNode)?.RootConnectionNode?.GetConnectionManagerInstance("WQL")
-                              ?? selected?.ConnectionManager;
+                ConnectionManagerBase connMgr = null;
+                var parentNode = scopeNode as ConsoleParentNode;
+                if (parentNode != null && parentNode.RootConnectionNode != null)
+                {
+                    connMgr = parentNode.RootConnectionNode.GetConnectionManagerInstance("WQL");
+                }
+                if (connMgr == null && selected != null)
+                {
+                    connMgr = selected.ConnectionManager;
+                }
 
                 if (connMgr != null && connMgr.NamedValueDictionary != null)
                 {
-                    if (string.IsNullOrWhiteSpace(server) && connMgr.NamedValueDictionary.TryGetValue("ServerName", out var srvObj))
+                    object srvObj;
+                    if (string.IsNullOrEmpty(server) && connMgr.NamedValueDictionary.TryGetValue("ServerName", out srvObj) && srvObj != null)
                     {
-                        server = srvObj?.ToString();
+                        server = srvObj.ToString();
                     }
-                    if (string.IsNullOrWhiteSpace(siteCode) && connMgr.NamedValueDictionary.TryGetValue("SiteCode", out var siteObj))
+                    object siteObj;
+                    if (string.IsNullOrEmpty(siteCode) && connMgr.NamedValueDictionary.TryGetValue("SiteCode", out siteObj) && siteObj != null)
                     {
-                        siteCode = siteObj?.ToString();
+                        siteCode = siteObj.ToString();
                     }
                 }
             }
-            catch { }
-
-            return (server, siteCode);
+            catch
+            {
+            }
         }
 
-        private static string? TryGetProp(IResultObject obj, string propName)
+        private static string TryGetProp(IResultObject obj, string propName)
         {
             try
             {
-                if (obj.Properties != null && obj.Properties.TryGetValue(propName, out var item))
+                if (obj != null && obj.Properties != null)
                 {
-                    return item?.StringValue;
+                    var item = obj.Properties[propName];
+                    if (item != null) return item.StringValue;
                 }
             }
-            catch { }
+            catch
+            {
+            }
             return null;
         }
 
-        private static string? ParseSiteCodeFromNamespace(string? ns)
+        private static string ParseSiteCodeFromNamespace(string ns)
         {
-            if (string.IsNullOrWhiteSpace(ns)) return null;
+            if (string.IsNullOrEmpty(ns)) return null;
             const string marker = "site_";
-            var idx = ns!.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
-            return idx >= 0 && idx + marker.Length < ns.Length
-                ? ns.Substring(idx + marker.Length).Trim()
-                : null;
+            var idx = ns.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+            if (idx >= 0 && idx + marker.Length < ns.Length)
+            {
+                return ns.Substring(idx + marker.Length).Trim();
+            }
+            return null;
         }
     }
 }

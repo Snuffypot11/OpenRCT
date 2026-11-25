@@ -14,13 +14,13 @@
     </Grid.RowDefinitions>
 
     <DockPanel Grid.Row="0" Margin="0,0,0,10">
-      <Button Content="Refresh" DockPanel.Dock="Right" Style="{StaticResource StandardButton}" Click="Refresh_Click" />
+      <Button Content="Refresh" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="Refresh_Click" />
       <TextBox x:Name="FilterBox" Padding="6,4" Margin="0,0,10,0" TextChanged="FilterBox_TextChanged" />
     </DockPanel>
 
     <TabControl Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" Margin="0,0,0,8">
       <TabItem Header="Collections">
-        <DataGrid x:Name="CollectionsGrid" Style="{StaticResource OpenRctDataGrid}" Margin="8">
+        <DataGrid x:Name="CollectionsGrid" Style="{DynamicResource OpenRctDataGrid}" Margin="8">
           <DataGrid.Columns>
             <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="140" />
             <DataGridTextColumn Header="Collection ID" Binding="{Binding CollectionId}" Width="105" />
@@ -32,7 +32,7 @@
         </DataGrid>
       </TabItem>
       <TabItem Header="Maintenance Windows">
-        <DataGrid x:Name="MaintenanceWindowsGrid" Style="{StaticResource OpenRctDataGrid}" Margin="8">
+        <DataGrid x:Name="MaintenanceWindowsGrid" Style="{DynamicResource OpenRctDataGrid}" Margin="8">
           <DataGrid.Columns>
             <DataGridTextColumn Header="Collection" Binding="{Binding CollectionName}" Width="200" />
             <DataGridTextColumn Header="Window Name" Binding="{Binding Name}" Width="180" />

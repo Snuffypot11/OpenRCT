@@ -24,7 +24,7 @@
               ToolTip="Open in separate window"
               Margin="10,0,0,0"
               Padding="7,2"
-              Style="{StaticResource StandardButton}"
+              Style="{DynamicResource StandardButton}"
               Click="PopOut_Click" />
     </StackPanel>
 
@@ -51,7 +51,7 @@
               Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"
               Content="Scan"
               Margin="10,0,0,0"
-              Style="{StaticResource PrimaryButton}"
+              Style="{DynamicResource PrimaryButton}"
               Click="Scan_Click" />
     </Grid>
 
@@ -68,7 +68,7 @@
     <!-- 15-Column Results DataGrid (matches image.png exact columns) -->
     <DataGrid x:Name="ResultsGrid"
               Grid.Row="3"
-              Style="{StaticResource OpenRctDataGrid}"
+              Style="{DynamicResource OpenRctDataGrid}"
               Margin="0,0,0,8">
       <DataGrid.ContextMenu>
         <ContextMenu>
@@ -102,7 +102,7 @@
     <DockPanel Grid.Row="4">
       <Button Content="Export to CSV"
               DockPanel.Dock="Right"
-              Style="{StaticResource StandardButton}"
+              Style="{DynamicResource StandardButton}"
               Click="ExportCsv_Click" />
       <TextBlock x:Name="FilterStatusText"
                  DockPanel.Dock="Right"

@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using OpenRCT.Core.Models;
 using Xunit;
@@ -25,42 +24,34 @@ namespace OpenRCT.Tests
             throw new DirectoryNotFoundException("Could not locate OpenRCT.sln repository root.");
         }
 
-        private static HashSet<string> GetAllKnownActionKeys()
-        {
-            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var a in ClientActionRegistry.All) keys.Add(a.Key);
-            foreach (var field in typeof(ToolActionKeys).GetFields(BindingFlags.Public | BindingFlags.Static))
-            {
-                if (field.GetRawConstantValue() is string val) keys.Add(val);
-            }
-            return keys;
-        }
-
         [Fact]
-        public void AllConsoleExtensionXmlFiles_AreWellFormed_AndReferenceValidActionKeys()
+        public void AllConsoleExtensionXmlFiles_AreWellFormed_AndMapEveryDisplayNameToValidActionKey()
         {
             var root = FindRepoRoot();
             var extDir = Path.Combine(root, "console-extensions");
             var xmlFiles = Directory.GetFiles(extDir, "*.xml", SearchOption.AllDirectories);
             Assert.NotEmpty(xmlFiles);
 
-            var knownKeys = GetAllKnownActionKeys();
-
             foreach (var file in xmlFiles)
             {
                 var doc = XDocument.Load(file);
                 Assert.NotNull(doc.Root);
 
-                // Validate all AssemblyType actions reference valid action keys in <Parameters>
                 var assemblyActions = doc.Descendants("ActionDescription")
                     .Where(e => string.Equals((string?)e.Attribute("Class"), "AssemblyType", StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
                 foreach (var act in assemblyActions)
                 {
-                    var paramKey = act.Element("Parameters")?.Value?.Trim();
-                    Assert.False(string.IsNullOrWhiteSpace(paramKey), $"Missing <Parameters> in {Path.GetFileName(file)}");
-                    Assert.Contains(paramKey!, knownKeys);
+                    // AssemblyType must NOT contain <Parameters> (invalid on ActionDescription schema)
+                    Assert.Null(act.Element("Parameters"));
+
+                    var displayName = (string?)act.Attribute("DisplayName");
+                    Assert.False(string.IsNullOrWhiteSpace(displayName), $"Missing DisplayName in {Path.GetFileName(file)}");
+
+                    var resolvedKey = ToolActionKeys.ResolveByDisplayName(displayName);
+                    Assert.False(string.IsNullOrWhiteSpace(resolvedKey), $"DisplayName '{displayName}' in {Path.GetFileName(file)} did not map to any ToolActionKey.");
+
                     Assert.NotNull(act.Element("ActionAssembly")?.Element("Assembly"));
                     Assert.NotNull(act.Element("ActionAssembly")?.Element("Type"));
                     Assert.NotNull(act.Element("ActionAssembly")?.Element("Method"));
@@ -75,15 +66,19 @@ namespace OpenRCT.Tests
             var file = Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Actions", "OpenRCT_DeviceActions.xml");
             var doc = XDocument.Load(file);
 
-            var paramValues = doc.Descendants("Parameters").Select(e => e.Value.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var displayNames = doc.Descendants("ActionDescription")
+                .Where(e => string.Equals((string?)e.Attribute("Class"), "AssemblyType", StringComparison.OrdinalIgnoreCase))
+                .Select(e => (string?)e.Attribute("DisplayName") ?? string.Empty)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             foreach (var clientAction in ClientActionRegistry.All)
             {
-                Assert.Contains(clientAction.Key, paramValues);
+                Assert.Contains(clientAction.DisplayName, displayNames);
             }
         }
 
         [Fact]
-        public void AllWpfXamlAndWixFiles_AreWellFormedXml()
+        public void AllWpfXamlFiles_AreWellFormed_AndUseDynamicResourceForThemeStyles()
         {
             var root = FindRepoRoot();
             var xamlFiles = Directory.GetFiles(Path.Combine(root, "src"), "*.xaml", SearchOption.AllDirectories);
@@ -93,11 +88,40 @@ namespace OpenRCT.Tests
             {
                 var doc = XDocument.Load(file);
                 Assert.NotNull(doc.Root);
+
+                var fileName = Path.GetFileName(file);
+                if (fileName == "LightTheme.xaml" || fileName == "DarkTheme.xaml" || fileName == "App.xaml") continue;
+
+                var raw = File.ReadAllText(file);
+                Assert.DoesNotContain("{StaticResource StandardButton}", raw);
+                Assert.DoesNotContain("{StaticResource PrimaryButton}", raw);
+                Assert.DoesNotContain("{StaticResource DangerButton}", raw);
+                Assert.DoesNotContain("{StaticResource OpenRctDataGrid}", raw);
             }
 
             var wxsFile = Path.Combine(root, "installer", "OpenRCT.Installer", "Package.wxs");
             var wxsDoc = XDocument.Load(wxsFile);
             Assert.NotNull(wxsDoc.Root);
+        }
+
+        [Fact]
+        public void ConsoleExtensionBridgeFiles_AreCSharp5CompatibleForBuiltinCsc()
+        {
+            var root = FindRepoRoot();
+            var bridgeFiles = new[]
+            {
+                Path.Combine(root, "src", "OpenRCT.ConsoleExtension", "OpenRctActionHandler.cs"),
+                Path.Combine(root, "src", "OpenRCT.ConsoleExtension", "DashboardConsoleViews.cs")
+            };
+
+            foreach (var file in bridgeFiles)
+            {
+                var code = File.ReadAllText(file);
+                Assert.DoesNotMatch(new Regex(@"\$\"""), code);   // no C# 6 string interpolation
+                Assert.DoesNotMatch(new Regex(@"\?\."), code);    // no C# 6 null-conditional
+                Assert.DoesNotMatch(new Regex(@"using\s+var\b"), code); // no C# 8 using var
+                Assert.DoesNotMatch(new Regex(@"\bstring\?"), code);    // no C# 8 nullable annotations
+            }
         }
     }
 }

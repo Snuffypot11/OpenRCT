@@ -23,7 +23,7 @@
               ToolTip="Open in separate window"
               Margin="10,0,0,0"
               Padding="7,2"
-              Style="{StaticResource StandardButton}"
+              Style="{DynamicResource StandardButton}"
               Click="PopOut_Click" />
     </StackPanel>
 
@@ -42,7 +42,7 @@
 
       <TextBlock Grid.Row="0" Grid.Column="0" Text="Collection:" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
       <ComboBox x:Name="CollectionCombo" Grid.Row="0" Grid.Column="1" DisplayMemberPath="Name" MinHeight="28" />
-      <Button x:Name="StartButton" Grid.Row="0" Grid.Column="2" Content="Start" Margin="10,0,0,0" Style="{StaticResource PrimaryButton}" Click="Start_Click" />
+      <Button x:Name="StartButton" Grid.Row="0" Grid.Column="2" Content="Start" Margin="10,0,0,0" Style="{DynamicResource PrimaryButton}" Click="Start_Click" />
 
       <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
         <CheckBox x:Name="LimitDeployedCheck"
@@ -109,7 +109,7 @@
     </Grid>
 
     <!-- Filtered Devices Grid -->
-    <DataGrid x:Name="ResultsGrid" Grid.Row="3" Style="{StaticResource OpenRctDataGrid}" Margin="0,0,0,8">
+    <DataGrid x:Name="ResultsGrid" Grid.Row="3" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
       <DataGrid.ContextMenu>
         <ContextMenu>
           <MenuItem Header="Trigger Software Updates Scan Cycle" Click="TriggerScan_Click" />
@@ -128,7 +128,7 @@
     </DataGrid>
 
     <DockPanel Grid.Row="4">
-      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{StaticResource StandardButton}" Click="ExportCsv_Click" />
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
       <TextBlock x:Name="FilterStatusText" DockPanel.Dock="Right" Margin="0,0,14,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
       <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
     </DockPanel>

@@ -12,10 +12,10 @@
       <DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="8,4" LastChildFill="False">
           <TextBlock Text="Errors" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" />
-          <Button Content="Copy All" DockPanel.Dock="Right" Style="{StaticResource StandardButton}" Padding="8,2" Click="CopyAll_Click" />
-          <Button Content="Clear" DockPanel.Dock="Right" Margin="0,0,6,0" Style="{StaticResource StandardButton}" Padding="8,2" Click="Clear_Click" />
+          <Button Content="Copy All" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Padding="8,2" Click="CopyAll_Click" />
+          <Button Content="Clear" DockPanel.Dock="Right" Margin="0,0,6,0" Style="{DynamicResource StandardButton}" Padding="8,2" Click="Clear_Click" />
         </DockPanel>
-        <DataGrid x:Name="ErrorsGrid" Style="{StaticResource OpenRctDataGrid}" BorderThickness="0">
+        <DataGrid x:Name="ErrorsGrid" Style="{DynamicResource OpenRctDataGrid}" BorderThickness="0">
           <DataGrid.Columns>
             <DataGridTextColumn Header="Time" Binding="{Binding Timestamp, StringFormat=HH:mm:ss}" Width="75" />
             <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="160" />
