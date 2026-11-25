@@ -16,12 +16,12 @@
       <Type>OpenRCT.ConsoleExtension.OpenRctHomeConsoleView</Type>
     </ViewAssemblyDescription>
   </ViewAssemblyDescriptions>
-  <ActionDescriptions>
+  <Actions>
     <ActionDescription Class="Executable" DisplayName="Open OpenRCT Standalone App" MnemonicDisplayName="Open OpenRCT Standalone App" Description="Launch OpenRCT standalone dashboard and tool window">
       <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters></Parameters></Executable>
     </ActionDescription>
-  </ActionDescriptions>
+  </Actions>
   <ChildNodes>
     <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000010"
                          Id="OpenRctRightClickToolsNode"
@@ -33,12 +33,12 @@
           <Type>OpenRCT.ConsoleExtension.OpenRctHomeConsoleView</Type>
         </ViewAssemblyDescription>
       </ViewAssemblyDescriptions>
-      <ActionDescriptions>
+      <Actions>
         <ActionDescription Class="Executable" DisplayName="Open OpenRCT Standalone App" MnemonicDisplayName="Open OpenRCT Standalone App" Description="Launch OpenRCT standalone dashboard and tool window">
           <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters></Parameters></Executable>
         </ActionDescription>
-      </ActionDescriptions>
+      </Actions>
       <ChildNodes>
         <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000101"
                              Id="OpenRctAdCleanupNode"
@@ -50,12 +50,12 @@
               <Type>OpenRCT.ConsoleExtension.AdCleanupConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
-          <ActionDescriptions>
+          <Actions>
             <ActionDescription Class="Executable" DisplayName="Open in New Window" MnemonicDisplayName="Open in New Window" Description="Open Active Directory Cleanup Tool in a separate window">
               <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
               <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action Dashboard.AdCleanup</Parameters></Executable>
             </ActionDescription>
-          </ActionDescriptions>
+          </Actions>
         </RootNodeDescription>
 
         <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000102"
@@ -104,12 +104,12 @@
               <Type>OpenRCT.ConsoleExtension.LapsDashboardConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
-          <ActionDescriptions>
+          <Actions>
             <ActionDescription Class="Executable" DisplayName="Open in New Window" MnemonicDisplayName="Open in New Window" Description="Open LAPS Dashboard in a separate window">
               <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
               <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action Dashboard.Laps</Parameters></Executable>
             </ActionDescription>
-          </ActionDescriptions>
+          </Actions>
         </RootNodeDescription>
 
         <RootNodeDescription NamespaceGuid="b7f2b410-91b5-4c8a-88a1-000000000106"
@@ -122,12 +122,12 @@
               <Type>OpenRCT.ConsoleExtension.SoftwareUpdatesConsoleView</Type>
             </ViewAssemblyDescription>
           </ViewAssemblyDescriptions>
-          <ActionDescriptions>
+          <Actions>
             <ActionDescription Class="Executable" DisplayName="Open in New Window" MnemonicDisplayName="Open in New Window" Description="Open Software Updates Deployment Status in a separate window">
               <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
               <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action Dashboard.SoftwareUpdates</Parameters></Executable>
             </ActionDescription>
-          </ActionDescriptions>
+          </Actions>
         </RootNodeDescription>
       </ChildNodes>
     </RootNodeDescription>

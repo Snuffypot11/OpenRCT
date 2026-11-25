@@ -201,15 +201,7 @@
           <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Schedule Restart or Shutdown" MnemonicDisplayName="Schedule Restart or Shutdown" Description="Schedule restart or shutdown with countdown message" SelectionMode="Both">
-          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
-          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
-        </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Restart System(s)" MnemonicDisplayName="Restart System(s)" Description="Restart selected system(s)" SelectionMode="Both">
-          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
-          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
-        </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Shutdown System(s)" MnemonicDisplayName="Shutdown System(s)" Description="Shut down selected system(s)" SelectionMode="Both">
+        <ActionDescription Class="AssemblyType" DisplayName="Schedule Restart or Shutdown" MnemonicDisplayName="Schedule Restart or Shutdown" Description="Restart or shut down selected device(s) immediately or on a schedule with user notice" SelectionMode="Both">
           <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>

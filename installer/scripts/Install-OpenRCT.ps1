@@ -157,34 +157,74 @@ function Resolve-AssetsOverviewNodeGuid {
     return $defaultGuid
 }
 
-function Find-TypeNamespaceInBin {
-    param([string]$AdminConsoleBin, [string]$TypeName)
+function Get-ConsoleScanAssemblies {
+    param([string]$AdminConsoleBin)
     $candidates = @()
     $cmExe = Join-Path $AdminConsoleBin "Microsoft.ConfigurationManagement.exe"
     if (Test-Path $cmExe) { $candidates += $cmExe }
-    $candidates += (Get-ChildItem -Path $AdminConsoleBin -Filter "AdminUI*.dll" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName)
-    $candidates += (Get-ChildItem -Path $AdminConsoleBin -Filter "Microsoft.ConfigurationManagement*.dll" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName)
+    foreach ($pattern in @("AdminUI*.dll", "Microsoft.ConfigurationManagement*.dll", "Microsoft.EnterpriseManagement*.dll")) {
+        $candidates += (Get-ChildItem -Path $AdminConsoleBin -Filter $pattern -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName)
+    }
+    return ($candidates | Select-Object -Unique)
+}
 
-    foreach ($asmPath in ($candidates | Select-Object -Unique)) {
+function Load-ConsoleAssemblySafe {
+    param([string]$AsmPath)
+    $asm = $null
+    try { $asm = [System.Reflection.Assembly]::LoadFrom($AsmPath) } catch { }
+    if ($null -eq $asm) {
+        try { $asm = [System.Reflection.Assembly]::ReflectionOnlyLoadFrom($AsmPath) } catch { }
+    }
+    return $asm
+}
+
+function Find-AllTypesInBin {
+    param([string]$AdminConsoleBin, [string]$TypeName)
+    $matches = @()
+    foreach ($asmPath in (Get-ConsoleScanAssemblies -AdminConsoleBin $AdminConsoleBin)) {
         try {
-            $asm = $null
-            try { $asm = [System.Reflection.Assembly]::LoadFrom($asmPath) } catch { }
-            if ($null -eq $asm) {
-                try { $asm = [System.Reflection.Assembly]::ReflectionOnlyLoadFrom($asmPath) } catch { }
-            }
+            $asm = Load-ConsoleAssemblySafe -AsmPath $asmPath
             if ($null -eq $asm) { continue }
             $types = @()
             try { $types = $asm.GetTypes() } catch [System.Reflection.ReflectionTypeLoadException] { $types = $_.Exception.Types | Where-Object { $_ -ne $null } }
             foreach ($t in $types) {
                 if ($t.Name -eq $TypeName) {
-                    return @{ Namespace = $t.Namespace; Assembly = $asmPath; Type = $t }
+                    $matches += @{ Namespace = $t.Namespace; Assembly = $asmPath; Type = $t }
                 }
             }
         } catch {
             # Ignore unreadable assembly
         }
     }
-    return $null
+    return $matches
+}
+
+function Find-ConsoleViewBaseClassInBin {
+    param([string]$AdminConsoleBin)
+    $candidates = @()
+    foreach ($asmPath in (Get-ConsoleScanAssemblies -AdminConsoleBin $AdminConsoleBin)) {
+        try {
+            $asm = Load-ConsoleAssemblySafe -AsmPath $asmPath
+            if ($null -eq $asm) { continue }
+            $types = @()
+            try { $types = $asm.GetTypes() } catch [System.Reflection.ReflectionTypeLoadException] { $types = $_.Exception.Types | Where-Object { $_ -ne $null } }
+            foreach ($t in $types) {
+                if (-not $t.IsClass -or -not $t.IsPublic -or $t.IsSealed) { continue }
+                $ifaces = @()
+                try { $ifaces = @($t.GetInterfaces() | ForEach-Object { $_.Name }) } catch { }
+                if ($ifaces -contains "IConsoleView2") {
+                    $flags = [System.Reflection.BindingFlags]"Public,NonPublic,Instance,FlattenHierarchy"
+                    $pCtrl = $t.GetProperty("TypeOfViewController", $flags)
+                    $pView = $t.GetProperty("TypeOfView", $flags)
+                    if ($pCtrl -and $pView) {
+                        $candidates += @{ Namespace = $t.Namespace; Assembly = $asmPath; Type = $t }
+                    }
+                }
+            }
+        } catch {
+        }
+    }
+    return $candidates
 }
 
 function Write-TypeDiagnostic {
@@ -195,14 +235,25 @@ function Write-TypeDiagnostic {
     }
     try {
         $t = $FoundInfo.Type
+        $kind = if ($t.IsInterface) { "interface" } elseif ($t.IsAbstract) { "abstract class" } else { "class" }
         $baseName = if ($t.BaseType) { $t.BaseType.FullName } else { "(none)" }
+        $ifaceList = @($t.GetInterfaces() | ForEach-Object { $_.FullName }) -join ", "
         $flags = [System.Reflection.BindingFlags]"Public,NonPublic,Instance,DeclaredOnly"
-        $props = @($t.GetProperties($flags) | ForEach-Object { "$($_.PropertyType.Name) $($_.Name)" }) -join ", "
+        $props = @($t.GetProperties($flags) | ForEach-Object {
+            $pt = if ($_.PropertyType) { $_.PropertyType.Name } else { "?" }
+            $gm = $_.GetGetMethod($true)
+            $acc = if ($gm -and $gm.IsPublic) { "public" } else { "protected/nonpublic" }
+            "$acc $pt $($_.Name)"
+        }) -join ", "
         $methods = @($t.GetMethods($flags) | Where-Object { -not $_.IsSpecialName } | ForEach-Object {
-            $ps = @($_.GetParameters() | ForEach-Object { "$($_.ParameterType.Name) $($_.Name)" }) -join ", "
-            "$($_.ReturnType.Name) $($_.Name)($ps)"
+            $rt = if ($_.ReturnType) { $_.ReturnType.Name } else { "?" }
+            $ps = @($_.GetParameters() | ForEach-Object {
+                $ptn = if ($_.ParameterType) { $_.ParameterType.Name } else { "?" }
+                "$ptn $($_.Name)"
+            }) -join ", "
+            "$rt $($_.Name)($ps)"
         }) -join "; "
-        Write-Log "SDK diagnostic [$TypeName]: FullName=$($t.FullName), Base=$baseName, Asm=$($FoundInfo.Assembly)"
+        Write-Log "SDK diagnostic [$TypeName]: ($kind) FullName=$($t.FullName), Base=$baseName, Ifaces=[$ifaceList], Asm=$($FoundInfo.Assembly)"
         Write-Log "SDK diagnostic [$TypeName] Props: $props"
         Write-Log "SDK diagnostic [$TypeName] Methods: $methods"
     } catch {
@@ -276,6 +327,7 @@ function Build-LocalConsoleExtension {
         "/r:`"$(Join-Path $TargetDir 'OpenRCT.UI.dll')`"",
         "/r:`"System.Xml.dll`"",
         "/r:`"System.Xaml.dll`"",
+        "/r:`"System.Windows.Forms.dll`"",
         "/r:`"$(Join-Path $wpfRefDir 'PresentationCore.dll')`"",
         "/r:`"$(Join-Path $wpfRefDir 'PresentationFramework.dll')`"",
         "/r:`"$(Join-Path $wpfRefDir 'WindowsBase.dll')`"",
@@ -289,6 +341,8 @@ function Build-LocalConsoleExtension {
         "AdminUI.Common.dll",
         "AdminUI.Controls.dll",
         "AdminUI.Overview.dll",
+        "AdminUI.ViewCommon.dll",
+        "AdminUI.HomePageView.dll",
         "AdminUI.UIResources.dll",
         "Microsoft.ConfigurationManagement.AdminConsole.Common.dll",
         "Microsoft.ConfigurationManagement.AdminConsole.Views.Common.dll"
@@ -299,35 +353,93 @@ function Build-LocalConsoleExtension {
         }
     }
 
+    # Include all Microsoft.EnterpriseManagement*.dll (WpfViews, ConsoleFramework, ViewFramework, Foundation, etc.)
+    $enterpriseDlls = Get-ChildItem -Path $AdminConsoleBin -Filter "Microsoft.EnterpriseManagement*.dll" -ErrorAction SilentlyContinue
+    $dashboardRefs = @()
+    foreach ($eDll in $enterpriseDlls) {
+        $refArg = "/r:`"$($eDll.FullName)`""
+        if ($baseRefs -notcontains $refArg -and $dashboardRefs -notcontains $refArg) {
+            $dashboardRefs += $refArg
+        }
+    }
+
     # Try compiling both Right-Click Action Handler + Embedded Dashboard Views
     if (Test-Path $viewsCs) {
-        $viewsSourceToCompile = $viewsCs
-        $extraUsings = @()
-        $discoveredRefs = @()
-        $discoveredMap = @{}
-        foreach ($typeName in @("OverviewControllerBase", "Overview", "IConsoleView2")) {
-            $found = Find-TypeNamespaceInBin -AdminConsoleBin $AdminConsoleBin -TypeName $typeName
-            $discoveredMap[$typeName] = $found
-            if ($found) {
-                Write-Log "Discovered $typeName in namespace '$($found.Namespace)' ($($found.Assembly))"
-                $refArg = "/r:`"$($found.Assembly)`""
-                if ($baseRefs -notcontains $refArg -and $discoveredRefs -notcontains $refArg) {
-                    $discoveredRefs += $refArg
-                }
-                if ($found.Namespace -and $found.Namespace -ne "Microsoft.ConfigurationManagement.AdminConsole") {
-                    $stmt = "using $($found.Namespace);"
-                    if ($extraUsings -notcontains $stmt) { $extraUsings += $stmt }
+        $overviewCtrlMatches = @(Find-AllTypesInBin -AdminConsoleBin $AdminConsoleBin -TypeName "OverviewControllerBase")
+        $overviewViewMatches = @(Find-AllTypesInBin -AdminConsoleBin $AdminConsoleBin -TypeName "Overview")
+        $icv2Matches = @(Find-AllTypesInBin -AdminConsoleBin $AdminConsoleBin -TypeName "IConsoleView2")
+        $viewBaseCandidates = @(Find-ConsoleViewBaseClassInBin -AdminConsoleBin $AdminConsoleBin)
+
+        $overviewCtrl = $overviewCtrlMatches | Select-Object -First 1
+        $overviewView = $overviewViewMatches | Where-Object { $_.Namespace -match "WpfViews" } | Select-Object -First 1
+        if (-not $overviewView) { $overviewView = $overviewViewMatches | Select-Object -First 1 }
+
+        # Prefer a class named IConsoleView2; otherwise a public base class implementing IConsoleView2; otherwise the IConsoleView2 interface
+        $icv2Class = $icv2Matches | Where-Object { $_.Type.IsClass } | Select-Object -First 1
+        $viewBaseClass = if ($icv2Class) { $icv2Class } elseif ($viewBaseCandidates.Count -gt 0) {
+            ($viewBaseCandidates | Where-Object { $_.Type.IsAbstract } | Select-Object -First 1)
+        } else { $null }
+        if (-not $viewBaseClass -and $viewBaseCandidates.Count -gt 0) {
+            $viewBaseClass = $viewBaseCandidates | Select-Object -First 1
+        }
+        $icv2Interface = $icv2Matches | Where-Object { $_.Type.IsInterface } | Select-Object -First 1
+
+        foreach ($m in @($overviewCtrl, $overviewView, $viewBaseClass, $icv2Interface)) {
+            if ($m -and $m.Assembly) {
+                $refArg = "/r:`"$($m.Assembly)`""
+                if ($baseRefs -notcontains $refArg -and $dashboardRefs -notcontains $refArg) {
+                    $dashboardRefs += $refArg
                 }
             }
         }
-        if ($extraUsings.Count -gt 0) {
-            $tempViews = Join-Path $env:TEMP "OpenRCT_DashboardConsoleViews_Bound.cs"
-            $rawViews = Get-Content -Path $viewsCs -Raw -Encoding UTF8
-            Set-Content -Path $tempViews -Value (($extraUsings -join "`r`n") + "`r`n" + $rawViews) -Encoding UTF8
-            $viewsSourceToCompile = $tempViews
+
+        if ($overviewCtrl) { Write-Log "Discovered OverviewControllerBase: $($overviewCtrl.Type.FullName) ($($overviewCtrl.Assembly))" }
+        if ($overviewView) { Write-Log "Discovered Overview: $($overviewView.Type.FullName) ($($overviewView.Assembly))" }
+        if ($viewBaseClass) { Write-Log "Discovered ViewDescription base class: $($viewBaseClass.Type.FullName) ($($viewBaseClass.Assembly))" }
+        elseif ($icv2Interface) { Write-Log "Discovered IConsoleView2 interface: $($icv2Interface.Type.FullName) ($($icv2Interface.Assembly))" }
+
+        $rawViews = Get-Content -Path $viewsCs -Raw -Encoding UTF8
+        if ($overviewCtrl) {
+            $rawViews = $rawViews.Replace(": OverviewControllerBase", ": $($overviewCtrl.Type.FullName)")
+        }
+        if ($overviewView) {
+            $rawViews = $rawViews.Replace("typeof(Overview)", "typeof($($overviewView.Type.FullName))")
         }
 
-        $fullArgs = $baseRefs + $discoveredRefs + @("`"$handlerCs`"", "`"$viewsSourceToCompile`"")
+        if ($viewBaseClass) {
+            $baseType = $viewBaseClass.Type
+            $rawViews = $rawViews.Replace(": IConsoleView2", ": $($baseType.FullName)")
+            $flags = [System.Reflection.BindingFlags]"Public,NonPublic,Instance,FlattenHierarchy"
+            $pView = $baseType.GetProperty("TypeOfView", $flags)
+            $pCtrl = $baseType.GetProperty("TypeOfViewController", $flags)
+            if ($pView -and $pView.GetGetMethod($true) -and $pView.GetGetMethod($true).IsPublic) {
+                $rawViews = $rawViews.Replace("protected override Type TypeOfView", "public override Type TypeOfView")
+            }
+            if ($pCtrl -and $pCtrl.GetGetMethod($true) -and $pCtrl.GetGetMethod($true).IsPublic) {
+                $rawViews = $rawViews.Replace("protected override Type TypeOfViewController", "public override Type TypeOfViewController")
+            }
+            $mTryCfg = $baseType.GetMethod("TryConfigure", $flags)
+            if ($mTryCfg -and (-not $mTryCfg.IsVirtual -or $mTryCfg.IsFinal)) {
+                $rawViews = $rawViews.Replace("public override bool TryConfigure(", "public new bool TryConfigure(")
+            }
+        } elseif ($icv2Interface) {
+            # Direct interface implementation fallback when no abstract ConsoleView base class was found
+            $rawViews = $rawViews.Replace(": IConsoleView2", ": $($icv2Interface.Type.FullName)")
+            $rawViews = $rawViews.Replace("protected override Type TypeOfView", "public Type TypeOfView")
+            $rawViews = $rawViews.Replace("protected override Type TypeOfViewController", "public override Type TypeOfViewController")
+            $rawViews = $rawViews.Replace("public override bool TryConfigure(", "public bool TryConfigure(")
+            $rawViews = $rawViews.Replace("public new bool TryInitialize(", "public bool TryInitialize(")
+            # Declare abstract TypeOfViewController on the base class so sealed subclasses override it cleanly
+            $rawViews = $rawViews.Replace(
+                "public Type TypeOfView",
+                "public abstract Type TypeOfViewController { get; }`r`n`r`n        public Type TypeOfView"
+            )
+        }
+
+        $tempViews = Join-Path $env:TEMP "OpenRCT_DashboardConsoleViews_Bound.cs"
+        Set-Content -Path $tempViews -Value $rawViews -Encoding UTF8
+
+        $fullArgs = $baseRefs + $dashboardRefs + @("`"$handlerCs`"", "`"$tempViews`"")
         $code = Invoke-CscCompile -CscPath $csc -ArgsList $fullArgs
         if ($code -eq 0) {
             Write-Log "Successfully bound OpenRCT.ConsoleExtension.dll (Actions + Embedded Dashboards) to local MECM Console."
@@ -337,9 +449,10 @@ function Build-LocalConsoleExtension {
         }
 
         Write-Log "Full bridge compile exited with code $code; logging SDK diagnostics and retrying with OpenRctActionHandler.cs only." "WARN"
-        foreach ($typeName in @("OverviewControllerBase", "Overview", "IConsoleView2")) {
-            Write-TypeDiagnostic -TypeName $typeName -FoundInfo $discoveredMap[$typeName]
-        }
+        Write-TypeDiagnostic -TypeName "OverviewControllerBase" -FoundInfo $overviewCtrl
+        Write-TypeDiagnostic -TypeName "Overview" -FoundInfo $overviewView
+        foreach ($m in $icv2Matches) { Write-TypeDiagnostic -TypeName "IConsoleView2" -FoundInfo $m }
+        foreach ($m in $viewBaseCandidates) { Write-TypeDiagnostic -TypeName "ViewBaseCandidate" -FoundInfo $m }
     }
 
     $handlerOnlyArgs = $baseRefs + @("`"$handlerCs`"")
@@ -472,16 +585,20 @@ try {
         if (Test-Path $nodesTemplate) {
             $overviewGuid = Resolve-AssetsOverviewNodeGuid -AdminConsoleRoot $detectedConsole
             $nodeDestDir = Join-Path $detectedConsole "XmlStorage\Extensions\Nodes\$overviewGuid"
-            New-Item -ItemType Directory -Path $nodeDestDir -Force | Out-Null
             $nodeDestFile = Join-Path $nodeDestDir "OpenRCT_Nodes.xml"
-            $nodeXml = (Get-Content -Path $nodesTemplate -Raw -Encoding UTF8).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
-            if (-not $dashboardsBound) {
-                # Never deploy ViewAssemblyDescriptions pointing to types that failed to compile, or MECM Console may crash on click.
-                Write-Log "Stripping inline ViewAssemblyDescriptions from OpenRCT_Nodes.xml because DashboardConsoleViews did not bind; right-click 'Open in New Window' actions remain active." "WARN"
-                $nodeXml = [System.Text.RegularExpressions.Regex]::Replace($nodeXml, "(?s)\s*<ViewAssemblyDescriptions>.*?</ViewAssemblyDescriptions>", "")
+            if ($dashboardsBound) {
+                New-Item -ItemType Directory -Path $nodeDestDir -Force | Out-Null
+                $nodeXml = (Get-Content -Path $nodesTemplate -Raw -Encoding UTF8).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
+                Set-Content -Path $nodeDestFile -Value $nodeXml -Encoding UTF8
+                Write-Log "Deployed Console Dashboard Nodes XML: $nodeDestFile (InlineViews=True)"
+            } else {
+                # Deploying RootNodeDescription without ViewAssemblyDescriptions crashes MECM Console
+                # in SccmTreeNavigationNodeProviderBase.AddSavedSearchMenuGroup (ArgumentOutOfRangeException).
+                if (Test-Path $nodeDestFile) {
+                    Remove-Item -Path $nodeDestFile -Force -ErrorAction SilentlyContinue
+                }
+                Write-Log "Skipped deploying OpenRCT_Nodes.xml because DashboardConsoleViews did not bind (prevents MECM Console crash). Use standalone OpenRCT app for dashboards and share C:\ProgramData\OpenRCT\install.log." "WARN"
             }
-            Set-Content -Path $nodeDestFile -Value $nodeXml -Encoding UTF8
-            Write-Log "Deployed Console Dashboard Nodes XML: $nodeDestFile (InlineViews=$dashboardsBound)"
         }
 
         Write-Log "NOTE for MECM 2103+: If extensions still do not appear after restarting the Console, verify Hierarchy Settings -> 'Only allow console extensions that are approved for the hierarchy' is UNCHECKED (Administration -> Site Configuration -> Sites -> Hierarchy Settings)."

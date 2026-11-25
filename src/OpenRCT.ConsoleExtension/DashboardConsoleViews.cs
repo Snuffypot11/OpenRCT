@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Xml;
 using Microsoft.ConfigurationManagement.AdminConsole;
 using Microsoft.ConfigurationManagement.AdminConsole.Schema;
+using Microsoft.ConfigurationManagement.ManagementProvider;
 using OpenRCT.Core.Models;
 using OpenRCT.UI;
 
@@ -40,6 +41,14 @@ namespace OpenRCT.ConsoleExtension
                 string server;
                 string siteCode;
                 OpenRctActionHandler.ExtractSmsConnection(scopeNode, null, out server, out siteCode);
+
+                // OverviewControllerBase on MECM CB exposes ConnectionManager directly
+                if (string.IsNullOrEmpty(server) || string.IsNullOrEmpty(siteCode))
+                {
+                    var cm = TryResolveConnectionManager();
+                    OpenRctActionHandler.ExtractFromConnectionManager(cm, ref server, ref siteCode);
+                }
+
                 this.Content = CreateDashboardControl(DashboardKey, server, siteCode);
             }
             catch (Exception ex)
@@ -47,6 +56,22 @@ namespace OpenRCT.ConsoleExtension
                 LogConsoleViewError(DashboardKey, ex);
                 this.Content = BuildFallbackErrorPanel(DashboardKey, ex);
             }
+        }
+
+        private ConnectionManagerBase TryResolveConnectionManager()
+        {
+            try
+            {
+                var prop = this.GetType().GetProperty("ConnectionManager", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                if (prop != null)
+                {
+                    return prop.GetValue(this, null) as ConnectionManagerBase;
+                }
+            }
+            catch
+            {
+            }
+            return null;
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

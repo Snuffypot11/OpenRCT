@@ -261,29 +261,25 @@ namespace OpenRCT.ConsoleExtension
             var collected = new List<IResultObject>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            // 1. Real ConfigMgr multi-select IResultObject exposes GenericsArray or ResultObjectList
-            foreach (var propName in new[] { "GenericsArray", "ResultObjectList" })
+            // 1. Check ResultObjectList (avoid GenericsArray which throws InvalidCastException on single WqlResultObject)
+            try
             {
-                try
+                var listProp = selected.GetType().GetProperty("ResultObjectList", BindingFlags.Public | BindingFlags.Instance);
+                if (listProp != null)
                 {
-                    var listProp = selected.GetType().GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
-                    if (listProp != null)
+                    var listObj = listProp.GetValue(selected, null) as IEnumerable;
+                    if (listObj != null)
                     {
-                        var listObj = listProp.GetValue(selected, null) as IEnumerable;
-                        if (listObj != null)
+                        foreach (var entry in listObj)
                         {
-                            foreach (var entry in listObj)
-                            {
-                                var ro = entry as IResultObject;
-                                if (ro != null) AddUnique(collected, seen, ro);
-                            }
+                            var ro = entry as IResultObject;
+                            if (ro != null) AddUnique(collected, seen, ro);
                         }
                     }
                 }
-                catch
-                {
-                }
-                if (collected.Count > 0) break;
+            }
+            catch
+            {
             }
 
             // 2. Enumerate IResultObject directly (standard multi-select IEnumerable in ConfigMgr)
@@ -357,6 +353,17 @@ namespace OpenRCT.ConsoleExtension
                     connMgr = selected.ConnectionManager;
                 }
 
+                ExtractFromConnectionManager(connMgr, ref server, ref siteCode);
+            }
+            catch
+            {
+            }
+        }
+
+        internal static void ExtractFromConnectionManager(ConnectionManagerBase connMgr, ref string server, ref string siteCode)
+        {
+            try
+            {
                 if (connMgr != null && connMgr.NamedValueDictionary != null)
                 {
                     object srvObj;
@@ -380,7 +387,26 @@ namespace OpenRCT.ConsoleExtension
         {
             try
             {
-                if (obj != null && obj.Properties != null)
+                if (obj == null) return null;
+
+                // Check PropertyList dictionary first (present on real ConfigMgr WqlResultObjectBase)
+                // so missing optional properties do not log ManagementException noise to SmsAdminUI.log.
+                var plProp = obj.GetType().GetProperty("PropertyList", BindingFlags.Public | BindingFlags.Instance);
+                if (plProp != null)
+                {
+                    var dict = plProp.GetValue(obj, null) as IDictionary;
+                    if (dict != null)
+                    {
+                        if (dict.Contains(propName))
+                        {
+                            var val = dict[propName];
+                            if (val != null) return val.ToString();
+                        }
+                        return null;
+                    }
+                }
+
+                if (obj.Properties != null)
                 {
                     var item = obj.Properties[propName];
                     if (item != null) return item.StringValue;
