@@ -8,17 +8,23 @@
     <MajorUpgrade DowngradeErrorMessage="A newer version of OpenRCT is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
-    <!-- Optional silent install property: msiexec /i OpenRCT.msi /qn PSEXECPATH="C:\Tools\PsExec64.exe" -->
-    <Property Id="PSEXECPATH" Value="" />
-    <Property Id="CONSOLEROOT" Value="" />
-    <Property Id="INSTALLMODE" Value="Assembly" />
+    <!-- Optional silent install properties: msiexec /i OpenRCT.msi /qn PSEXECPATH="C:\Tools\PsExec64.exe" -->
+    <Property Id="PSEXECPATH" Secure="yes" />
+    <Property Id="CONSOLEROOT" Secure="yes" />
+    <Property Id="INSTALLMODE" Value="Assembly" Secure="yes" />
 
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="OpenRCT">
         <Directory Id="ScriptsFolder" Name="scripts" />
         <Directory Id="BridgeSrcFolder" Name="console-bridge-src" />
-        <Directory Id="XmlActionsFolder" Name="console-extensions\XmlStorage\Extensions\Actions" />
-        <Directory Id="XmlNodesFolder" Name="console-extensions\XmlStorage\Extensions\Nodes" />
+        <Directory Id="ConsoleExtRootFolder" Name="console-extensions">
+          <Directory Id="XmlStorageFolder" Name="XmlStorage">
+            <Directory Id="XmlExtensionsFolder" Name="Extensions">
+              <Directory Id="XmlActionsFolder" Name="Actions" />
+              <Directory Id="XmlNodesFolder" Name="Nodes" />
+            </Directory>
+          </Directory>
+        </Directory>
       </Directory>
     </StandardDirectory>
 

@@ -43,7 +43,9 @@ jobs:
           Copy-Item "console-extensions/*" "$stage/console-extensions/" -Recurse -Force
           Copy-Item "LICENSE", "README.md" "$stage/" -Force
           Compress-Archive -Path "$stage/*" -DestinationPath "artifacts/OpenRCT-portable.zip" -Force
-          Copy-Item "installer/OpenRCT.Installer/bin/x64/Release/OpenRCT.msi" "artifacts/OpenRCT.msi" -Force
+          $msi = Get-ChildItem "installer/OpenRCT.Installer/bin" -Recurse -Filter "OpenRCT.msi" | Select-Object -First 1
+          if (-not $msi) { throw "OpenRCT.msi was not produced by WiX build." }
+          Copy-Item $msi.FullName "artifacts/OpenRCT.msi" -Force
           Get-FileHash "artifacts/OpenRCT.msi", "artifacts/OpenRCT-portable.zip" -Algorithm SHA256 | Format-Table -AutoSize | Out-File "artifacts/SHA256SUMS.txt"
 
       - name: Upload build artifacts
