@@ -5,251 +5,251 @@
     <AdminConsole>\XmlStorage\Extensions\Actions\ed9dee86-eadd-4ac8-82a1-7234a4646e62\OpenRCT_DeviceActions.xml
     <AdminConsole>\XmlStorage\Extensions\Actions\3fd01cd1-9e01-461e-92cd-94866b8d1f39\OpenRCT_DeviceActions.xml
 -->
-<ActionDescription Class="Group" DisplayName="OpenRCT" MnemonicDisplayName="OpenRCT" Description="Open Source Right Click Tools for Microsoft Configuration Manager" SqmDataPoint="53">
+<ActionDescription Class="Group" DisplayName="OpenRCT" MnemonicDisplayName="OpenRCT" Description="Open Source Right Click Tools for Microsoft Configuration Manager" SqmDataPoint="53" SelectionMode="Both">
   <ShowOn>
     <string>ContextMenu</string>
     <string>DefaultHomeTab</string>
   </ShowOn>
   <ActionGroups>
     <!-- 1. Client Actions (12) -->
-    <ActionDescription Class="Group" DisplayName="Client Actions" MnemonicDisplayName="Client Actions" Description="Trigger ConfigMgr client actions on selected device(s)">
-      <ShowOn><string>ContextMenu</string></ShowOn>
+    <ActionDescription Class="Group" DisplayName="Client Actions" MnemonicDisplayName="Client Actions" Description="Trigger ConfigMgr client actions on selected device(s)" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionGroups>
-        <ActionDescription Class="AssemblyType" DisplayName="Application Deployment Evaluation Cycle" MnemonicDisplayName="Application Deployment Evaluation Cycle" Description="Trigger Application Deployment Evaluation Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Application Deployment Evaluation Cycle" MnemonicDisplayName="Application Deployment Evaluation Cycle" Description="Trigger Application Deployment Evaluation Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Discovery Data Collection Cycle" MnemonicDisplayName="Discovery Data Collection Cycle" Description="Trigger Discovery Data Collection Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Discovery Data Collection Cycle" MnemonicDisplayName="Discovery Data Collection Cycle" Description="Trigger Discovery Data Collection Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="File Collection Cycle" MnemonicDisplayName="File Collection Cycle" Description="Trigger File Collection Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="File Collection Cycle" MnemonicDisplayName="File Collection Cycle" Description="Trigger File Collection Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Hardware Inventory Cycle" MnemonicDisplayName="Hardware Inventory Cycle" Description="Trigger Hardware Inventory Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Hardware Inventory Cycle" MnemonicDisplayName="Hardware Inventory Cycle" Description="Trigger Hardware Inventory Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Machine Policy Retrieval and Evaluation Cycle" MnemonicDisplayName="Machine Policy Retrieval and Evaluation Cycle" Description="Trigger Machine Policy Retrieval and Evaluation Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Machine Policy Retrieval and Evaluation Cycle" MnemonicDisplayName="Machine Policy Retrieval and Evaluation Cycle" Description="Trigger Machine Policy Retrieval and Evaluation Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Send Unsent State Messages" MnemonicDisplayName="Send Unsent State Messages" Description="Send Unsent State Messages">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Send Unsent State Messages" MnemonicDisplayName="Send Unsent State Messages" Description="Send Unsent State Messages" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Software Inventory Cycle" MnemonicDisplayName="Software Inventory Cycle" Description="Trigger Software Inventory Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Software Inventory Cycle" MnemonicDisplayName="Software Inventory Cycle" Description="Trigger Software Inventory Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Software Metering Usage Report Cycle" MnemonicDisplayName="Software Metering Usage Report Cycle" Description="Trigger Software Metering Usage Report Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Software Metering Usage Report Cycle" MnemonicDisplayName="Software Metering Usage Report Cycle" Description="Trigger Software Metering Usage Report Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Software Updates Deployment Evaluation Cycle" MnemonicDisplayName="Software Updates Deployment Evaluation Cycle" Description="Trigger Software Updates Deployment Evaluation Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Software Updates Deployment Evaluation Cycle" MnemonicDisplayName="Software Updates Deployment Evaluation Cycle" Description="Trigger Software Updates Deployment Evaluation Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Software Updates Scan Cycle" MnemonicDisplayName="Software Updates Scan Cycle" Description="Trigger Software Updates Scan Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Software Updates Scan Cycle" MnemonicDisplayName="Software Updates Scan Cycle" Description="Trigger Software Updates Scan Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="State Message Cache Cleanup" MnemonicDisplayName="State Message Cache Cleanup" Description="Clean and resynchronize client state message cache">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="State Message Cache Cleanup" MnemonicDisplayName="State Message Cache Cleanup" Description="Clean and resynchronize client state message cache" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Installer Source List Update Cycle" MnemonicDisplayName="Windows Installer Source List Update Cycle" Description="Trigger Windows Installer Source List Update Cycle">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Installer Source List Update Cycle" MnemonicDisplayName="Windows Installer Source List Update Cycle" Description="Trigger Windows Installer Source List Update Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
       </ActionGroups>
     </ActionDescription>
 
     <!-- 2. Client Tools (13) -->
-    <ActionDescription Class="Group" DisplayName="Client Tools" MnemonicDisplayName="Client Tools" Description="Manage the ConfigMgr client on selected device(s)">
-      <ShowOn><string>ContextMenu</string></ShowOn>
+    <ActionDescription Class="Group" DisplayName="Client Tools" MnemonicDisplayName="Client Tools" Description="Manage the ConfigMgr client on selected device(s)" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionGroups>
-        <ActionDescription Class="AssemblyType" DisplayName="Add Device(s) to Collection" MnemonicDisplayName="Add Device(s) to Collection" Description="Add selected device(s) to a Device Collection">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Add Device(s) to Collection" MnemonicDisplayName="Add Device(s) to Collection" Description="Add selected device(s) to a Device Collection" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Client Information" MnemonicDisplayName="Client Information" Description="View ConfigMgr client details, components, and cache">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Client Information" MnemonicDisplayName="Client Information" Description="View ConfigMgr client details, components, and cache" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Open Client Installation Log File Folder" MnemonicDisplayName="Open Client Installation Log File Folder" Description="Open \\host\C$\Windows\ccmsetup\Logs">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Open Client Installation Log File Folder" MnemonicDisplayName="Open Client Installation Log File Folder" Description="Open \\host\C$\Windows\ccmsetup\Logs" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Open Client Log File Folder" MnemonicDisplayName="Open Client Log File Folder" Description="Open \\host\C$\Windows\CCM\Logs">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Open Client Log File Folder" MnemonicDisplayName="Open Client Log File Folder" Description="Open \\host\C$\Windows\CCM\Logs" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Refresh Updates Compliance State" MnemonicDisplayName="Refresh Updates Compliance State" Description="Refresh client software update compliance state">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Refresh Updates Compliance State" MnemonicDisplayName="Refresh Updates Compliance State" Description="Refresh client software update compliance state" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Remote Software Center" MnemonicDisplayName="Remote Software Center" Description="View and trigger Software Center apps, updates, and packages remotely">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Remote Software Center" MnemonicDisplayName="Remote Software Center" Description="View and trigger Software Center apps, updates, and packages remotely" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Rerun Deployment" MnemonicDisplayName="Rerun Deployment" Description="Re-evaluate and rerun deployments on selected device(s)">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Rerun Deployment" MnemonicDisplayName="Rerun Deployment" Description="Re-evaluate and rerun deployments on selected device(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Restart SMS Agent Host Service" MnemonicDisplayName="Restart SMS Agent Host Service" Description="Restart CcmExec service">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Restart SMS Agent Host Service" MnemonicDisplayName="Restart SMS Agent Host Service" Description="Restart CcmExec service" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Run Client Check" MnemonicDisplayName="Run Client Check" Description="Run ccmeval.exe on selected device(s)">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Run Client Check" MnemonicDisplayName="Run Client Check" Description="Run ccmeval.exe on selected device(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Stop ConfigMgr Client Activities" MnemonicDisplayName="Stop ConfigMgr Client Activities" Description="Stop CcmExec service activities">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Stop ConfigMgr Client Activities" MnemonicDisplayName="Stop ConfigMgr Client Activities" Description="Stop CcmExec service activities" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Show Collections - Advanced" MnemonicDisplayName="Show Collections - Advanced" Description="Show device collections and maintenance windows">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Show Collections - Advanced" MnemonicDisplayName="Show Collections - Advanced" Description="Show device collections and maintenance windows" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Repair Client" MnemonicDisplayName="Repair Client" Description="Initiate ConfigMgr client repair">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Repair Client" MnemonicDisplayName="Repair Client" Description="Initiate ConfigMgr client repair" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Uninstall SCCM Client" MnemonicDisplayName="Uninstall SCCM Client" Description="Uninstall ConfigMgr client via ccmsetup.exe /uninstall">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Uninstall SCCM Client" MnemonicDisplayName="Uninstall SCCM Client" Description="Uninstall ConfigMgr client via ccmsetup.exe /uninstall" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
       </ActionGroups>
     </ActionDescription>
 
     <!-- 3. Console Tools (21) -->
-    <ActionDescription Class="Group" DisplayName="Console Tools" MnemonicDisplayName="Console Tools" Description="Remote Windows and Active Directory management tools">
-      <ShowOn><string>ContextMenu</string></ShowOn>
+    <ActionDescription Class="Group" DisplayName="Console Tools" MnemonicDisplayName="Console Tools" Description="Remote Windows and Active Directory management tools" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionGroups>
-        <ActionDescription Class="AssemblyType" DisplayName="AD Security Groups" MnemonicDisplayName="AD Security Groups" Description="View and manage computer AD security groups">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="AD Security Groups" MnemonicDisplayName="AD Security Groups" Description="View and manage computer AD security groups" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Connect to C$" MnemonicDisplayName="Connect to C$" Description="Open \\host\C$ in Explorer">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Connect to C$" MnemonicDisplayName="Connect to C$" Description="Open \\host\C$ in Explorer" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Delete Device(s) from Active Directory" MnemonicDisplayName="Delete Device(s) from Active Directory" Description="Delete selected computer account(s) from Active Directory">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Delete Device(s) from Active Directory" MnemonicDisplayName="Delete Device(s) from Active Directory" Description="Delete selected computer account(s) from Active Directory" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Delete Device(s) From ConfigMgr" MnemonicDisplayName="Delete Device(s) From ConfigMgr" Description="Delete selected device(s) from Configuration Manager">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Delete Device(s) From ConfigMgr" MnemonicDisplayName="Delete Device(s) From ConfigMgr" Description="Delete selected device(s) from Configuration Manager" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Disable Device(s) in Active Directory" MnemonicDisplayName="Disable Device(s) in Active Directory" Description="Disable selected computer account(s) in Active Directory">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Disable Device(s) in Active Directory" MnemonicDisplayName="Disable Device(s) in Active Directory" Description="Disable selected computer account(s) in Active Directory" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Enable Device(s) in Active Directory" MnemonicDisplayName="Enable Device(s) in Active Directory" Description="Enable selected computer account(s) in Active Directory">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Enable Device(s) in Active Directory" MnemonicDisplayName="Enable Device(s) in Active Directory" Description="Enable selected computer account(s) in Active Directory" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Group Policy Update" MnemonicDisplayName="Group Policy Update" Description="Run gpupdate /force on selected device(s)">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Group Policy Update" MnemonicDisplayName="Group Policy Update" Description="Run gpupdate /force on selected device(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Interactive Command Prompt" MnemonicDisplayName="Interactive Command Prompt" Description="Open remote cmd.exe using user-configured PsExec path">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Interactive Command Prompt" MnemonicDisplayName="Interactive Command Prompt" Description="Open remote cmd.exe using user-configured PsExec path" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Interactive PowerShell Prompt" MnemonicDisplayName="Interactive PowerShell Prompt" Description="Open remote PowerShell session via WinRM">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Interactive PowerShell Prompt" MnemonicDisplayName="Interactive PowerShell Prompt" Description="Open remote PowerShell session via WinRM" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Manage Computer" MnemonicDisplayName="Manage Computer" Description="Open Computer Management MMC">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Manage Computer" MnemonicDisplayName="Manage Computer" Description="Open Computer Management MMC" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Open Event Viewer" MnemonicDisplayName="Open Event Viewer" Description="Open Event Viewer MMC connected to remote device">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Open Event Viewer" MnemonicDisplayName="Open Event Viewer" Description="Open Event Viewer MMC connected to remote device" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Open Regedit" MnemonicDisplayName="Open Regedit" Description="Open Registry Editor">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Open Regedit" MnemonicDisplayName="Open Regedit" Description="Open Registry Editor" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Ping System(s)" MnemonicDisplayName="Ping System(s)" Description="Ping single or multiple selected device(s)">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Ping System(s)" MnemonicDisplayName="Ping System(s)" Description="Ping single or multiple selected device(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Running Processes" MnemonicDisplayName="Running Processes" Description="View and terminate running processes on selected device(s)">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Running Processes" MnemonicDisplayName="Running Processes" Description="View and terminate running processes on selected device(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Send Notification" MnemonicDisplayName="Send Notification" Description="Send interactive notification message to logged-on users">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Send Notification" MnemonicDisplayName="Send Notification" Description="Send interactive notification message to logged-on users" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="System Information" MnemonicDisplayName="System Information" Description="Open 10-tab System Information inspector">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="System Information" MnemonicDisplayName="System Information" Description="Open 10-tab System Information inspector" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Wake On LAN" MnemonicDisplayName="Wake On LAN" Description="Send Wake-on-LAN magic packet to selected device(s)">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Wake On LAN" MnemonicDisplayName="Wake On LAN" Description="Send Wake-on-LAN magic packet to selected device(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Cancel Pending Restart or Shutdown" MnemonicDisplayName="Cancel Pending Restart or Shutdown" Description="Abort scheduled restart or shutdown">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Cancel Pending Restart or Shutdown" MnemonicDisplayName="Cancel Pending Restart or Shutdown" Description="Abort scheduled restart or shutdown" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Schedule Restart or Shutdown" MnemonicDisplayName="Schedule Restart or Shutdown" Description="Schedule restart or shutdown with countdown message">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Schedule Restart or Shutdown" MnemonicDisplayName="Schedule Restart or Shutdown" Description="Schedule restart or shutdown with countdown message" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Restart System(s)" MnemonicDisplayName="Restart System(s)" Description="Restart selected system(s)">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Restart System(s)" MnemonicDisplayName="Restart System(s)" Description="Restart selected system(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Shutdown System(s)" MnemonicDisplayName="Shutdown System(s)" Description="Shut down selected system(s)">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Shutdown System(s)" MnemonicDisplayName="Shutdown System(s)" Description="Shut down selected system(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
       </ActionGroups>
     </ActionDescription>
 
     <!-- 4. Security Tools -->
-    <ActionDescription Class="Group" DisplayName="Security Tools" MnemonicDisplayName="Security Tools" Description="LAPS, BitLocker, and Windows Defender tools">
-      <ShowOn><string>ContextMenu</string></ShowOn>
+    <ActionDescription Class="Group" DisplayName="Security Tools" MnemonicDisplayName="Security Tools" Description="LAPS, BitLocker, and Windows Defender tools" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionGroups>
-        <ActionDescription Class="AssemblyType" DisplayName="View LAPS Password" MnemonicDisplayName="View LAPS Password" Description="View Legacy or Windows LAPS password">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="View LAPS Password" MnemonicDisplayName="View LAPS Password" Description="View Legacy or Windows LAPS password" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="View BitLocker Recovery Key" MnemonicDisplayName="View BitLocker Recovery Key" Description="View BitLocker recovery keys from AD and ConfigMgr">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="View BitLocker Recovery Key" MnemonicDisplayName="View BitLocker Recovery Key" Description="View BitLocker recovery keys from AD and ConfigMgr" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Quick Scan" MnemonicDisplayName="Windows Defender - Quick Scan" Description="Run Windows Defender Quick Scan">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Quick Scan" MnemonicDisplayName="Windows Defender - Quick Scan" Description="Run Windows Defender Quick Scan" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Full Scan" MnemonicDisplayName="Windows Defender - Full Scan" Description="Run Windows Defender Full Scan">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Full Scan" MnemonicDisplayName="Windows Defender - Full Scan" Description="Run Windows Defender Full Scan" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Update Definitions" MnemonicDisplayName="Windows Defender - Update Definitions" Description="Update Windows Defender antimalware signatures">
-          <ShowOn><string>ContextMenu</string></ShowOn>
+        <ActionDescription Class="AssemblyType" DisplayName="Windows Defender - Update Definitions" MnemonicDisplayName="Windows Defender - Update Definitions" Description="Update Windows Defender antimalware signatures" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
       </ActionGroups>
     </ActionDescription>
 
     <!-- 5. Device Status Messages & Settings -->
-    <ActionDescription Class="AssemblyType" DisplayName="Device Status Messages" MnemonicDisplayName="Device Status Messages" Description="View ConfigMgr status messages for selected device(s)">
-      <ShowOn><string>ContextMenu</string></ShowOn>
+    <ActionDescription Class="AssemblyType" DisplayName="Device Status Messages" MnemonicDisplayName="Device Status Messages" Description="View ConfigMgr status messages for selected device(s)" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
     </ActionDescription>
-    <ActionDescription Class="AssemblyType" DisplayName="OpenRCT Settings" MnemonicDisplayName="OpenRCT Settings" Description="Configure PsExec path, concurrency, and preferences">
-      <ShowOn><string>ContextMenu</string></ShowOn>
+    <ActionDescription Class="AssemblyType" DisplayName="OpenRCT Settings" MnemonicDisplayName="OpenRCT Settings" Description="Configure PsExec path, concurrency, and preferences" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
     </ActionDescription>
   </ActionGroups>

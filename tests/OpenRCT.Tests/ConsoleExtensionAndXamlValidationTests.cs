@@ -160,5 +160,40 @@ namespace OpenRCT.Tests
                 Assert.True(nonAscii == 0, $"Non-ASCII byte 0x{nonAscii:X2} found in {Path.GetFileName(xml)} (causes mojibake in MECM Console menus).");
             }
         }
+
+        [Fact]
+        public void DeviceActionsXml_SupportsMultiSelectAndRibbonDropdown()
+        {
+            var root = FindRepoRoot();
+            var deviceFile = Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Actions", "OpenRCT_DeviceActions.xml");
+            var doc = XDocument.Load(deviceFile);
+            Assert.NotNull(doc.Root);
+
+            // Root OpenRCT group and all 4 submenus must allow Both (single + multi-select)
+            Assert.Equal("Both", (string?)doc.Root!.Attribute("SelectionMode"));
+            var groups = doc.Descendants("ActionDescription")
+                .Where(e => string.Equals((string?)e.Attribute("Class"), "Group", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            Assert.All(groups, g => Assert.Equal("Both", (string?)g.Attribute("SelectionMode")));
+
+            // Every action must explicitly specify SelectionMode (Both or Single) and include DefaultHomeTab so the Ribbon button populates
+            var allActions = doc.Descendants("ActionDescription").ToList();
+            foreach (var act in allActions)
+            {
+                var mode = (string?)act.Attribute("SelectionMode");
+                Assert.True(mode == "Both" || mode == "Single", $"Action '{act.Attribute("DisplayName")?.Value}' must set SelectionMode to Both or Single.");
+
+                var showOnValues = act.Element("ShowOn")?.Elements("string").Select(s => s.Value).ToList() ?? new System.Collections.Generic.List<string>();
+                Assert.Contains("ContextMenu", showOnValues);
+                Assert.Contains("DefaultHomeTab", showOnValues);
+            }
+
+            // Ensure bulk tools (e.g. all 12 Client Actions, Ping, Restart, Shutdown) have SelectionMode="Both"
+            var multiTools = doc.Descendants("ActionDescription")
+                .Where(e => string.Equals((string?)e.Attribute("Class"), "AssemblyType", StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals((string?)e.Attribute("SelectionMode"), "Both", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            Assert.True(multiTools.Count >= 40, $"Expected >=40 multi-select tools, found {multiTools.Count}");
+        }
     }
 }

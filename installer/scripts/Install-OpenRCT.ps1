@@ -455,12 +455,18 @@ try {
         }
 
         if ($effectiveMode -eq "Assembly" -and (Test-Path $collectionActionTemplate)) {
-            $colDestDir = Join-Path $detectedConsole "XmlStorage\Extensions\Actions\a92615d6-9df3-49ba-a8c9-6ecb0e8b956b"
-            New-Item -ItemType Directory -Path $colDestDir -Force | Out-Null
-            $colDestFile = Join-Path $colDestDir "OpenRCT_CollectionActions.xml"
-            $colXml = (Get-Content -Path $collectionActionTemplate -Raw -Encoding UTF8).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
-            Set-Content -Path $colDestFile -Value $colXml -Encoding UTF8
-            Write-Log "Deployed Collection Actions XML: $colDestFile"
+            $collectionGuids = @(
+                "a92615d6-9df3-49ba-a8c9-6ecb0e8b956b", # Device Collections (standard)
+                "e92615d6-9df3-49ba-a8c9-6ecb0e8b956b"  # Device Collections (MECM 2010+ alternate)
+            )
+            foreach ($colGuid in $collectionGuids) {
+                $colDestDir = Join-Path $detectedConsole "XmlStorage\Extensions\Actions\$colGuid"
+                New-Item -ItemType Directory -Path $colDestDir -Force | Out-Null
+                $colDestFile = Join-Path $colDestDir "OpenRCT_CollectionActions.xml"
+                $colXml = (Get-Content -Path $collectionActionTemplate -Raw -Encoding UTF8).Replace("{{OPENRCT_INSTALL_DIR}}", $InstallDir)
+                Set-Content -Path $colDestFile -Value $colXml -Encoding UTF8
+                Write-Log "Deployed Collection Actions XML: $colDestFile"
+            }
         }
 
         if (Test-Path $nodesTemplate) {

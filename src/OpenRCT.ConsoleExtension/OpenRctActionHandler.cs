@@ -258,37 +258,77 @@ namespace OpenRCT.ConsoleExtension
         {
             if (selected == null) yield break;
 
-            var listProp = selected.GetType().GetProperty("ResultObjectList", BindingFlags.Public | BindingFlags.Instance);
-            if (listProp != null)
+            var collected = new List<IResultObject>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            // 1. Real ConfigMgr multi-select IResultObject exposes GenericsArray or ResultObjectList
+            foreach (var propName in new[] { "GenericsArray", "ResultObjectList" })
             {
-                var listObj = listProp.GetValue(selected, null) as IEnumerable;
-                if (listObj != null)
+                try
                 {
-                    bool yieldedAny = false;
-                    foreach (var entry in listObj)
+                    var listProp = selected.GetType().GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
+                    if (listProp != null)
                     {
-                        var ro = entry as IResultObject;
-                        if (ro != null)
+                        var listObj = listProp.GetValue(selected, null) as IEnumerable;
+                        if (listObj != null)
                         {
-                            yieldedAny = true;
-                            yield return ro;
+                            foreach (var entry in listObj)
+                            {
+                                var ro = entry as IResultObject;
+                                if (ro != null) AddUnique(collected, seen, ro);
+                            }
                         }
                     }
-                    if (yieldedAny) yield break;
+                }
+                catch
+                {
+                }
+                if (collected.Count > 0) break;
+            }
+
+            // 2. Enumerate IResultObject directly (standard multi-select IEnumerable in ConfigMgr)
+            if (collected.Count == 0)
+            {
+                try
+                {
+                    foreach (var child in selected)
+                    {
+                        var ro = child as IResultObject;
+                        if (ro != null) AddUnique(collected, seen, ro);
+                    }
+                }
+                catch
+                {
                 }
             }
 
-            if (!string.IsNullOrEmpty(TryGetProp(selected, "Name")) ||
-                !string.IsNullOrEmpty(TryGetProp(selected, "CollectionID")))
+            // 3. Fallback for single-item result object
+            if (collected.Count == 0)
             {
-                yield return selected;
-                yield break;
+                if (!string.IsNullOrEmpty(TryGetProp(selected, "Name")) ||
+                    !string.IsNullOrEmpty(TryGetProp(selected, "CollectionID")))
+                {
+                    collected.Add(selected);
+                }
             }
 
-            foreach (var child in selected)
+            foreach (var item in collected)
             {
-                var ro = child as IResultObject;
-                if (ro != null) yield return ro;
+                yield return item;
+            }
+        }
+
+        private static void AddUnique(List<IResultObject> target, HashSet<string> seen, IResultObject item)
+        {
+            var resId = TryGetProp(item, "ResourceID");
+            var colId = TryGetProp(item, "CollectionID");
+            var name = TryGetProp(item, "Name");
+            var key = !string.IsNullOrEmpty(resId)
+                ? "R:" + resId
+                : (!string.IsNullOrEmpty(colId) ? "C:" + colId : "N:" + (name ?? string.Empty));
+            if (key.Length > 2 && seen.Add(key))
+            {
+                target.Add(item);
             }
         }
 
