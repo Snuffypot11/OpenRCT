@@ -23,6 +23,11 @@ namespace OpenRCT.UI.Views.Tools
 
             TransportCombo.ItemsSource = Enum.GetValues(typeof(RemoteTransportPreference));
             ThemeCombo.ItemsSource = Enum.GetValues(typeof(AppThemePreference));
+            IconStyleCombo.ItemsSource = new[]
+            {
+                new IconStyleOption(IconStylePreference.FluentDuotone, "Fluent Duotone (Default)"),
+                new IconStyleOption(IconStylePreference.CrispOutline, "Crisp Monochrome Outline")
+            };
 
             PsExecPathBox.Text = _settings.PsExecPath ?? string.Empty;
             PsExecSystemCheck.IsChecked = _settings.PsExecRunAsSystem;
@@ -36,6 +41,7 @@ namespace OpenRCT.UI.Views.Tools
             SiteCodeBox.Text = _settings.DefaultSiteCode ?? string.Empty;
 
             ThemeCombo.SelectedItem = _settings.Theme;
+            IconStyleCombo.SelectedIndex = _settings.IconStyle == IconStylePreference.CrispOutline ? 1 : 0;
             ConfirmDestructiveCheck.IsChecked = _settings.ConfirmDestructiveActions;
             AutoClearClipboardCheck.IsChecked = _settings.AutoClearClipboardSecrets;
             ClipboardSecondsBox.Text = _settings.ClipboardClearSeconds.ToString();
@@ -153,6 +159,7 @@ namespace OpenRCT.UI.Views.Tools
             _settings.DefaultSiteCode = SiteCodeBox.Text;
 
             if (ThemeCombo.SelectedItem is AppThemePreference theme) _settings.Theme = theme;
+            if (IconStyleCombo.SelectedItem is IconStyleOption iconOpt) _settings.IconStyle = iconOpt.Value;
             _settings.ConfirmDestructiveActions = ConfirmDestructiveCheck.IsChecked == true;
             _settings.AutoClearClipboardSecrets = AutoClearClipboardCheck.IsChecked == true;
             if (int.TryParse(ClipboardSecondsBox.Text, out var clipSec)) _settings.ClipboardClearSeconds = clipSec;
@@ -161,8 +168,22 @@ namespace OpenRCT.UI.Views.Tools
 
             _settingsService.Save(_settings);
             ThemeManager.ApplyApplicationTheme(_settings.Theme);
+            ThemeManager.SetIconStyle(_settings.IconStyle);
             DialogResult = true;
             Close();
+        }
+
+        private sealed class IconStyleOption
+        {
+            public IconStyleOption(IconStylePreference value, string label)
+            {
+                Value = value;
+                Label = label;
+            }
+
+            public IconStylePreference Value { get; }
+            public string Label { get; }
+            public override string ToString() => Label;
         }
     }
 }

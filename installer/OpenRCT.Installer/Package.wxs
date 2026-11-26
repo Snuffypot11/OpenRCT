@@ -1,12 +1,16 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="OpenRCT — Open Source Right Click Tools for MECM"
            Manufacturer="OpenRCT Contributors"
-           Version="0.2.3.0"
+           Version="0.2.4.0"
            UpgradeCode="9f41d2e8-5c3a-4b11-9a10-7e4b6c112201"
            Scope="perMachine">
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of OpenRCT is already installed." />
     <MediaTemplate EmbedCab="yes" />
+
+    <!-- Primary OpenRCT Application Icon (Option B) for Add/Remove Programs and Shortcuts -->
+    <Icon Id="OpenRctAppIcon" SourceFile="..\..\src\OpenRCT.App\Assets\OpenRCT.ico" />
+    <Property Id="ARPPRODUCTICON" Value="OpenRctAppIcon" />
 
     <!-- Optional silent install properties: msiexec /i OpenRCT.msi /qn PSEXECPATH="C:\Tools\PsExec64.exe" -->
     <Property Id="PSEXECPATH" Secure="yes" />
@@ -54,6 +58,9 @@
       <Component Id="OpenRctConsoleExtDll" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112215">
         <File Source="$(var.OpenRCT.ConsoleExtension.TargetDir)OpenRCT.ConsoleExtension.dll" KeyPath="yes" />
       </Component>
+      <Component Id="OpenRctIconsDll" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112216">
+        <File Source="..\..\src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.dll" KeyPath="yes" />
+      </Component>
     </ComponentGroup>
 
     <ComponentGroup Id="InstallerAssets">
@@ -88,6 +95,7 @@
                 Name="OpenRCT"
                 Description="Open Source Right Click Tools for Microsoft Configuration Manager"
                 Target="[#OpenRctAppExeFile]"
+                Icon="OpenRctAppIcon"
                 WorkingDirectory="INSTALLFOLDER" />
       <RemoveFolder Id="RemoveOpenRctMenuFolder" On="uninstall" />
       <RegistryValue Root="HKCU" Key="Software\OpenRCT" Name="Installed" Type="integer" Value="1" KeyPath="yes" />

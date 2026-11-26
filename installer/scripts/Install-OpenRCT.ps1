@@ -657,6 +657,21 @@ try {
             }
         }
 
+        # Deploy native .NET 4.8 MECM icon resource assembly into AdminConsole\bin
+        $iconsDllSrc = Join-Path $InstallDir "OpenRCT.Icons.dll"
+        if (-not (Test-Path $iconsDllSrc)) {
+            $altIcons = Join-Path $packageRoot "bin\OpenRCT.Icons.dll"
+            if (Test-Path $altIcons) { $iconsDllSrc = $altIcons }
+        }
+        if (Test-Path $iconsDllSrc) {
+            $iconsCopied = Copy-FileSafeOverwrite -Source $iconsDllSrc -Destination (Join-Path $consoleBin "OpenRCT.Icons.dll")
+            if ($iconsCopied) {
+                Write-Log "Deployed OpenRCT.Icons.dll to $consoleBin"
+            } else {
+                Write-Log "Could not overwrite OpenRCT.Icons.dll in $($consoleBin); existing icons will be used until console restart." "WARN"
+            }
+        }
+
         $xmlTemplatesRoot = Join-Path $InstallDir "console-extensions\XmlStorage\Extensions"
         if (-not (Test-Path $xmlTemplatesRoot)) {
             $xmlTemplatesRoot = Join-Path $packageRoot "console-extensions\XmlStorage\Extensions"

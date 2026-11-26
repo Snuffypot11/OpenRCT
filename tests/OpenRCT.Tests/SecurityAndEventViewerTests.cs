@@ -154,5 +154,77 @@ namespace OpenRCT.Tests
                     $"{Path.GetFileName(file)} has star-width DataGridTextColumn(s) without MinWidth: {string.Join(", ", starColsWithoutMin)}");
             }
         }
+
+        [Fact]
+        public void IconStylePreference_DefaultsToFluentDuotone_AndRoundTrips()
+        {
+            var tempFile = Path.Combine(Path.GetTempPath(), $"openrct_iconstyle_{Guid.NewGuid():N}.json");
+            try
+            {
+                var svc = new OpenRCT.Core.Settings.SettingsService(tempFile);
+                var def = svc.Load();
+                Assert.Equal(OpenRCT.Core.Settings.IconStylePreference.FluentDuotone, def.IconStyle);
+
+                def.IconStyle = OpenRCT.Core.Settings.IconStylePreference.CrispOutline;
+                svc.Save(def);
+
+                var reloaded = svc.Load();
+                Assert.Equal(OpenRCT.Core.Settings.IconStylePreference.CrispOutline, reloaded.IconStyle);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
+
+        [Fact]
+        public void AllMecmXmlIconReferences_ExistAsIcoFiles_AndLoadInNet48IconsDll()
+        {
+            var root = FindRepoRoot();
+            Assert.True(File.Exists(Path.Combine(root, "src", "OpenRCT.App", "Assets", "OpenRCT.ico")),
+                "Primary OpenRCT.ico must exist under src/OpenRCT.App/Assets.");
+
+            var iconsDir = Path.Combine(root, "src", "OpenRCT.Icons", "Icons");
+            Assert.True(Directory.Exists(iconsDir));
+
+            var xmlPaths = new[]
+            {
+                Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Nodes", "OpenRCT_Nodes.xml"),
+                Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Actions", "OpenRCT_DeviceActions.xml"),
+                Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Actions", "OpenRCT_CollectionActions.xml")
+            };
+
+            var referencedNames = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in xmlPaths)
+            {
+                var doc = XDocument.Load(p);
+                var imgs = doc.Descendants("ImageResourceName").Select(e => e.Value.Trim()).Where(v => !string.IsNullOrEmpty(v)).ToList();
+                Assert.True(imgs.Count > 0, $"{Path.GetFileName(p)} should declare ImagesDescription icons.");
+                foreach (var name in imgs)
+                {
+                    referencedNames.Add(name);
+                    var icoPath = Path.Combine(iconsDir, name + ".ico");
+                    Assert.True(File.Exists(icoPath), $"Referenced MECM icon '{name}' missing at {icoPath}");
+                }
+            }
+
+            Assert.Contains("OpenRctLogo", referencedNames);
+            Assert.Contains("DashBitLocker", referencedNames);
+            Assert.Contains("ToolWindowsSecurity", referencedNames);
+
+#if NET48
+            var builtIconsDll = Path.Combine(root, "src", "OpenRCT.Icons", "bin", "Release", "net48", "OpenRCT.Icons.dll");
+            if (File.Exists(builtIconsDll))
+            {
+                var asm = System.Reflection.Assembly.LoadFrom(builtIconsDll);
+                var rm = new System.Resources.ResourceManager("OpenRCT.Icons.ConsoleIcons", asm);
+                foreach (var name in referencedNames)
+                {
+                    var obj = rm.GetObject(name);
+                    Assert.NotNull(obj);
+                }
+            }
+#endif
+        }
     }
 }

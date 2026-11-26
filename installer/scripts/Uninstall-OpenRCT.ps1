@@ -74,15 +74,17 @@ if ($detectedConsole) {
         }
     }
     $consoleBin = Join-Path $detectedConsole "bin"
-    foreach ($binFile in @("OpenRCT.ConsoleExtension.dll", "OpenRCT.installdir.txt")) {
+    foreach ($binFile in @("OpenRCT.ConsoleExtension.dll", "OpenRCT.Icons.dll", "OpenRCT.installdir.txt")) {
         $p = Join-Path $consoleBin $binFile
         if (Test-Path $p) {
             Write-Host "Removing console bin file: $p" -ForegroundColor Yellow
             Remove-Item -Path $p -Force -ErrorAction SilentlyContinue
         }
     }
-    Get-ChildItem -Path $consoleBin -Filter "OpenRCT.ConsoleExtension.dll.old.*" -ErrorAction SilentlyContinue | ForEach-Object {
-        Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+    foreach ($oldPattern in @("OpenRCT.ConsoleExtension.dll.old.*", "OpenRCT.Icons.dll.old.*")) {
+        Get-ChildItem -Path $consoleBin -Filter $oldPattern -ErrorAction SilentlyContinue | ForEach-Object {
+            Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+        }
     }
 }
 

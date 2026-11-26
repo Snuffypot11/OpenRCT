@@ -5,6 +5,7 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>OpenRCT.App</RootNamespace>
     <AssemblyName>OpenRCT.App</AssemblyName>
+    <ApplicationIcon>Assets\OpenRCT.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

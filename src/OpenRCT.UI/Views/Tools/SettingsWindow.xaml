@@ -80,9 +80,14 @@
         <StackPanel Margin="16">
           <TextBlock Text="Theme &amp; Safety Preferences" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12" />
 
-          <DockPanel Margin="0,0,0,14">
+          <DockPanel Margin="0,0,0,10">
             <TextBlock Text="UI Theme:" Width="160" VerticalAlignment="Center" />
             <ComboBox x:Name="ThemeCombo" />
+          </DockPanel>
+
+          <DockPanel Margin="0,0,0,14">
+            <TextBlock Text="Icon Style:" Width="160" VerticalAlignment="Center" />
+            <ComboBox x:Name="IconStyleCombo" />
           </DockPanel>
 
           <CheckBox x:Name="ConfirmDestructiveCheck" Content="Prompt for confirmation before destructive actions (Delete, Uninstall, Restart/Shutdown)" Margin="0,6" />

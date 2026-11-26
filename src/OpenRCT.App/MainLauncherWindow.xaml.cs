@@ -12,6 +12,7 @@ using OpenRCT.Core.Models;
 using OpenRCT.Core.Settings;
 using OpenRCT.Core.Updates;
 using OpenRCT.UI;
+using OpenRCT.UI.Controls;
 using OpenRCT.UI.Themes;
 using OpenRCT.UI.Views.Tools;
 
@@ -24,6 +25,7 @@ namespace OpenRCT.App
             public string Category { get; set; } = string.Empty;
             public string DisplayName { get; set; } = string.Empty;
             public string ActionKey { get; set; } = string.Empty;
+            public string IconKey { get; set; } = "ToolSystemInfo";
             public bool IsPrimary { get; set; }
             public bool ShowInQuickAccess { get; set; }
         }
@@ -38,6 +40,7 @@ namespace OpenRCT.App
         public MainLauncherWindow()
         {
             var settings = _settingsService.Load();
+            ThemeManager.SetIconStyle(settings.IconStyle);
             ThemeManager.ApplyTheme(this, settings.Theme);
             InitializeComponent();
 
@@ -51,65 +54,65 @@ namespace OpenRCT.App
         {
             var list = new List<ToolCatalogEntry>();
 
-            void Add(string cat, string name, string key, bool quick = false, bool primary = false) =>
-                list.Add(new ToolCatalogEntry { Category = cat, DisplayName = name, ActionKey = key, ShowInQuickAccess = quick, IsPrimary = primary });
+            void Add(string cat, string name, string key, string iconKey, bool quick = false, bool primary = false) =>
+                list.Add(new ToolCatalogEntry { Category = cat, DisplayName = name, ActionKey = key, IconKey = iconKey, ShowInQuickAccess = quick, IsPrimary = primary });
 
             // 1. Remote Tools (10)
-            Add("Remote Tools", "System Information", ToolActionKeys.SystemInformation, quick: true, primary: true);
-            Add("Remote Tools", "Remote Software Center", ToolActionKeys.RemoteSoftwareCenter, quick: true);
-            Add("Remote Tools", "Remote Windows Security", ToolActionKeys.RemoteWindowsSecurity, quick: true);
-            Add("Remote Tools", "Remote Registry Editor", ToolActionKeys.OpenRegedit, quick: true);
-            Add("Remote Tools", "Remote Event Viewer", ToolActionKeys.RemoteEventViewer, quick: true);
-            Add("Remote Tools", "Running Processes", ToolActionKeys.RunningProcesses, quick: true);
-            Add("Remote Tools", "Connect to C$", ToolActionKeys.ConnectToCShare);
-            Add("Remote Tools", "Interactive PowerShell Prompt", ToolActionKeys.InteractivePowerShellPrompt, quick: true);
-            Add("Remote Tools", "Interactive Command Prompt (PsExec)", ToolActionKeys.InteractiveCommandPrompt, quick: true);
-            Add("Remote Tools", "Manage Computer", ToolActionKeys.ManageComputer);
+            Add("Remote Tools", "System Information", ToolActionKeys.SystemInformation, "ToolSystemInfo", quick: true, primary: true);
+            Add("Remote Tools", "Remote Software Center", ToolActionKeys.RemoteSoftwareCenter, "ToolSoftwareCenter", quick: true);
+            Add("Remote Tools", "Remote Windows Security", ToolActionKeys.RemoteWindowsSecurity, "ToolWindowsSecurity", quick: true);
+            Add("Remote Tools", "Remote Registry Editor", ToolActionKeys.OpenRegedit, "ToolRemoteRegistry", quick: true);
+            Add("Remote Tools", "Remote Event Viewer", ToolActionKeys.RemoteEventViewer, "ToolRemoteEventViewer", quick: true);
+            Add("Remote Tools", "Running Processes", ToolActionKeys.RunningProcesses, "ToolRunningProcesses", quick: true);
+            Add("Remote Tools", "Connect to C$", ToolActionKeys.ConnectToCShare, "ToolFolderShare");
+            Add("Remote Tools", "Interactive PowerShell Prompt", ToolActionKeys.InteractivePowerShellPrompt, "ToolPowerShell", quick: true);
+            Add("Remote Tools", "Interactive Command Prompt (PsExec)", ToolActionKeys.InteractiveCommandPrompt, "ToolCommandPrompt", quick: true);
+            Add("Remote Tools", "Manage Computer", ToolActionKeys.ManageComputer, "ToolManageComputer");
 
             // 2. Client Actions (12)
             foreach (var action in ClientActionRegistry.All)
             {
                 bool quick = string.Equals(action.Key, ClientActionRegistry.MachinePolicyRetrievalAndEval, StringComparison.OrdinalIgnoreCase) ||
                              string.Equals(action.Key, ClientActionRegistry.AppDeploymentEval, StringComparison.OrdinalIgnoreCase);
-                Add("Client Actions", action.DisplayName, action.Key, quick: quick);
+                Add("Client Actions", action.DisplayName, action.Key, "ToolClientAction", quick: quick);
             }
 
             // 3. Client Tools (13)
-            Add("Client Tools", "Client Information", ToolActionKeys.ClientInformation, quick: true);
-            Add("Client Tools", "Show Collections - Advanced", ToolActionKeys.ShowCollectionsAdvanced);
-            Add("Client Tools", "Add Device(s) to Collection", ToolActionKeys.AddDevicesToCollection);
-            Add("Client Tools", "Device Status Messages", ToolActionKeys.DeviceStatusMessages, quick: true);
-            Add("Client Tools", "Open Client Log File Folder", ToolActionKeys.OpenClientLogs);
-            Add("Client Tools", "Open Client Installation Log File Folder", ToolActionKeys.OpenClientInstallLogs);
-            Add("Client Tools", "Refresh Updates Compliance State", ToolActionKeys.RefreshUpdatesComplianceState);
-            Add("Client Tools", "Rerun Deployment", ToolActionKeys.RerunDeployment);
-            Add("Client Tools", "Restart SMS Agent Host Service", ToolActionKeys.RestartSmsAgentHost);
-            Add("Client Tools", "Run Client Check", ToolActionKeys.RunClientCheck);
-            Add("Client Tools", "Stop ConfigMgr Client Activities", ToolActionKeys.StopConfigMgrClientActivities);
-            Add("Client Tools", "Repair Client", ToolActionKeys.RepairClient);
-            Add("Client Tools", "Uninstall SCCM Client", ToolActionKeys.UninstallSccmClient);
+            Add("Client Tools", "Client Information", ToolActionKeys.ClientInformation, "ToolClientInfo", quick: true);
+            Add("Client Tools", "Show Collections - Advanced", ToolActionKeys.ShowCollectionsAdvanced, "ToolCollections");
+            Add("Client Tools", "Add Device(s) to Collection", ToolActionKeys.AddDevicesToCollection, "ToolCollections");
+            Add("Client Tools", "Device Status Messages", ToolActionKeys.DeviceStatusMessages, "ToolStatusMessages", quick: true);
+            Add("Client Tools", "Open Client Log File Folder", ToolActionKeys.OpenClientLogs, "ToolFolderShare");
+            Add("Client Tools", "Open Client Installation Log File Folder", ToolActionKeys.OpenClientInstallLogs, "ToolFolderShare");
+            Add("Client Tools", "Refresh Updates Compliance State", ToolActionKeys.RefreshUpdatesComplianceState, "DashSoftwareUpdates");
+            Add("Client Tools", "Rerun Deployment", ToolActionKeys.RerunDeployment, "ToolRestartService");
+            Add("Client Tools", "Restart SMS Agent Host Service", ToolActionKeys.RestartSmsAgentHost, "ToolRestartService");
+            Add("Client Tools", "Run Client Check", ToolActionKeys.RunClientCheck, "ToolRepair");
+            Add("Client Tools", "Stop ConfigMgr Client Activities", ToolActionKeys.StopConfigMgrClientActivities, "ToolPowerSchedule");
+            Add("Client Tools", "Repair Client", ToolActionKeys.RepairClient, "ToolRepair");
+            Add("Client Tools", "Uninstall SCCM Client", ToolActionKeys.UninstallSccmClient, "ToolUninstall");
 
             // 4. Device & Power Tools (6)
-            Add("Device & Power", "Ping System(s)", ToolActionKeys.PingSystems, quick: true);
-            Add("Device & Power", "Wake On LAN", ToolActionKeys.WakeOnLan);
-            Add("Device & Power", "Group Policy Update", ToolActionKeys.GroupPolicyUpdate);
-            Add("Device & Power", "Send Notification", ToolActionKeys.SendNotification);
-            Add("Device & Power", "Schedule Restart or Shutdown", ToolActionKeys.ScheduleRestartOrShutdown, quick: true);
-            Add("Device & Power", "Cancel Pending Restart or Shutdown", ToolActionKeys.CancelPendingRestart);
+            Add("Device & Power", "Ping System(s)", ToolActionKeys.PingSystems, "ToolPing", quick: true);
+            Add("Device & Power", "Wake On LAN", ToolActionKeys.WakeOnLan, "ToolWakeOnLan");
+            Add("Device & Power", "Group Policy Update", ToolActionKeys.GroupPolicyUpdate, "ToolGroupPolicy");
+            Add("Device & Power", "Send Notification", ToolActionKeys.SendNotification, "ToolNotification");
+            Add("Device & Power", "Schedule Restart or Shutdown", ToolActionKeys.ScheduleRestartOrShutdown, "ToolPowerSchedule", quick: true);
+            Add("Device & Power", "Cancel Pending Restart or Shutdown", ToolActionKeys.CancelPendingRestart, "ToolPowerSchedule");
 
             // 5. Security Tools (5)
-            Add("Security Tools", "View LAPS Password", ToolActionKeys.ViewLapsPassword, quick: true);
-            Add("Security Tools", "View BitLocker Recovery Key", ToolActionKeys.ViewBitLockerRecoveryKey, quick: true);
-            Add("Security Tools", "Windows Defender - Quick Scan", ToolActionKeys.DefenderQuickScan);
-            Add("Security Tools", "Windows Defender - Full Scan", ToolActionKeys.DefenderFullScan);
-            Add("Security Tools", "Windows Defender - Update Definitions", ToolActionKeys.DefenderUpdateDefinitions);
+            Add("Security Tools", "View LAPS Password", ToolActionKeys.ViewLapsPassword, "ToolKey", quick: true);
+            Add("Security Tools", "View BitLocker Recovery Key", ToolActionKeys.ViewBitLockerRecoveryKey, "DashBitLocker", quick: true);
+            Add("Security Tools", "Windows Defender - Quick Scan", ToolActionKeys.DefenderQuickScan, "ToolDefender");
+            Add("Security Tools", "Windows Defender - Full Scan", ToolActionKeys.DefenderFullScan, "ToolDefender");
+            Add("Security Tools", "Windows Defender - Update Definitions", ToolActionKeys.DefenderUpdateDefinitions, "ToolDefender");
 
             // 6. Active Directory & ConfigMgr (5)
-            Add("AD & ConfigMgr", "AD Security Groups", ToolActionKeys.AdSecurityGroups);
-            Add("AD & ConfigMgr", "Enable Device(s) in Active Directory", ToolActionKeys.EnableInActiveDirectory);
-            Add("AD & ConfigMgr", "Disable Device(s) in Active Directory", ToolActionKeys.DisableInActiveDirectory);
-            Add("AD & ConfigMgr", "Delete Device(s) from Active Directory", ToolActionKeys.DeleteFromActiveDirectory);
-            Add("AD & ConfigMgr", "Delete Device(s) From ConfigMgr", ToolActionKeys.DeleteFromConfigMgr);
+            Add("AD & ConfigMgr", "AD Security Groups", ToolActionKeys.AdSecurityGroups, "ToolAdGroups");
+            Add("AD & ConfigMgr", "Enable Device(s) in Active Directory", ToolActionKeys.EnableInActiveDirectory, "ToolAdGroups");
+            Add("AD & ConfigMgr", "Disable Device(s) in Active Directory", ToolActionKeys.DisableInActiveDirectory, "ToolAdGroups");
+            Add("AD & ConfigMgr", "Delete Device(s) from Active Directory", ToolActionKeys.DeleteFromActiveDirectory, "ToolUninstall");
+            Add("AD & ConfigMgr", "Delete Device(s) From ConfigMgr", ToolActionKeys.DeleteFromConfigMgr, "ToolUninstall");
 
             return list;
         }
@@ -156,11 +159,27 @@ namespace OpenRCT.App
 
         private Button CreateToolButton(ToolCatalogEntry entry)
         {
+            var contentPanel = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            contentPanel.Children.Add(new VectorIcon
+            {
+                IconKey = entry.IconKey,
+                Width = 16,
+                Height = 16,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center
+            });
+            contentPanel.Children.Add(new TextBlock
+            {
+                Text = entry.DisplayName,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+
             var btn = new Button
             {
-                Content = entry.DisplayName,
+                Content = contentPanel,
                 Tag = entry.ActionKey,
-                Width = 235,
+                Width = 242,
                 Margin = new Thickness(0, 0, 8, 8),
                 Padding = new Thickness(10, 7, 10, 7),
                 HorizontalContentAlignment = HorizontalAlignment.Left,
@@ -395,6 +414,7 @@ namespace OpenRCT.App
         {
             ToolDispatcher.Dispatch(new ToolInvocationContext { ActionKey = ToolActionKeys.OpenSettings });
             var updated = _settingsService.Load();
+            ThemeManager.SetIconStyle(updated.IconStyle);
             ThemeManager.ApplyTheme(this, updated.Theme);
             ApplyUpdateCheckVisibility(updated);
             ResolveSmsConnectionAndFooter(updated);

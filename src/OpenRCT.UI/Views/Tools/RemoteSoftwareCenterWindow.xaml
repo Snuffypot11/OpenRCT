@@ -57,10 +57,18 @@
                 </Style.Triggers>
               </Style>
             </ListBox.ItemContainerStyle>
-            <ListBoxItem x:Name="AppsNavItem" Tag="Applications" Content="Applications (0)" />
-            <ListBoxItem x:Name="UpdatesNavItem" Tag="SoftwareUpdates" Content="Software Updates (0)" />
-            <ListBoxItem x:Name="PackagesNavItem" Tag="TaskSequences" Content="Task Sequences (0)" />
-            <ListBoxItem x:Name="ComplianceNavItem" Tag="Compliance" Content="Compliance (0)" />
+            <ListBoxItem Tag="Applications">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolSoftwareCenter" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock x:Name="AppsNavText" Text="Applications (0)" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="SoftwareUpdates">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashSoftwareUpdates" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock x:Name="UpdatesNavText" Text="Software Updates (0)" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="TaskSequences">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolClientAction" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock x:Name="PackagesNavText" Text="Task Sequences (0)" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Compliance">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolDefender" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock x:Name="ComplianceNavText" Text="Compliance (0)" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
           </ListBox>
         </DockPanel>
       </Border>

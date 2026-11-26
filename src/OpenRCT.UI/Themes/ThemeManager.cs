@@ -3,6 +3,7 @@ using System.IO.Packaging;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using OpenRCT.Core.Settings;
 
@@ -10,9 +11,35 @@ namespace OpenRCT.UI.Themes
 {
     public static class ThemeManager
     {
+        private static ImageSource? _cachedWindowIcon;
+
+        public static bool CurrentIsDark { get; private set; }
+        public static IconStylePreference CurrentIconStyle { get; private set; } = IconStylePreference.FluentDuotone;
+
+        public static event EventHandler? AppearanceChanged;
+
+        public static void SetIconStyle(IconStylePreference style)
+        {
+            if (CurrentIconStyle != style)
+            {
+                CurrentIconStyle = style;
+                AppearanceChanged?.Invoke(null, EventArgs.Empty);
+            }
+        }
+
         public static void ApplyTheme(FrameworkElement element, AppThemePreference preference)
         {
             if (element == null) return;
+            var useDark = ResolveIsDark(preference);
+            CurrentIsDark = useDark;
+
+            try
+            {
+                var saved = new SettingsService().Load();
+                CurrentIconStyle = saved.IconStyle;
+            }
+            catch { }
+
             var dict = LoadThemeDictionary(preference);
             element.Resources.MergedDictionaries.Clear();
             element.Resources.MergedDictionaries.Add(dict);
@@ -21,15 +48,84 @@ namespace OpenRCT.UI.Themes
             {
                 TextElement.SetForeground(element, fg);
             }
+
+            if (element is Window window)
+            {
+                ApplyWindowIcon(window);
+            }
+
+            AppearanceChanged?.Invoke(null, EventArgs.Empty);
         }
 
         public static void ApplyApplicationTheme(AppThemePreference preference)
         {
-            if (Application.Current == null) return;
-            var dict = LoadThemeDictionary(preference);
-            Application.Current.Resources.MergedDictionaries.Clear();
-            Application.Current.Resources.MergedDictionaries.Add(dict);
+            CurrentIsDark = ResolveIsDark(preference);
+            if (Application.Current != null)
+            {
+                var dict = LoadThemeDictionary(preference);
+                Application.Current.Resources.MergedDictionaries.Clear();
+                Application.Current.Resources.MergedDictionaries.Add(dict);
+            }
+            AppearanceChanged?.Invoke(null, EventArgs.Empty);
         }
+
+        public static void ApplyWindowIcon(Window window)
+        {
+            if (window == null) return;
+            try
+            {
+                var icon = GetAppWindowIcon();
+                if (icon != null)
+                {
+                    window.Icon = icon;
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Renders the primary OpenRCT Option B ("Open O Ring") vector logo to a crisp 32x32 BitmapSource
+        /// for WPF Window title bars and taskbars (works both in standalone EXE and hosted inside MECM Console).
+        /// </summary>
+        public static ImageSource? GetAppWindowIcon()
+        {
+            if (_cachedWindowIcon != null) return _cachedWindowIcon;
+
+            try
+            {
+                var dv = new DrawingVisual();
+                using (var dc = dv.RenderOpen())
+                {
+                    var grad = new LinearGradientBrush(
+                        Color.FromRgb(0x0E, 0xA5, 0xE9),
+                        Color.FromRgb(0x00, 0x67, 0xB8),
+                        new Point(0, 0),
+                        new Point(1, 1));
+                    dc.DrawRoundedRectangle(grad, null, new Rect(2, 2, 28, 28), 7, 7);
+
+                    var ringPen = new Pen(Brushes.White, 3.2) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+                    dc.DrawGeometry(null, ringPen, Geometry.Parse("M 22.2,10.6 A 8.5,8.5 0 1 0 22.8,21"));
+
+                    var cursorFill = new SolidColorBrush(Color.FromRgb(0xBA, 0xE6, 0xFD));
+                    var cursorPen = new Pen(Brushes.White, 0.9) { LineJoin = PenLineJoin.Round };
+                    dc.DrawGeometry(cursorFill, cursorPen, Geometry.Parse("M 17.5,13 L 25.5,16.2 L 21.5,17.8 L 19.9,21.8 Z"));
+                }
+
+                var rtb = new RenderTargetBitmap(32, 32, 96, 96, PixelFormats.Pbgra32);
+                rtb.Render(dv);
+                rtb.Freeze();
+                _cachedWindowIcon = rtb;
+                return _cachedWindowIcon;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static bool ResolveIsDark(AppThemePreference preference) =>
+            preference == AppThemePreference.Dark ||
+            (preference == AppThemePreference.System && IsWindowsDarkModeEnabled());
 
         private static void EnsurePackUriSchemeRegistered()
         {
@@ -39,9 +135,6 @@ namespace OpenRCT.UI.Themes
                 {
                     _ = PackUriHelper.UriSchemePack;
                 }
-                // Touch Application.ResourceAssembly so WPF registers the application:/// pack authority
-                // even when hosted inside a WinForms process (like Microsoft.ConfigurationManagement.exe)
-                // where System.Windows.Application.Current is null.
                 _ = Application.ResourceAssembly;
             }
             catch
@@ -51,8 +144,7 @@ namespace OpenRCT.UI.Themes
 
         private static ResourceDictionary LoadThemeDictionary(AppThemePreference preference)
         {
-            var useDark = preference == AppThemePreference.Dark ||
-                          (preference == AppThemePreference.System && IsWindowsDarkModeEnabled());
+            var useDark = ResolveIsDark(preference);
 
             try
             {

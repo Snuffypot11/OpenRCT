@@ -56,16 +56,36 @@
                 </Style.Triggers>
               </Style>
             </ListBox.ItemContainerStyle>
-            <ListBoxItem Tag="OS" Content="Operating Systems" />
-            <ListBoxItem Tag="Hardware" Content="Hardware" />
-            <ListBoxItem Tag="Disks" Content="Disks" />
-            <ListBoxItem Tag="Applications" Content="Applications" />
-            <ListBoxItem Tag="WindowsUpdates" Content="Windows Updates" />
-            <ListBoxItem Tag="Services" Content="Services" />
-            <ListBoxItem Tag="Drivers" Content="Drivers" />
-            <ListBoxItem Tag="UserProfiles" Content="User Profiles" />
-            <ListBoxItem Tag="LocalGroups" Content="Local Group Members" />
-            <ListBoxItem Tag="Batteries" Content="Batteries" />
+            <ListBoxItem Tag="OS">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolSystemInfo" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Operating Systems" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Hardware">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashHardwareAudit" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Hardware" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Disks">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SysDisks" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Disks" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Applications">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolSoftwareCenter" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Applications" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="WindowsUpdates">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashSoftwareUpdates" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Windows Updates" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Services">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolManageComputer" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Services" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Drivers">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SysDrivers" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Drivers" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="UserProfiles">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolAdGroups" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="User Profiles" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="LocalGroups">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashAdCleanup" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Local Group Members" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Batteries">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SysBattery" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Batteries" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
           </ListBox>
         </DockPanel>
       </Border>

@@ -21,6 +21,12 @@ namespace OpenRCT.Core.Settings
         System = 2
     }
 
+    public enum IconStylePreference
+    {
+        FluentDuotone = 0,
+        CrispOutline = 1
+    }
+
     [DataContract]
     public sealed class OpenRctSettings
     {
@@ -68,6 +74,9 @@ namespace OpenRCT.Core.Settings
 
         [DataMember(Order = 15)]
         public bool EnableUpdateChecks { get; set; } = true;
+
+        [DataMember(Order = 16)]
+        public IconStylePreference IconStyle { get; set; } = IconStylePreference.FluentDuotone;
 
         public void Normalize()
         {

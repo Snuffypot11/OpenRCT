@@ -57,14 +57,30 @@
                 </Style.Triggers>
               </Style>
             </ListBox.ItemContainerStyle>
-            <ListBoxItem Tag="BitLocker" Content="BitLocker" />
-            <ListBoxItem Tag="TPM" Content="TPM" />
-            <ListBoxItem Tag="Firmware" Content="Firmware" />
-            <ListBoxItem Tag="VBS" Content="Virtualization-Based Security" />
-            <ListBoxItem Tag="Defender" Content="Defender" />
-            <ListBoxItem Tag="DefenderExclusions" Content="Defender Exclusions" />
-            <ListBoxItem Tag="WindowsFirewall" Content="Windows Firewall" />
-            <ListBoxItem Tag="FirewallRules" Content="Firewall Rules" />
+            <ListBoxItem Tag="BitLocker">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashBitLocker" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="BitLocker" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="TPM">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashLaps" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="TPM" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Firmware">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashHardwareAudit" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Firmware" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="VBS">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SecVbs" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Virtualization-Based Security" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Defender">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolDefender" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Defender" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="DefenderExclusions">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SecExclusions" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Defender Exclusions" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="WindowsFirewall">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SecFirewall" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Windows Firewall" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="FirewallRules">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SecFirewallRules" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Firewall Rules" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
           </ListBox>
         </DockPanel>
       </Border>

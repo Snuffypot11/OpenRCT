@@ -298,10 +298,10 @@ namespace OpenRCT.UI.Views.Tools
             var pkgGroups = MultiDeviceGrouper.GroupSoftwareCenterItems(filtered, SoftwareCenterItemType.PackageOrTaskSequence);
             var compGroups = MultiDeviceGrouper.GroupSoftwareCenterItems(filtered, SoftwareCenterItemType.ComplianceBaseline);
 
-            AppsNavItem.Content = $"Applications ({appGroups.Count})";
-            UpdatesNavItem.Content = $"Software Updates ({updateGroups.Count})";
-            PackagesNavItem.Content = $"Task Sequences ({pkgGroups.Count})";
-            ComplianceNavItem.Content = $"Compliance ({compGroups.Count})";
+            AppsNavText.Text = $"Applications ({appGroups.Count})";
+            UpdatesNavText.Text = $"Software Updates ({updateGroups.Count})";
+            PackagesNavText.Text = $"Task Sequences ({pkgGroups.Count})";
+            ComplianceNavText.Text = $"Compliance ({compGroups.Count})";
 
             List<ExpandableItemGroup> activeGroups;
             switch (_activeSection)
