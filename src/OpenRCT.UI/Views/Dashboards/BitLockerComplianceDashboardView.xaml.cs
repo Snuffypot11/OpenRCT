@@ -59,7 +59,7 @@ namespace OpenRCT.UI.Views.Dashboards
             try
             {
                 var ous = await _adClient.GetOrganizationalUnitsAsync();
-                OuDropdown.SetItems(ous.Select(o => new MultiSelectOption(o.DistinguishedName, o.CanonicalPath)));
+                OuDropdown.SetItems(ous.Select(o => new SelectableItem { Key = o.DistinguishedName, DisplayText = o.CanonicalPath }));
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace OpenRCT.UI.Views.Dashboards
                 try
                 {
                     var cols = await _smsClient.GetDeviceCollectionsAsync(_smsServer, _siteCode);
-                    CollectionDropdown.SetItems(cols.Select(c => new MultiSelectOption(c.CollectionId, $"{c.Name} ({c.CollectionId})")));
+                    CollectionDropdown.SetItems(cols.Select(c => new SelectableItem { Key = c.CollectionId, DisplayText = $"{c.Name} ({c.CollectionId})" }));
                 }
                 catch (Exception ex)
                 {
@@ -99,8 +99,8 @@ namespace OpenRCT.UI.Views.Dashboards
             ComplianceChart.SelectedSliceKey = null;
 
             bool byCollection = SearchByCollectionRadio.IsChecked == true;
-            var selectedOus = byCollection ? Array.Empty<string>() : OuDropdown.GetSelectedIds();
-            var selectedCols = byCollection ? CollectionDropdown.GetSelectedIds() : Array.Empty<string>();
+            var selectedOus = byCollection ? Array.Empty<string>() : OuDropdown.GetSelectedKeys();
+            var selectedCols = byCollection ? CollectionDropdown.GetSelectedKeys() : Array.Empty<string>();
 
             IReadOnlyList<AdComputerRecord> adComputers = Array.Empty<AdComputerRecord>();
             HashSet<string> adKeyHosts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -220,18 +220,18 @@ namespace OpenRCT.UI.Views.Dashboards
             var dlg = new SaveFileDialog { Filter = "CSV Files (*.csv)|*.csv", FileName = $"OpenRCT_BitLockerCompliance_{DateTime.Now:yyyyMMdd_HHmm}.csv" };
             if (dlg.ShowDialog() == true)
             {
-                CsvExporter.ExportToFile(dlg.FileName, rows, new (string, Func<BitLockerComplianceRow, object?>)[]
+                CsvExporter.WriteToFile(dlg.FileName, rows, new[]
                 {
-                    ("Name", r => r.Name),
-                    ("Key Storage", r => r.KeyStorage),
-                    ("Unified Compliance", r => r.UnifiedCompliance),
-                    ("CM BitLocker Compliance", r => r.CmBitLockerCompliance),
-                    ("Encryption Method", r => r.EncryptionMethod),
-                    ("Protection Status", r => r.ProtectionStatus),
-                    ("Distinguished Name", r => r.DistinguishedName),
-                    ("Password Last Set", r => r.PasswordLastSet),
-                    ("OS", r => r.OperatingSystem),
-                    ("OS Version", r => r.OperatingSystemVersion)
+                    new CsvColumn<BitLockerComplianceRow>("Name", r => r.Name),
+                    new CsvColumn<BitLockerComplianceRow>("Key Storage", r => r.KeyStorage),
+                    new CsvColumn<BitLockerComplianceRow>("Unified Compliance", r => r.UnifiedCompliance),
+                    new CsvColumn<BitLockerComplianceRow>("CM BitLocker Compliance", r => r.CmBitLockerCompliance),
+                    new CsvColumn<BitLockerComplianceRow>("Encryption Method", r => r.EncryptionMethod),
+                    new CsvColumn<BitLockerComplianceRow>("Protection Status", r => r.ProtectionStatus),
+                    new CsvColumn<BitLockerComplianceRow>("Distinguished Name", r => r.DistinguishedName),
+                    new CsvColumn<BitLockerComplianceRow>("Password Last Set", r => r.PasswordLastSet),
+                    new CsvColumn<BitLockerComplianceRow>("OS", r => r.OperatingSystem),
+                    new CsvColumn<BitLockerComplianceRow>("OS Version", r => r.OperatingSystemVersion)
                 });
             }
         }

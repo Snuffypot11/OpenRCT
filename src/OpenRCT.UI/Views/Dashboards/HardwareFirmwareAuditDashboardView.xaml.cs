@@ -68,7 +68,7 @@ namespace OpenRCT.UI.Views.Dashboards
             try
             {
                 var cols = await _smsClient.GetDeviceCollectionsAsync(_smsServer, _siteCode);
-                CollectionDropdown.SetItems(cols.Select(c => new MultiSelectOption(c.CollectionId, $"{c.Name} ({c.CollectionId})")));
+                CollectionDropdown.SetItems(cols.Select(c => new SelectableItem { Key = c.CollectionId, DisplayText = $"{c.Name} ({c.CollectionId})" }));
             }
             catch (Exception ex)
             {
@@ -91,7 +91,7 @@ namespace OpenRCT.UI.Views.Dashboards
 
             try
             {
-                var selectedCols = CollectionDropdown.GetSelectedIds();
+                var selectedCols = CollectionDropdown.GetSelectedKeys();
                 var rows = await _smsClient.GetHardwareFirmwareInventoryAsync(_smsServer, _siteCode, selectedCols);
                 _allRows = rows.ToList();
                 RefreshChartsAndGrid();
@@ -269,20 +269,20 @@ namespace OpenRCT.UI.Views.Dashboards
             var dlg = new SaveFileDialog { Filter = "CSV Files (*.csv)|*.csv", FileName = $"OpenRCT_HardwareFirmwareAudit_{DateTime.Now:yyyyMMdd_HHmm}.csv" };
             if (dlg.ShowDialog() == true)
             {
-                CsvExporter.ExportToFile(dlg.FileName, rows, new (string, Func<HardwareFirmwareAuditRow, object?>)[]
+                CsvExporter.WriteToFile(dlg.FileName, rows, new[]
                 {
-                    ("Name", r => r.Name),
-                    ("Distinguished Name", r => r.DistinguishedName),
-                    ("Manufacturer", r => r.Manufacturer),
-                    ("Model", r => r.Model),
-                    ("Chassis Type", r => r.ChassisType),
-                    ("UEFI Status", r => r.UefiStatus),
-                    ("SecureBoot Status", r => r.SecureBootStatus),
-                    ("TPM Status", r => r.TpmStatus),
-                    ("BIOS Version", r => r.BiosVersion),
-                    ("BIOS Release Date", r => r.BiosReleaseDate),
-                    ("OS", r => r.OperatingSystem),
-                    ("OS Version", r => r.OsVersion)
+                    new CsvColumn<HardwareFirmwareAuditRow>("Name", r => r.Name),
+                    new CsvColumn<HardwareFirmwareAuditRow>("Distinguished Name", r => r.DistinguishedName),
+                    new CsvColumn<HardwareFirmwareAuditRow>("Manufacturer", r => r.Manufacturer),
+                    new CsvColumn<HardwareFirmwareAuditRow>("Model", r => r.Model),
+                    new CsvColumn<HardwareFirmwareAuditRow>("Chassis Type", r => r.ChassisType),
+                    new CsvColumn<HardwareFirmwareAuditRow>("UEFI Status", r => r.UefiStatus),
+                    new CsvColumn<HardwareFirmwareAuditRow>("SecureBoot Status", r => r.SecureBootStatus),
+                    new CsvColumn<HardwareFirmwareAuditRow>("TPM Status", r => r.TpmStatus),
+                    new CsvColumn<HardwareFirmwareAuditRow>("BIOS Version", r => r.BiosVersion),
+                    new CsvColumn<HardwareFirmwareAuditRow>("BIOS Release Date", r => r.BiosReleaseDate),
+                    new CsvColumn<HardwareFirmwareAuditRow>("OS", r => r.OperatingSystem),
+                    new CsvColumn<HardwareFirmwareAuditRow>("OS Version", r => r.OsVersion)
                 });
             }
         }

@@ -302,18 +302,18 @@ namespace OpenRCT.UI.Views.Dashboards
             var dlg = new SaveFileDialog { Filter = "CSV Files (*.csv)|*.csv", FileName = $"OpenRCT_ContentDistribution_{DateTime.Now:yyyyMMdd_HHmm}.csv" };
             if (dlg.ShowDialog() == true)
             {
-                CsvExporter.ExportToFile(dlg.FileName, rows, new (string, Func<ContentDistributionItem, object?>)[]
+                CsvExporter.WriteToFile(dlg.FileName, rows, new[]
                 {
-                    ("Content Name", r => r.ContentName),
-                    ("Content Type", r => r.ContentType),
-                    ("Distribution Point", r => r.DistributionPoint),
-                    ("Source Version", r => r.SourceVersion),
-                    ("Package ID", r => r.PackageId),
-                    ("Object ID", r => r.ObjectId),
-                    ("Source Size (MB)", r => r.SourceSizeMb),
-                    ("Distribution Status", r => r.DistributionStatus),
-                    ("Last Update Date", r => r.LastUpdateDate),
-                    ("Description", r => r.Description)
+                    new CsvColumn<ContentDistributionItem>("Content Name", r => r.ContentName),
+                    new CsvColumn<ContentDistributionItem>("Content Type", r => r.ContentType),
+                    new CsvColumn<ContentDistributionItem>("Distribution Point", r => r.DistributionPoint),
+                    new CsvColumn<ContentDistributionItem>("Source Version", r => r.SourceVersion),
+                    new CsvColumn<ContentDistributionItem>("Package ID", r => r.PackageId),
+                    new CsvColumn<ContentDistributionItem>("Object ID", r => r.ObjectId),
+                    new CsvColumn<ContentDistributionItem>("Source Size (MB)", r => r.SourceSizeMb),
+                    new CsvColumn<ContentDistributionItem>("Distribution Status", r => r.DistributionStatus),
+                    new CsvColumn<ContentDistributionItem>("Last Update Date", r => r.LastUpdateDate),
+                    new CsvColumn<ContentDistributionItem>("Description", r => r.Description)
                 });
             }
         }
