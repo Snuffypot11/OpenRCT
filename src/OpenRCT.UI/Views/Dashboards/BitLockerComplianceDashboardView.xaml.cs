@@ -211,7 +211,7 @@ namespace OpenRCT.UI.Views.Dashboards
         private void ViewBitLockerKey_Click(object sender, RoutedEventArgs e) => DispatchSelected(ToolActionKeys.ViewBitLockerRecoveryKey);
         private void SystemInfo_Click(object sender, RoutedEventArgs e) => DispatchSelected(ToolActionKeys.SystemInformation);
         private void ClientInfo_Click(object sender, RoutedEventArgs e) => DispatchSelected(ToolActionKeys.ClientInformation);
-        private void MachinePolicy_Click(object sender, RoutedEventArgs e) => DispatchSelected("ClientAction.MachinePolicyRetrievalAndEval");
+        private void MachinePolicy_Click(object sender, RoutedEventArgs e) => DispatchSelected(ClientActionRegistry.MachinePolicyRetrievalAndEval);
         private void PingSystems_Click(object sender, RoutedEventArgs e) => DispatchSelected(ToolActionKeys.PingSystems);
 
         private void ExportCsv_Click(object sender, RoutedEventArgs e)

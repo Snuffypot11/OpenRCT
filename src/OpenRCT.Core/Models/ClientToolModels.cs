@@ -21,6 +21,7 @@ namespace OpenRCT.Core.Models
 
     public sealed class ClientComponentInfo
     {
+        public string DeviceName { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public string Version { get; set; } = string.Empty;
@@ -29,6 +30,7 @@ namespace OpenRCT.Core.Models
 
     public sealed class ClientCacheItem
     {
+        public string DeviceName { get; set; } = string.Empty;
         public string CacheId { get; set; } = string.Empty;
         public string ContentId { get; set; } = string.Empty;
         public string ContentVersion { get; set; } = string.Empty;
@@ -41,7 +43,8 @@ namespace OpenRCT.Core.Models
     {
         Application,
         SoftwareUpdate,
-        PackageOrTaskSequence
+        PackageOrTaskSequence,
+        ComplianceBaseline
     }
 
     public sealed class RemoteSoftwareCenterItem
@@ -67,6 +70,7 @@ namespace OpenRCT.Core.Models
         public bool IsMachineTarget { get; set; }
         public bool IsTaskSequence { get; set; }
         public DateTime? Deadline { get; set; }
+        public DateTime? LastRunTime { get; set; }
     }
 
     public sealed class DeviceCollectionMembershipInfo

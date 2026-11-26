@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:OpenRCT.UI.Controls"
         Title="Client Information"
-        Width="900" Height="580"
+        Width="1040" Height="640"
+        MinWidth="820" MinHeight="480"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource AppBackgroundBrush}">
   <Grid Margin="14">
@@ -13,68 +14,134 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
+    <!-- Top Search + Device Filter + Refresh -->
     <DockPanel Grid.Row="0" Margin="0,0,0,10">
-      <Button Content="Refresh" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="Refresh_Click" />
-      <ComboBox x:Name="DeviceCombo" Width="240" DisplayMemberPath="DisplayName" HorizontalAlignment="Left" SelectionChanged="DeviceCombo_SelectionChanged" />
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <TextBlock Text="Device Filter:" VerticalAlignment="Center" Margin="8,0,6,0" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" />
+        <ComboBox x:Name="DeviceFilterCombo"
+                  Width="200"
+                  DisplayMemberPath="DisplayName"
+                  Margin="0,0,8,0"
+                  SelectionChanged="DeviceFilterCombo_SelectionChanged" />
+        <Button Content="Refresh" Style="{DynamicResource StandardButton}" Click="Refresh_Click" />
+      </StackPanel>
+      <TextBox x:Name="FilterBox"
+               Padding="8,5"
+               VerticalContentAlignment="Center"
+               ToolTip="Filter by device, component, content ID, or site code"
+               TextChanged="FilterBox_TextChanged" />
     </DockPanel>
 
-    <TabControl Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" Margin="0,0,0,8">
-      <TabItem Header="Client Details">
-        <Grid Margin="14">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="180" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="28" /><RowDefinition Height="28" /><RowDefinition Height="28" />
-            <RowDefinition Height="28" /><RowDefinition Height="28" /><RowDefinition Height="28" /><RowDefinition Height="28" />
-          </Grid.RowDefinitions>
-          <TextBlock Grid.Row="0" Grid.Column="0" Text="Client Version:" FontWeight="SemiBold" />
-          <TextBlock x:Name="VersionText" Grid.Row="0" Grid.Column="1" />
-          <TextBlock Grid.Row="1" Grid.Column="0" Text="Assigned Site Code:" FontWeight="SemiBold" />
-          <TextBlock x:Name="SiteCodeText" Grid.Row="1" Grid.Column="1" />
-          <TextBlock Grid.Row="2" Grid.Column="0" Text="Management Point:" FontWeight="SemiBold" />
-          <TextBlock x:Name="MpText" Grid.Row="2" Grid.Column="1" />
-          <TextBlock Grid.Row="3" Grid.Column="0" Text="Client GUID:" FontWeight="SemiBold" />
-          <TextBlock x:Name="GuidText" Grid.Row="3" Grid.Column="1" />
-          <TextBlock Grid.Row="4" Grid.Column="0" Text="SMS Agent Host:" FontWeight="SemiBold" />
-          <TextBlock x:Name="ServiceText" Grid.Row="4" Grid.Column="1" />
-          <TextBlock Grid.Row="5" Grid.Column="0" Text="Cache Location:" FontWeight="SemiBold" />
-          <TextBlock x:Name="CacheLocText" Grid.Row="5" Grid.Column="1" />
-          <TextBlock Grid.Row="6" Grid.Column="0" Text="Cache Usage:" FontWeight="SemiBold" />
-          <TextBlock x:Name="CacheUsageText" Grid.Row="6" Grid.Column="1" />
-        </Grid>
-      </TabItem>
+    <!-- Content Tabs + Loading Overlay -->
+    <Grid Grid.Row="1" Margin="0,0,0,8">
+      <TabControl x:Name="MainTabs" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}">
+        <TabItem x:Name="DetailsTab" Header="Client Details">
+          <Grid Margin="10">
+            <!-- Single-Device Summary View -->
+            <Grid x:Name="SingleDeviceDetailsPanel" Margin="6" Visibility="Visible">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="28" /><RowDefinition Height="28" /><RowDefinition Height="28" />
+                <RowDefinition Height="28" /><RowDefinition Height="28" /><RowDefinition Height="28" /><RowDefinition Height="28" />
+              </Grid.RowDefinitions>
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Client Version:" FontWeight="SemiBold" />
+              <TextBlock x:Name="VersionText" Grid.Row="0" Grid.Column="1" />
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="Assigned Site Code:" FontWeight="SemiBold" />
+              <TextBlock x:Name="SiteCodeText" Grid.Row="1" Grid.Column="1" />
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="Management Point:" FontWeight="SemiBold" />
+              <TextBlock x:Name="MpText" Grid.Row="2" Grid.Column="1" />
+              <TextBlock Grid.Row="3" Grid.Column="0" Text="Client GUID:" FontWeight="SemiBold" />
+              <TextBlock x:Name="GuidText" Grid.Row="3" Grid.Column="1" />
+              <TextBlock Grid.Row="4" Grid.Column="0" Text="SMS Agent Host:" FontWeight="SemiBold" />
+              <TextBlock x:Name="ServiceText" Grid.Row="4" Grid.Column="1" />
+              <TextBlock Grid.Row="5" Grid.Column="0" Text="Cache Location:" FontWeight="SemiBold" />
+              <TextBlock x:Name="CacheLocText" Grid.Row="5" Grid.Column="1" />
+              <TextBlock Grid.Row="6" Grid.Column="0" Text="Cache Usage:" FontWeight="SemiBold" />
+              <TextBlock x:Name="CacheUsageText" Grid.Row="6" Grid.Column="1" />
+            </Grid>
 
-      <TabItem Header="Components">
-        <DataGrid x:Name="ComponentsGrid" Style="{DynamicResource OpenRctDataGrid}" Margin="8">
-          <DataGrid.Columns>
-            <DataGridTextColumn Header="Component" Binding="{Binding Name}" Width="200" />
-            <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="*" />
-            <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="120" />
-            <DataGridTextColumn Header="State" Binding="{Binding State}" Width="90" />
-          </DataGrid.Columns>
-        </DataGrid>
-      </TabItem>
+            <!-- Multi-Device Comparison Grid -->
+            <DataGrid x:Name="ClientDetailsGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="140" />
+                <DataGridTextColumn Header="Client Version" Binding="{Binding ClientVersion}" Width="115" />
+                <DataGridTextColumn Header="Site" Binding="{Binding AssignedSiteCode}" Width="60" />
+                <DataGridTextColumn Header="Management Point" Binding="{Binding ManagementPoint}" Width="190" />
+                <DataGridTextColumn Header="SMS Agent" Binding="{Binding CcmExecStatus}" Width="95" />
+                <DataGridTextColumn Header="Cache Used (MB)" Binding="{Binding CacheUsedMb}" Width="105" />
+                <DataGridTextColumn Header="Cache Max (MB)" Binding="{Binding CacheSizeMb}" Width="105" />
+                <DataGridTextColumn Header="Client GUID" Binding="{Binding ClientGuid}" Width="*" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </Grid>
+        </TabItem>
 
-      <TabItem Header="Cache">
-        <DockPanel Margin="8">
-          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,8">
-            <Button Content="Delete Selected Cache Item" Style="{DynamicResource DangerButton}" Click="DeleteCacheItem_Click" />
-          </StackPanel>
-          <DataGrid x:Name="CacheGrid" Style="{DynamicResource OpenRctDataGrid}">
-            <DataGrid.Columns>
-              <DataGridTextColumn Header="Content ID" Binding="{Binding ContentId}" Width="150" />
-              <DataGridTextColumn Header="Ver" Binding="{Binding ContentVersion}" Width="55" />
-              <DataGridTextColumn Header="Size (MB)" Binding="{Binding SizeMb}" Width="85" />
-              <DataGridTextColumn Header="Last Referenced" Binding="{Binding LastReferenced, StringFormat=yyyy-MM-dd HH:mm}" Width="135" />
-              <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*" />
-            </DataGrid.Columns>
-          </DataGrid>
-        </DockPanel>
-      </TabItem>
-    </TabControl>
+        <TabItem x:Name="ComponentsTab" Header="Components (0)">
+          <Grid Margin="8">
+            <controls:ExpandableGroupedGridControl x:Name="ComponentsGroupedGrid" Visibility="Collapsed" />
+            <DataGrid x:Name="ComponentsFlatGrid" Style="{DynamicResource OpenRctDataGrid}">
+              <DataGrid.Columns>
+                <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="130" />
+                <DataGridTextColumn Header="Component" Binding="{Binding Name}" Width="190" />
+                <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="*" />
+                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="115" />
+                <DataGridTextColumn Header="State" Binding="{Binding State}" Width="90" />
+              </DataGrid.Columns>
+            </DataGrid>
+          </Grid>
+        </TabItem>
 
-    <controls:ErrorDrawerControl x:Name="ErrorDrawer" Grid.Row="2" />
+        <TabItem x:Name="CacheTab" Header="Cache (0)">
+          <DockPanel Margin="8">
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+              <Button Content="Delete Selected Cache Item(s)"
+                      DockPanel.Dock="Right"
+                      Style="{DynamicResource DangerButton}"
+                      Click="DeleteCacheItem_Click" />
+              <TextBlock x:Name="CacheHintText"
+                         VerticalAlignment="Center"
+                         FontSize="11.5"
+                         Foreground="{DynamicResource SecondaryTextBrush}"
+                         Text="Check cached content items (or expand to select individual devices) to delete." />
+            </DockPanel>
+            <Grid>
+              <controls:ExpandableGroupedGridControl x:Name="CacheGroupedGrid" Visibility="Collapsed" />
+              <DataGrid x:Name="CacheFlatGrid" Style="{DynamicResource OpenRctDataGrid}">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+                  <DataGridTextColumn Header="Content ID" Binding="{Binding ContentId}" Width="140" />
+                  <DataGridTextColumn Header="Ver" Binding="{Binding ContentVersion}" Width="55" />
+                  <DataGridTextColumn Header="Size (MB)" Binding="{Binding SizeMb}" Width="80" />
+                  <DataGridTextColumn Header="Last Referenced" Binding="{Binding LastReferenced, StringFormat=yyyy-MM-dd HH:mm}" Width="135" />
+                  <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*" />
+                </DataGrid.Columns>
+              </DataGrid>
+            </Grid>
+          </DockPanel>
+        </TabItem>
+      </TabControl>
+
+      <Border x:Name="LoadingOverlay"
+              Background="{DynamicResource AppBackgroundBrush}"
+              Opacity="0.90"
+              Visibility="Collapsed">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+          <ProgressBar IsIndeterminate="True" Width="240" Height="6" />
+          <TextBlock x:Name="LoadingText" Text="Querying client information..." Margin="0,8,0,0" HorizontalAlignment="Center" FontWeight="SemiBold" />
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <!-- Bottom Status Bar -->
+    <DockPanel Grid.Row="2">
+      <TextBlock x:Name="StatusText"
+                 DockPanel.Dock="Right"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource SecondaryTextBrush}" />
+      <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
+    </DockPanel>
   </Grid>
 </Window>

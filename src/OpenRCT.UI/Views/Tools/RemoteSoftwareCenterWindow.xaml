@@ -3,102 +3,164 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:OpenRCT.UI.Controls"
         Title="Remote Software Center"
-        Width="1120" Height="650"
-        MinWidth="860" MinHeight="500"
+        Width="1160" Height="680"
+        MinWidth="880" MinHeight="520"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource AppBackgroundBrush}">
-  <Grid Margin="14">
+  <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <!-- Top Device Selector + Search + Refresh -->
-    <DockPanel Grid.Row="0" Margin="0,0,0,10">
-      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-        <Button Content="Refresh All" Style="{DynamicResource PrimaryButton}" Click="Refresh_Click" />
-      </StackPanel>
-      <ComboBox x:Name="DeviceCombo" Width="220" DisplayMemberPath="DisplayName" HorizontalAlignment="Left" Margin="0,0,10,0" SelectionChanged="DeviceCombo_SelectionChanged" />
-      <TextBox x:Name="FilterBox" Padding="8,5" Margin="0,0,10,0" VerticalContentAlignment="Center" TextChanged="FilterBox_TextChanged" />
-    </DockPanel>
+    <Grid Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="205" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
 
-    <!-- Dedicated Applications, Software Updates, and Packages / Task Sequences Tabs -->
-    <TabControl x:Name="MainTabs" Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" Margin="0,0,0,8">
-      <!-- Tab 1: Applications -->
-      <TabItem x:Name="AppsTab" Header="Applications (0)">
-        <DockPanel Margin="10">
-          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-            <Button Content="Install" Style="{DynamicResource PrimaryButton}" Margin="0,0,6,0" Click="InstallApp_Click" />
-            <Button Content="Uninstall" Style="{DynamicResource DangerButton}" Margin="0,0,6,0" Click="UninstallApp_Click" />
-            <Button Content="Repair" Style="{DynamicResource StandardButton}" Margin="0,0,14,0" Click="RepairApp_Click" />
-            <Button Content="Trigger App Deployment Evaluation" Style="{DynamicResource StandardButton}" Click="TriggerAppEval_Click" />
-          </StackPanel>
-          <DataGrid x:Name="AppsGrid" Style="{DynamicResource OpenRctDataGrid}">
-            <DataGrid.Columns>
-              <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="230" />
-              <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="140" />
-              <DataGridTextColumn Header="Version" Binding="{Binding SoftwareVersion}" Width="95" />
-              <DataGridTextColumn Header="Install State" Binding="{Binding InstallState}" Width="105" />
-              <DataGridTextColumn Header="Evaluation State" Binding="{Binding EvaluationState}" Width="185" />
-              <DataGridTextColumn Header="Applicability" Binding="{Binding ApplicabilityState}" Width="105" />
-              <DataGridTextColumn Header="Allowed Actions" Binding="{Binding AllowedActions}" Width="140" />
-              <DataGridTextColumn Header="%" Binding="{Binding PercentComplete}" Width="45" />
-              <DataGridTextColumn Header="Error" Binding="{Binding ErrorCodeHex}" Width="85" />
-              <DataGridTextColumn Header="Deadline" Binding="{Binding Deadline, StringFormat=yyyy-MM-dd HH:mm}" Width="*" />
-            </DataGrid.Columns>
-          </DataGrid>
-        </DockPanel>
-      </TabItem>
+      <!-- Left Navigation Rail -->
+      <Border Grid.Column="0"
+              Background="{DynamicResource SidebarBrush}"
+              BorderBrush="{DynamicResource BorderBrushSubtle}"
+              BorderThickness="0,0,1,0">
+        <DockPanel>
+          <Border DockPanel.Dock="Top" Padding="14,12" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="0,0,0,1">
+            <StackPanel>
+              <TextBlock Text="Software Center" FontSize="14" FontWeight="SemiBold" />
+              <TextBlock x:Name="ScopeSubtitleText"
+                         Text="Loading targets..."
+                         FontSize="11"
+                         Margin="0,2,0,0"
+                         Foreground="{DynamicResource SecondaryTextBrush}" />
+            </StackPanel>
+          </Border>
 
-      <!-- Tab 2: Software Updates -->
-      <TabItem x:Name="UpdatesTab" Header="Software Updates (0)">
-        <DockPanel Margin="10">
-          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-            <Button Content="Install Selected Update(s)" Style="{DynamicResource PrimaryButton}" Margin="0,0,6,0" Click="InstallUpdate_Click" />
-            <Button Content="Install All Available Updates" Style="{DynamicResource StandardButton}" Margin="0,0,14,0" Click="InstallAllUpdates_Click" />
-            <Button Content="Trigger Update Scan" Style="{DynamicResource StandardButton}" Margin="0,0,6,0" Click="TriggerUpdateScan_Click" />
-            <Button Content="Trigger Update Eval" Style="{DynamicResource StandardButton}" Click="TriggerUpdateEval_Click" />
-          </StackPanel>
-          <DataGrid x:Name="UpdatesGrid" Style="{DynamicResource OpenRctDataGrid}">
-            <DataGrid.Columns>
-              <DataGridTextColumn Header="Article / KB" Binding="{Binding SoftwareVersion}" Width="100" />
-              <DataGridTextColumn Header="Update Name" Binding="{Binding Name}" Width="330" />
-              <DataGridTextColumn Header="Compliance" Binding="{Binding ComplianceState}" Width="125" />
-              <DataGridTextColumn Header="Evaluation State" Binding="{Binding EvaluationState}" Width="145" />
-              <DataGridTextColumn Header="%" Binding="{Binding PercentComplete}" Width="45" />
-              <DataGridTextColumn Header="Error" Binding="{Binding ErrorCodeHex}" Width="85" />
-              <DataGridTextColumn Header="Deadline" Binding="{Binding Deadline, StringFormat=yyyy-MM-dd HH:mm}" Width="*" />
-            </DataGrid.Columns>
-          </DataGrid>
+          <ListBox x:Name="NavList"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   SelectedIndex="0"
+                   SelectionChanged="NavList_SelectionChanged">
+            <ListBox.ItemContainerStyle>
+              <Style TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="14,11" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="FontSize" Value="13" />
+                <Style.Triggers>
+                  <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource SelectionFillBrush}" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SelectionBorderBrush}" />
+                    <Setter Property="BorderThickness" Value="3,0,0,0" />
+                  </Trigger>
+                </Style.Triggers>
+              </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBoxItem x:Name="AppsNavItem" Tag="Applications" Content="Applications (0)" />
+            <ListBoxItem x:Name="UpdatesNavItem" Tag="SoftwareUpdates" Content="Software Updates (0)" />
+            <ListBoxItem x:Name="PackagesNavItem" Tag="TaskSequences" Content="Task Sequences (0)" />
+            <ListBoxItem x:Name="ComplianceNavItem" Tag="Compliance" Content="Compliance (0)" />
+          </ListBox>
         </DockPanel>
-      </TabItem>
+      </Border>
 
-      <!-- Tab 3: Packages & Task Sequences -->
-      <TabItem x:Name="PackagesTab" Header="Packages &amp; Task Sequences (0)">
-        <DockPanel Margin="10">
-          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-            <Button Content="Run Selected" Style="{DynamicResource PrimaryButton}" Click="RunPackage_Click" />
+      <!-- Right Content Area -->
+      <Grid Grid.Column="1" Margin="14">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0: Search + Device Filter + Refresh -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+            <TextBlock Text="Device Filter:" VerticalAlignment="Center" Margin="8,0,6,0" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" />
+            <ComboBox x:Name="DeviceFilterCombo"
+                      Width="195"
+                      DisplayMemberPath="DisplayName"
+                      Margin="0,0,8,0"
+                      SelectionChanged="DeviceFilterCombo_SelectionChanged" />
+            <Button x:Name="RefreshButton"
+                    Content="Refresh"
+                    Style="{DynamicResource StandardButton}"
+                    Click="Refresh_Click" />
           </StackPanel>
-          <DataGrid x:Name="PackagesGrid" Style="{DynamicResource OpenRctDataGrid}">
-            <DataGrid.Columns>
-              <DataGridTextColumn Header="Package ID" Binding="{Binding Id}" Width="100" />
-              <DataGridTextColumn Header="Package Name" Binding="{Binding PackageName}" Width="220" />
-              <DataGridTextColumn Header="Program / TS Name" Binding="{Binding Name}" Width="240" />
-              <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" Width="130" />
-              <DataGridTextColumn Header="Task Sequence" Binding="{Binding IsTaskSequence}" Width="95" />
-              <DataGridTextColumn Header="Last Run Status" Binding="{Binding InstallState}" Width="*" />
-            </DataGrid.Columns>
-          </DataGrid>
+
+          <TextBox x:Name="FilterBox"
+                   Padding="8,5"
+                   VerticalContentAlignment="Center"
+                   ToolTip="Filter by item name, publisher, KB, version, or device name"
+                   TextChanged="FilterBox_TextChanged" />
         </DockPanel>
-      </TabItem>
-    </TabControl>
+
+        <!-- Row 1: Contextual Action Bar -->
+        <DockPanel Grid.Row="1" Margin="0,0,0,10">
+          <TextBlock x:Name="SelectionHintText"
+                     DockPanel.Dock="Right"
+                     VerticalAlignment="Center"
+                     FontSize="11.5"
+                     Foreground="{DynamicResource SecondaryTextBrush}"
+                     Text="Expand any row to view &amp; select applicable devices" />
+
+          <StackPanel Orientation="Horizontal">
+            <!-- Applications actions -->
+            <Button x:Name="InstallAppButton" Content="Install" Style="{DynamicResource PrimaryButton}" Margin="0,0,6,0" Click="InstallApp_Click" />
+            <Button x:Name="UninstallAppButton" Content="Uninstall" Style="{DynamicResource DangerButton}" Margin="0,0,6,0" Click="UninstallApp_Click" />
+            <Button x:Name="RepairAppButton" Content="Repair" Style="{DynamicResource StandardButton}" Margin="0,0,12,0" Click="RepairApp_Click" />
+            <Button x:Name="TriggerAppEvalButton" Content="App Deployment Eval" Style="{DynamicResource StandardButton}" Click="TriggerAppEval_Click" />
+
+            <!-- Software Updates actions -->
+            <Button x:Name="InstallUpdateButton" Content="Install" Style="{DynamicResource PrimaryButton}" Margin="0,0,6,0" Visibility="Collapsed" Click="InstallUpdate_Click" />
+            <Button x:Name="InstallAllUpdatesButton" Content="Install All Pending" Style="{DynamicResource StandardButton}" Margin="0,0,12,0" Visibility="Collapsed" Click="InstallAllUpdates_Click" />
+            <Button x:Name="TriggerUpdateScanButton" Content="Update Scan" Style="{DynamicResource StandardButton}" Margin="0,0,6,0" Visibility="Collapsed" Click="TriggerUpdateScan_Click" />
+            <Button x:Name="TriggerUpdateEvalButton" Content="Update Eval" Style="{DynamicResource StandardButton}" Visibility="Collapsed" Click="TriggerUpdateEval_Click" />
+
+            <!-- Packages & Task Sequences actions -->
+            <Button x:Name="RunPackageButton" Content="Run" Style="{DynamicResource PrimaryButton}" Visibility="Collapsed" Click="RunPackage_Click" />
+
+            <!-- Compliance actions -->
+            <Button x:Name="EvaluateBaselineButton" Content="Evaluate" Style="{DynamicResource PrimaryButton}" Visibility="Collapsed" Click="EvaluateBaseline_Click" />
+          </StackPanel>
+        </DockPanel>
+
+        <!-- Row 2: Expandable Item-First Multi-Device Grid + Loading Overlay -->
+        <Grid Grid.Row="2">
+          <controls:ExpandableGroupedGridControl x:Name="GroupedGrid" />
+
+          <Border x:Name="LoadingOverlay"
+                  Background="{DynamicResource AppBackgroundBrush}"
+                  Opacity="0.90"
+                  Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+              <ProgressBar IsIndeterminate="True" Width="240" Height="6" />
+              <TextBlock x:Name="LoadingText"
+                         Text="Querying Software Center..."
+                         Margin="0,8,0,0"
+                         HorizontalAlignment="Center"
+                         FontWeight="SemiBold" />
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Grid>
+    </Grid>
 
     <!-- Bottom Status Bar -->
-    <DockPanel Grid.Row="2">
-      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
-      <TextBlock x:Name="StatusText" DockPanel.Dock="Right" Margin="0,0,14,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
-      <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
-    </DockPanel>
+    <Border Grid.Row="1"
+            Background="{DynamicResource SidebarBrush}"
+            BorderBrush="{DynamicResource BorderBrushSubtle}"
+            BorderThickness="0,1,0,0"
+            Padding="12,6">
+      <DockPanel>
+        <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
+        <TextBlock x:Name="StatusText"
+                   DockPanel.Dock="Right"
+                   Margin="0,0,14,0"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource SecondaryTextBrush}" />
+        <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
+      </DockPanel>
+    </Border>
   </Grid>
 </Window>

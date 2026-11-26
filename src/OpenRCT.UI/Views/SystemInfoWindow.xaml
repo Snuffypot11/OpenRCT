@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:OpenRCT.UI.Controls"
         Title="System Information"
-        Width="1120" Height="680"
-        MinWidth="860" MinHeight="520"
+        Width="1160" Height="690"
+        MinWidth="880" MinHeight="520"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource AppBackgroundBrush}">
   <Grid>
@@ -15,11 +15,11 @@
 
     <Grid Grid.Row="0">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="210" />
+        <ColumnDefinition Width="215" />
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <!-- Left Navigation Rail matching reference layout (no promotional banner) -->
+      <!-- Left Navigation Rail -->
       <Border Grid.Column="0"
               Background="{DynamicResource SidebarBrush}"
               BorderBrush="{DynamicResource BorderBrushSubtle}"
@@ -27,11 +27,11 @@
         <DockPanel>
           <Border DockPanel.Dock="Top" Padding="12,10" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="0,0,0,1">
             <StackPanel>
-              <TextBlock Text="Target Device" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" />
-              <ComboBox x:Name="DeviceSelector"
+              <TextBlock x:Name="ScopeHeaderText" Text="Device Filter" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" />
+              <ComboBox x:Name="DeviceFilterCombo"
                         Margin="0,4,0,0"
                         DisplayMemberPath="DisplayName"
-                        SelectionChanged="DeviceSelector_SelectionChanged" />
+                        SelectionChanged="DeviceFilterCombo_SelectionChanged" />
             </StackPanel>
           </Border>
 
@@ -79,7 +79,15 @@
 
         <!-- Contextual Toolbar -->
         <DockPanel Grid.Row="0" Margin="0,0,0,10">
-          <StackPanel x:Name="ContextualActionsPanel" DockPanel.Dock="Right" Orientation="Horizontal">
+          <StackPanel x:Name="ContextualActionsPanel" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+            <CheckBox x:Name="GroupByItemCheckBox"
+                      Content="Group by Item"
+                      VerticalAlignment="Center"
+                      Margin="10,0,4,0"
+                      Visibility="Collapsed"
+                      ToolTip="Group items across computers and expand each item to see applicable devices"
+                      Checked="GroupByItemCheckBox_Changed"
+                      Unchecked="GroupByItemCheckBox_Changed" />
             <Button x:Name="RefreshButton" Content="Refresh" Style="{DynamicResource StandardButton}" Margin="8,0,0,0" Click="Refresh_Click" />
             <Button x:Name="UninstallAppButton" Content="Uninstall" Style="{DynamicResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="UninstallApp_Click" />
             <Button x:Name="StartServiceButton" Content="Start" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="StartService_Click" />
@@ -94,15 +102,19 @@
           <TextBox x:Name="SearchBox"
                    Padding="8,5"
                    VerticalContentAlignment="Center"
+                   ToolTip="Filter by item name, status, version, or device name"
                    TextChanged="SearchBox_TextChanged" />
         </DockPanel>
 
-        <!-- Loading indicator overlay + DataGrids per tab -->
+        <!-- DataGrids + Expandable Grouped Grid + Loading Overlay -->
         <Grid Grid.Row="1">
+          <!-- Shared Expandable Item-First Grouped View for Multi-Device Tabs -->
+          <controls:ExpandableGroupedGridControl x:Name="GroupedGrid" Visibility="Collapsed" />
+
           <!-- Tab 1: Operating Systems -->
           <DataGrid x:Name="OsGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Visible">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
               <DataGridTextColumn Header="Caption" Binding="{Binding Caption}" Width="240" />
               <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="100" />
               <DataGridTextColumn Header="Build" Binding="{Binding BuildNumber}" Width="80" />
@@ -116,7 +128,7 @@
           <!-- Tab 2: Hardware -->
           <DataGrid x:Name="HardwareGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
               <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="130" />
               <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="160" />
               <DataGridTextColumn Header="Serial Number" Binding="{Binding SerialNumber}" Width="130" />
@@ -130,7 +142,7 @@
           <!-- Tab 3: Disks -->
           <DataGrid x:Name="DisksGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
               <DataGridTextColumn Header="Drive" Binding="{Binding DriveLetter}" Width="70" />
               <DataGridTextColumn Header="Volume Name" Binding="{Binding VolumeName}" Width="150" />
               <DataGridTextColumn Header="File System" Binding="{Binding FileSystem}" Width="90" />
@@ -141,18 +153,19 @@
             </DataGrid.Columns>
           </DataGrid>
 
-          <!-- Tab 4: Applications (matches image_7.png columns + checkboxes + expandable row details) -->
+          <!-- Tab 4: Applications (Flat view) -->
           <DataGrid x:Name="ApplicationsGrid"
                     Style="{DynamicResource OpenRctDataGrid}"
                     IsReadOnly="False"
                     Visibility="Collapsed">
             <DataGrid.Columns>
               <DataGridCheckBoxColumn Header="" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="36" />
-              <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="260" />
-              <DataGridTextColumn Header="Architecture" Binding="{Binding Architecture}" IsReadOnly="True" Width="85" />
-              <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" IsReadOnly="True" Width="170" />
-              <DataGridTextColumn Header="Installed On" Binding="{Binding InstalledOn}" IsReadOnly="True" Width="95" />
-              <DataGridTextColumn Header="Version" Binding="{Binding Version}" IsReadOnly="True" Width="105" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" IsReadOnly="True" Width="125" />
+              <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="240" />
+              <DataGridTextColumn Header="Architecture" Binding="{Binding Architecture}" IsReadOnly="True" Width="80" />
+              <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" IsReadOnly="True" Width="160" />
+              <DataGridTextColumn Header="Installed On" Binding="{Binding InstalledOn}" IsReadOnly="True" Width="90" />
+              <DataGridTextColumn Header="Version" Binding="{Binding Version}" IsReadOnly="True" Width="100" />
               <DataGridTextColumn Header="Uninstall String" Binding="{Binding UninstallString}" IsReadOnly="True" Width="*" />
             </DataGrid.Columns>
             <DataGrid.RowDetailsTemplate>
@@ -168,10 +181,10 @@
             </DataGrid.RowDetailsTemplate>
           </DataGrid>
 
-          <!-- Tab 5: Windows Updates -->
+          <!-- Tab 5: Windows Updates (Flat view) -->
           <DataGrid x:Name="UpdatesGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
               <DataGridTextColumn Header="KB / HotFix ID" Binding="{Binding HotFixId}" Width="120" />
               <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="180" />
               <DataGridTextColumn Header="Installed On" Binding="{Binding InstalledOn}" Width="120" />
@@ -180,48 +193,52 @@
             </DataGrid.Columns>
           </DataGrid>
 
-          <!-- Tab 6: Services -->
+          <!-- Tab 6: Services (Flat view) -->
           <DataGrid x:Name="ServicesGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="160" />
-              <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="240" />
-              <DataGridTextColumn Header="State" Binding="{Binding State}" Width="95" />
-              <DataGridTextColumn Header="Startup Type" Binding="{Binding StartMode}" Width="105" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150" />
+              <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="220" />
+              <DataGridTextColumn Header="State" Binding="{Binding State}" Width="90" />
+              <DataGridTextColumn Header="Startup Type" Binding="{Binding StartMode}" Width="100" />
               <DataGridTextColumn Header="Log On As" Binding="{Binding StartName}" Width="*" />
             </DataGrid.Columns>
           </DataGrid>
 
-          <!-- Tab 7: Drivers -->
+          <!-- Tab 7: Drivers (Flat view) -->
           <DataGrid x:Name="DriversGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Device Name" Binding="{Binding FriendlyName}" Width="240" />
-              <DataGridTextColumn Header="Class" Binding="{Binding DeviceClass}" Width="110" />
-              <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="160" />
-              <DataGridTextColumn Header="Version" Binding="{Binding DriverVersion}" Width="110" />
-              <DataGridTextColumn Header="Date" Binding="{Binding DriverDate, StringFormat=yyyy-MM-dd}" Width="95" />
-              <DataGridTextColumn Header="Signed" Binding="{Binding IsSigned}" Width="65" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Driver / Hardware" Binding="{Binding FriendlyName}" Width="220" />
+              <DataGridTextColumn Header="Class" Binding="{Binding DeviceClass}" Width="105" />
+              <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="145" />
+              <DataGridTextColumn Header="Version" Binding="{Binding DriverVersion}" Width="105" />
+              <DataGridTextColumn Header="Date" Binding="{Binding DriverDate, StringFormat=yyyy-MM-dd}" Width="90" />
+              <DataGridTextColumn Header="Signed" Binding="{Binding IsSigned}" Width="60" />
               <DataGridTextColumn Header="INF" Binding="{Binding InfName}" Width="*" />
             </DataGrid.Columns>
           </DataGrid>
 
-          <!-- Tab 8: User Profiles -->
+          <!-- Tab 8: User Profiles (Flat view) -->
           <DataGrid x:Name="ProfilesGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Account" Binding="{Binding AccountName}" Width="180" />
-              <DataGridTextColumn Header="Local Path" Binding="{Binding LocalPath}" Width="240" />
-              <DataGridTextColumn Header="Last Used" Binding="{Binding LastUseTime, StringFormat=yyyy-MM-dd HH:mm}" Width="135" />
-              <DataGridTextColumn Header="Loaded" Binding="{Binding Loaded}" Width="70" />
-              <DataGridTextColumn Header="Special" Binding="{Binding Special}" Width="70" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Account" Binding="{Binding AccountName}" Width="170" />
+              <DataGridTextColumn Header="Local Path" Binding="{Binding LocalPath}" Width="220" />
+              <DataGridTextColumn Header="Last Used" Binding="{Binding LastUseTime, StringFormat=yyyy-MM-dd HH:mm}" Width="130" />
+              <DataGridTextColumn Header="Loaded" Binding="{Binding Loaded}" Width="65" />
+              <DataGridTextColumn Header="Special" Binding="{Binding Special}" Width="65" />
               <DataGridTextColumn Header="SID" Binding="{Binding Sid}" Width="*" />
             </DataGrid.Columns>
           </DataGrid>
 
-          <!-- Tab 9: Local Group Members -->
+          <!-- Tab 9: Local Group Members (Flat view) -->
           <DataGrid x:Name="LocalGroupsGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Group" Binding="{Binding GroupName}" Width="160" />
-              <DataGridTextColumn Header="Member" Binding="{Binding FullName}" Width="260" />
-              <DataGridTextColumn Header="Domain" Binding="{Binding Domain}" Width="140" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Group" Binding="{Binding GroupName}" Width="150" />
+              <DataGridTextColumn Header="Member" Binding="{Binding FullName}" Width="240" />
+              <DataGridTextColumn Header="Domain" Binding="{Binding Domain}" Width="130" />
               <DataGridTextColumn Header="Type" Binding="{Binding MemberType}" Width="*" />
             </DataGrid.Columns>
           </DataGrid>
@@ -229,7 +246,7 @@
           <!-- Tab 10: Batteries -->
           <DataGrid x:Name="BatteriesGrid" Style="{DynamicResource OpenRctDataGrid}" Visibility="Collapsed">
             <DataGrid.Columns>
-              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="120" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
               <DataGridTextColumn Header="Battery Name" Binding="{Binding Name}" Width="180" />
               <DataGridTextColumn Header="Status" Binding="{Binding BatteryStatusDescription}" Width="130" />
               <DataGridTextColumn Header="Charge %" Binding="{Binding EstimatedChargeRemaining}" Width="85" />
@@ -240,11 +257,12 @@
           </DataGrid>
 
           <Border x:Name="LoadingOverlay"
-                  Background="#99FFFFFF"
+                  Background="{DynamicResource AppBackgroundBrush}"
+                  Opacity="0.90"
                   Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-              <ProgressBar IsIndeterminate="True" Width="220" Height="6" />
-              <TextBlock x:Name="LoadingText" Text="Querying endpoint..." Margin="0,8,0,0" HorizontalAlignment="Center" FontWeight="SemiBold" />
+              <ProgressBar IsIndeterminate="True" Width="240" Height="6" />
+              <TextBlock x:Name="LoadingText" Text="Querying endpoints..." Margin="0,8,0,0" HorizontalAlignment="Center" FontWeight="SemiBold" />
             </StackPanel>
           </Border>
         </Grid>

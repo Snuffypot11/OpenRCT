@@ -58,8 +58,8 @@ namespace OpenRCT.App
             // Client Actions (12)
             foreach (var action in ClientActionRegistry.All)
             {
-                bool quick = string.Equals(action.Key, "ClientAction.MachinePolicyRetrievalAndEval", StringComparison.OrdinalIgnoreCase) ||
-                             string.Equals(action.Key, "ClientAction.AppDeploymentEvalCycle", StringComparison.OrdinalIgnoreCase);
+                bool quick = string.Equals(action.Key, ClientActionRegistry.MachinePolicyRetrievalAndEval, StringComparison.OrdinalIgnoreCase) ||
+                             string.Equals(action.Key, ClientActionRegistry.AppDeploymentEval, StringComparison.OrdinalIgnoreCase);
                 Add("Client Actions", action.DisplayName, action.Key, quick: quick);
             }
 

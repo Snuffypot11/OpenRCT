@@ -260,7 +260,7 @@ namespace OpenRCT.UI.Views.Dashboards
 
         private void SystemInfo_Click(object sender, RoutedEventArgs e) => DispatchSelected(ToolActionKeys.SystemInformation);
         private void ClientInfo_Click(object sender, RoutedEventArgs e) => DispatchSelected(ToolActionKeys.ClientInformation);
-        private void HardwareInventoryCycle_Click(object sender, RoutedEventArgs e) => DispatchSelected("ClientAction.HardwareInventoryCycle");
+        private void HardwareInventoryCycle_Click(object sender, RoutedEventArgs e) => DispatchSelected(ClientActionRegistry.HardwareInventory);
         private void PingSystems_Click(object sender, RoutedEventArgs e) => DispatchSelected(ToolActionKeys.PingSystems);
 
         private void ExportCsv_Click(object sender, RoutedEventArgs e)

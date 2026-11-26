@@ -137,6 +137,7 @@ namespace OpenRCT.Connectors.Services
                 var compRows = await _wmi.QueryAsync(host, @"root\ccm", "SELECT * FROM CCM_InstalledComponent", ct: ct).ConfigureAwait(false);
                 summary.Components = compRows.Select(r => new ClientComponentInfo
                 {
+                    DeviceName = device.DisplayName,
                     Name = WmiClient.GetString(r, "Name"),
                     DisplayName = WmiClient.GetString(r, "DisplayName"),
                     Version = WmiClient.GetString(r, "Version"),
@@ -163,6 +164,7 @@ namespace OpenRCT.Connectors.Services
 
                 summary.CacheItems = cacheItems.Select(r => new ClientCacheItem
                 {
+                    DeviceName = device.DisplayName,
                     CacheId = WmiClient.GetString(r, "CacheElementID"),
                     ContentId = WmiClient.GetString(r, "ContentID"),
                     ContentVersion = WmiClient.GetString(r, "ContentVersion"),
@@ -230,7 +232,8 @@ namespace OpenRCT.Connectors.Services
                         PercentComplete = WmiClient.GetInt32(a, "PercentComplete"),
                         ErrorCode = WmiClient.GetUInt32(a, "ErrorCode"),
                         IsMachineTarget = WmiClient.GetBool(a, "IsMachineTarget"),
-                        Deadline = WmiClient.GetDmtfDateTime(a, "EnforcementDeadline") ?? WmiClient.GetDmtfDateTime(a, "StartTime")
+                        Deadline = WmiClient.GetDmtfDateTime(a, "EnforcementDeadline") ?? WmiClient.GetDmtfDateTime(a, "StartTime"),
+                        LastRunTime = WmiClient.GetDmtfDateTime(a, "LastEvalTime") ?? WmiClient.GetDmtfDateTime(a, "LastInstallTime")
                     });
                 }
             }
@@ -264,7 +267,8 @@ namespace OpenRCT.Connectors.Services
                         PercentComplete = WmiClient.GetInt32(u, "PercentComplete"),
                         ErrorCode = WmiClient.GetUInt32(u, "ErrorCode"),
                         IsMachineTarget = true,
-                        Deadline = WmiClient.GetDmtfDateTime(u, "Deadline") ?? WmiClient.GetDmtfDateTime(u, "StartTime")
+                        Deadline = WmiClient.GetDmtfDateTime(u, "Deadline") ?? WmiClient.GetDmtfDateTime(u, "StartTime"),
+                        LastRunTime = WmiClient.GetDmtfDateTime(u, "StartTime")
                     });
                 }
             }
@@ -296,7 +300,8 @@ namespace OpenRCT.Connectors.Services
                         InstallState = WmiClient.GetString(p, "LastRunStatus"),
                         EvaluationState = MapAppEvalState(WmiClient.GetInt32(p, "EvaluationState")),
                         IsMachineTarget = true,
-                        IsTaskSequence = WmiClient.GetBool(p, "TaskSequence")
+                        IsTaskSequence = WmiClient.GetBool(p, "TaskSequence"),
+                        LastRunTime = WmiClient.GetDmtfDateTime(p, "LastRunTime")
                     });
                 }
             }
@@ -305,9 +310,50 @@ namespace OpenRCT.Connectors.Services
                 queryErrors.Add($"CCM_Program: {ex.Message}");
             }
 
-            if (items.Count == 0 && queryErrors.Count == 3)
+            // 4. Configuration Baselines / Compliance (root\ccm\dcm:SMS_DesiredConfiguration)
+            try
             {
-                throw new InvalidOperationException("Failed to query root\\ccm\\ClientSDK: " + string.Join(" | ", queryErrors));
+                var baselines = await _wmi.QueryAsync(host, @"root\ccm\dcm", "SELECT * FROM SMS_DesiredConfiguration", ct: ct).ConfigureAwait(false);
+                foreach (var b in baselines)
+                {
+                    var lastCompliance = WmiClient.GetInt32(b, "LastComplianceStatus");
+                    string compLabel = lastCompliance switch
+                    {
+                        1 => "Compliant",
+                        2 => "NonCompliant",
+                        4 => "Error",
+                        _ => "Unknown"
+                    };
+
+                    var displayName = WmiClient.GetString(b, "DisplayName");
+                    var internalName = WmiClient.GetString(b, "Name");
+                    var version = WmiClient.GetString(b, "Version");
+
+                    items.Add(new RemoteSoftwareCenterItem
+                    {
+                        DeviceName = device.DisplayName,
+                        ItemType = SoftwareCenterItemType.ComplianceBaseline,
+                        Id = internalName,
+                        Revision = version,
+                        Name = string.IsNullOrWhiteSpace(displayName) ? internalName : displayName,
+                        SoftwareVersion = version,
+                        Description = WmiClient.GetString(b, "Description"),
+                        InstallState = compLabel,
+                        ComplianceState = compLabel,
+                        EvaluationState = compLabel,
+                        IsMachineTarget = WmiClient.GetBool(b, "IsMachineTarget"),
+                        LastRunTime = WmiClient.GetDmtfDateTime(b, "LastEvalTime")
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                queryErrors.Add($"SMS_DesiredConfiguration: {ex.Message}");
+            }
+
+            if (items.Count == 0 && queryErrors.Count == 4)
+            {
+                throw new InvalidOperationException("Failed to query ConfigMgr client Software Center WMI: " + string.Join(" | ", queryErrors));
             }
 
             return items.OrderBy(i => i.ItemType).ThenBy(i => i.Name, StringComparer.OrdinalIgnoreCase).ToList();
@@ -351,6 +397,17 @@ namespace OpenRCT.Connectors.Services
                 await _wmi.InvokeStaticMethodAsync(host, @"root\ccm\ClientSDK", "CCM_SoftwareUpdatesManager", "InstallUpdates",
                     new Dictionary<string, object?> { ["CCMUpdates"] = matches }, ct: ct).ConfigureAwait(false);
                 return ActionExecutionResult.Success(device.DisplayName, "Install Update", $"Install invoked for '{item.Name}'.", sw.Elapsed);
+            }
+
+            if (item.ItemType == SoftwareCenterItemType.ComplianceBaseline)
+            {
+                await _wmi.InvokeStaticMethodAsync(host, @"root\ccm\dcm", "SMS_DesiredConfiguration", "TriggerEvaluation",
+                    new Dictionary<string, object?>
+                    {
+                        ["Name"] = item.Id,
+                        ["Version"] = item.Revision
+                    }, ct: ct).ConfigureAwait(false);
+                return ActionExecutionResult.Success(device.DisplayName, "Evaluate Baseline", $"Triggered evaluation for '{item.Name}'.", sw.Elapsed);
             }
 
             await _wmi.InvokeStaticMethodAsync(host, @"root\ccm\ClientSDK", "CCM_ProgramsManager", "ExecuteProgram",

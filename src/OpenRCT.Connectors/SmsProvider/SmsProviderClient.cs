@@ -890,14 +890,63 @@ namespace OpenRCT.Connectors.SmsProvider
             string dpDisplayName,
             CancellationToken ct = default)
         {
-            return ExecuteDistributionPointActionAsync(
-                server, siteCode, packageId, serverNalPath, dpDisplayName,
-                "Validate Content",
-                dpObj =>
+            return Task.Run(() =>
+            {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                var targetLabel = $"{packageId} @ {dpDisplayName}";
+                try
                 {
-                    dpObj.InvokeMethod("VerifyPackage", null, null);
-                    return $"Triggered content hash validation (VerifyPackage) for {packageId} on {dpDisplayName}.";
-                }, ct);
+                    ct.ThrowIfCancellationRequested();
+                    var ns = SiteNamespace(siteCode);
+                    var scope = _wmi.CreateScope(server, ns);
+
+                    // Resolve the canonical ServerNALPath from SMS_DistributionPoint if needed
+                    var resolvedNal = serverNalPath;
+                    if (string.IsNullOrWhiteSpace(resolvedNal))
+                    {
+                        var query = new ObjectQuery($"SELECT ServerNALPath FROM SMS_DistributionPoint WHERE PackageID = '{EscapeWql(packageId)}'");
+                        using var searcher = new ManagementObjectSearcher(scope, query);
+                        using var results = searcher.Get();
+                        foreach (ManagementObject obj in results)
+                        {
+                            using (obj)
+                            {
+                                var nal = obj["ServerNALPath"]?.ToString() ?? string.Empty;
+                                if (!string.IsNullOrWhiteSpace(dpDisplayName) &&
+                                    nal.IndexOf(dpDisplayName, StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    resolvedNal = nal;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (string.IsNullOrWhiteSpace(resolvedNal))
+                    {
+                        return ActionExecutionResult.Failure(targetLabel, "Validate Content", $"Could not resolve ServerNALPath for '{packageId}' on '{dpDisplayName}'.", null, sw.Elapsed);
+                    }
+
+                    // SMS_DistributionPoint.VerifyPackage is a STATIC WMI class method: sint32 VerifyPackage(string PackageId, string NALPath)
+                    using var dpClass = new ManagementClass(scope, new ManagementPath("SMS_DistributionPoint"), null);
+                    using var inParams = dpClass.GetMethodParameters("VerifyPackage");
+                    inParams["PackageId"] = packageId;
+                    inParams["NALPath"] = resolvedNal;
+                    using var outParams = dpClass.InvokeMethod("VerifyPackage", inParams, null);
+
+                    int rc = outParams?["ReturnValue"] != null ? Convert.ToInt32(outParams["ReturnValue"]) : 0;
+                    if (rc != 0)
+                    {
+                        return ActionExecutionResult.Failure(targetLabel, "Validate Content", $"VerifyPackage returned error code {rc} for {packageId} on {dpDisplayName}.", null, sw.Elapsed);
+                    }
+
+                    return ActionExecutionResult.Success(targetLabel, "Validate Content", $"Triggered content hash validation (VerifyPackage) for {packageId} on {dpDisplayName}.", sw.Elapsed);
+                }
+                catch (Exception ex)
+                {
+                    return ActionExecutionResult.Failure(targetLabel, "Validate Content", ex.Message, ex.ToString(), sw.Elapsed);
+                }
+            }, ct);
         }
 
         public Task<ActionExecutionResult> RemoveContentFromDpAsync(
