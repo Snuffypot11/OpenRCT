@@ -561,9 +561,9 @@ namespace OpenRCT.UI.Views.Tools
             await LoadActiveTabAsync(forceRefresh: true);
         }
 
-        private async void DefenderQuickScan_Click(object sender, RoutedEventArgs e) => await RunDefenderActionAsync("Defender Quick Scan", dev => _endpointService.RunDefenderScanAsync(dev, fullScan: false));
-        private async void DefenderFullScan_Click(object sender, RoutedEventArgs e) => await RunDefenderActionAsync("Defender Full Scan", dev => _endpointService.RunDefenderScanAsync(dev, fullScan: true));
-        private async void DefenderUpdateDefs_Click(object sender, RoutedEventArgs e) => await RunDefenderActionAsync("Update Defender Definitions", dev => _endpointService.UpdateDefenderDefinitionsAsync(dev));
+        private async void DefenderQuickScan_Click(object sender, RoutedEventArgs e) => await RunDefenderActionAsync("Defender Quick Scan", dev => _endpointService.RunDefenderActionAsync(dev, "quickscan"));
+        private async void DefenderFullScan_Click(object sender, RoutedEventArgs e) => await RunDefenderActionAsync("Defender Full Scan", dev => _endpointService.RunDefenderActionAsync(dev, "fullscan"));
+        private async void DefenderUpdateDefs_Click(object sender, RoutedEventArgs e) => await RunDefenderActionAsync("Update Defender Definitions", dev => _endpointService.RunDefenderActionAsync(dev, "updatesignatures"));
 
         private async Task RunDefenderActionAsync(string label, Func<TargetDevice, Task<ActionExecutionResult>> operation)
         {
