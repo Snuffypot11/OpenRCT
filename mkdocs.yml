@@ -1,0 +1,82 @@
+site_name: OpenRCT Documentation
+site_description: Free, MIT-licensed, open-source Right Click Tools and embedded console dashboards for Microsoft Configuration Manager (MECM / SCCM).
+docs_dir: docs
+exclude_docs: |
+  assets/images/README.md
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search:
+      lang: en
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation & Upgrading: getting-started/installation.md
+      - Standalone App: getting-started/standalone-app.md
+      - Settings & Customization: getting-started/settings.md
+  - Right-Click Tools:
+      - Menu Layout & Multi-Device UI: tools/overview.md
+      - Remote Tools: tools/remote-tools.md
+      - Client Actions & Client Tools: tools/client-actions-and-tools.md
+      - Device, Security & AD Tools: tools/device-security-and-ad.md
+  - Dashboards:
+      - Dashboards Overview: dashboards/index.md
+      - Active Directory Cleanup: dashboards/ad-cleanup.md
+      - BitLocker Compliance: dashboards/bitlocker-compliance.md
+      - Content Distribution Monitor: dashboards/content-distribution.md
+      - Hardware & Firmware Audit: dashboards/hardware-firmware-audit.md
+      - LAPS Dashboard: dashboards/laps-dashboard.md
+      - Software Updates Status: dashboards/software-updates.md
+  - Reference:
+      - Architecture & Ports: reference/architecture.md
+      - Troubleshooting: reference/troubleshooting.md
+      - Building & Contributing: reference/building-and-contributing.md
+  - Lab Setup:
+      - Hyper-V MECM Test Lab: lab-setup/README.md
