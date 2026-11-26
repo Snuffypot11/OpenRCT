@@ -41,9 +41,9 @@ namespace OpenRCT.UI.Views.Tools
                 {
                     _deviceMap[d.DisplayName] = d;
                 }
-                if (!string.IsNullOrWhiteSpace(d.TargetHost) && !_deviceMap.ContainsKey(d.TargetHost))
+                if (!string.IsNullOrWhiteSpace(d.ConnectAddress) && !_deviceMap.ContainsKey(d.ConnectAddress))
                 {
-                    _deviceMap[d.TargetHost] = d;
+                    _deviceMap[d.ConnectAddress] = d;
                 }
             }
 
@@ -275,7 +275,7 @@ namespace OpenRCT.UI.Views.Tools
             {
                 if (filterDev != null &&
                     !string.Equals(i.DeviceName, filterDev.DisplayName, StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(i.DeviceName, filterDev.TargetHost, StringComparison.OrdinalIgnoreCase))
+                    !string.Equals(i.DeviceName, filterDev.ConnectAddress, StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
@@ -334,7 +334,7 @@ namespace OpenRCT.UI.Views.Tools
             if (_deviceMap.TryGetValue(deviceName, out var found)) return found;
             return _devices.FirstOrDefault(d =>
                 string.Equals(d.DisplayName, deviceName, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(d.TargetHost, deviceName, StringComparison.OrdinalIgnoreCase));
+                string.Equals(d.ConnectAddress, deviceName, StringComparison.OrdinalIgnoreCase));
         }
 
         private async void InstallApp_Click(object sender, RoutedEventArgs e) =>

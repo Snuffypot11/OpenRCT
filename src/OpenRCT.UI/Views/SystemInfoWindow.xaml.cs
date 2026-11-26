@@ -60,8 +60,8 @@ namespace OpenRCT.UI.Views
             {
                 if (!string.IsNullOrWhiteSpace(d.DisplayName) && !_deviceMap.ContainsKey(d.DisplayName))
                     _deviceMap[d.DisplayName] = d;
-                if (!string.IsNullOrWhiteSpace(d.TargetHost) && !_deviceMap.ContainsKey(d.TargetHost))
-                    _deviceMap[d.TargetHost] = d;
+                if (!string.IsNullOrWhiteSpace(d.ConnectAddress) && !_deviceMap.ContainsKey(d.ConnectAddress))
+                    _deviceMap[d.ConnectAddress] = d;
             }
 
             _collector = collector;
@@ -334,11 +334,11 @@ namespace OpenRCT.UI.Views
                 switch (_activeTab)
                 {
                     case "OS":
-                        _osItems = (await QueryAllAsync(async d => new[] { await _collector.GetOperatingSystemAsync(d) }))
+                        _osItems = (await QueryAllAsync<OperatingSystemInfo>(async d => new[] { await _collector.GetOperatingSystemAsync(d) }))
                             .OrderBy(x => x.DeviceName, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case "Hardware":
-                        _hwItems = (await QueryAllAsync(async d => new[] { await _collector.GetHardwareAsync(d) }))
+                        _hwItems = (await QueryAllAsync<HardwareInfo>(async d => new[] { await _collector.GetHardwareAsync(d) }))
                             .OrderBy(x => x.DeviceName, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case "Disks":
@@ -400,7 +400,7 @@ namespace OpenRCT.UI.Views
             bool MatchesDevice(string? deviceName) =>
                 filterDev == null ||
                 string.Equals(deviceName, filterDev.DisplayName, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(deviceName, filterDev.TargetHost, StringComparison.OrdinalIgnoreCase);
+                string.Equals(deviceName, filterDev.ConnectAddress, StringComparison.OrdinalIgnoreCase);
 
             bool MatchesText(params string?[] values) =>
                 string.IsNullOrEmpty(term) ||
@@ -541,7 +541,7 @@ namespace OpenRCT.UI.Views
             if (_deviceMap.TryGetValue(deviceName, out var found)) return found;
             return _devices.FirstOrDefault(d =>
                 string.Equals(d.DisplayName, deviceName, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(d.TargetHost, deviceName, StringComparison.OrdinalIgnoreCase));
+                string.Equals(d.ConnectAddress, deviceName, StringComparison.OrdinalIgnoreCase));
         }
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e) => ApplySearchFilter();

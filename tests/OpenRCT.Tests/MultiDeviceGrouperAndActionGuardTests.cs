@@ -165,7 +165,10 @@ namespace OpenRCT.Tests
                         var key = match.Value;
                         if (!ClientActionRegistry.TryGet(key, out _))
                         {
-                            invalid.Add($"{Path.GetRelativePath(root, file)}: unknown action '{key}'");
+                            var relPath = file.StartsWith(root, StringComparison.OrdinalIgnoreCase)
+                                ? file.Substring(root.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                                : file;
+                            invalid.Add($"{relPath}: unknown action '{key}'");
                         }
                     }
                 }

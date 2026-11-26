@@ -37,8 +37,8 @@ namespace OpenRCT.UI.Views.Tools
             {
                 if (!string.IsNullOrWhiteSpace(d.DisplayName) && !_deviceMap.ContainsKey(d.DisplayName))
                     _deviceMap[d.DisplayName] = d;
-                if (!string.IsNullOrWhiteSpace(d.TargetHost) && !_deviceMap.ContainsKey(d.TargetHost))
-                    _deviceMap[d.TargetHost] = d;
+                if (!string.IsNullOrWhiteSpace(d.ConnectAddress) && !_deviceMap.ContainsKey(d.ConnectAddress))
+                    _deviceMap[d.ConnectAddress] = d;
             }
 
             _service = service;
@@ -187,7 +187,7 @@ namespace OpenRCT.UI.Views.Tools
             bool MatchesDevice(string? deviceName) =>
                 filterDev == null ||
                 string.Equals(deviceName, filterDev.DisplayName, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(deviceName, filterDev.TargetHost, StringComparison.OrdinalIgnoreCase);
+                string.Equals(deviceName, filterDev.ConnectAddress, StringComparison.OrdinalIgnoreCase);
 
             bool MatchesText(params string?[] values) =>
                 string.IsNullOrEmpty(term) ||
@@ -278,7 +278,7 @@ namespace OpenRCT.UI.Views.Tools
             if (_deviceMap.TryGetValue(deviceName, out var found)) return found;
             return _devices.FirstOrDefault(d =>
                 string.Equals(d.DisplayName, deviceName, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(d.TargetHost, deviceName, StringComparison.OrdinalIgnoreCase));
+                string.Equals(d.ConnectAddress, deviceName, StringComparison.OrdinalIgnoreCase));
         }
 
         private async void DeleteCacheItem_Click(object sender, RoutedEventArgs e)
