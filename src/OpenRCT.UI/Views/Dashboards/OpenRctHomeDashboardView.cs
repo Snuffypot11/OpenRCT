@@ -56,6 +56,21 @@ namespace OpenRCT.UI.Views.Dashboards
                 "Open Dashboard",
                 () => LaunchAction(ToolActionKeys.DashboardAdCleanup)));
             cards.Children.Add(CreateCard(
+                "BitLocker Compliance",
+                "Audit BitLocker recovery key storage in AD & ConfigMgr alongside encryption and compliance status.",
+                "Open Dashboard",
+                () => LaunchAction(ToolActionKeys.DashboardBitLockerCompliance)));
+            cards.Children.Add(CreateCard(
+                "Content Distribution Monitor",
+                "Monitor Distribution Points, inspect Content Status, and redistribute, validate, or remove content.",
+                "Open Dashboard",
+                () => LaunchAction(ToolActionKeys.DashboardContentDistribution)));
+            cards.Children.Add(CreateCard(
+                "Hardware and Firmware Audit",
+                "Analyze chassis, manufacturer, model, UEFI, Secure Boot, TPM, and BIOS versions with nested chart filtering.",
+                "Open Dashboard",
+                () => LaunchAction(ToolActionKeys.DashboardHardwareFirmwareAudit)));
+            cards.Children.Add(CreateCard(
                 "LAPS Dashboard",
                 "Audit Legacy Microsoft LAPS and Windows LAPS password status, expiration, and client health across AD & ConfigMgr.",
                 "Open Dashboard",
@@ -67,7 +82,7 @@ namespace OpenRCT.UI.Views.Dashboards
                 () => LaunchAction(ToolActionKeys.DashboardSoftwareUpdates)));
             cards.Children.Add(CreateCard(
                 "OpenRCT Settings",
-                "Configure optional PsExec path, theme (Light / Dark / System), concurrency limits, and default SMS Provider.",
+                "Configure optional PsExec path, theme (Light / Dark / System), concurrency limits, SMS Provider, and updates.",
                 "Open Settings",
                 () => LaunchAction(ToolActionKeys.OpenSettings)));
 

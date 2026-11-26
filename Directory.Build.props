@@ -7,11 +7,20 @@
     <Company>OpenRCT Contributors</Company>
     <Product>OpenRCT — Open Source Right Click Tools for MECM</Product>
     <Copyright>Copyright (c) 2026 OpenRCT Contributors. Licensed under the MIT License.</Copyright>
-    <Version>0.1.9</Version>
-    <AssemblyVersion>0.1.9.0</AssemblyVersion>
-    <FileVersion>0.1.9.0</FileVersion>
+    <Version>0.2.0</Version>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <FileVersion>0.2.0.0</FileVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- Fork-friendly update source: automatically populated from GitHub Actions GITHUB_REPOSITORY when built in CI; blank for local builds -->
+    <OpenRctUpdateRepository Condition="'$(OpenRctUpdateRepository)' == ''">$(GITHUB_REPOSITORY)</OpenRctUpdateRepository>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(OpenRctUpdateRepository)' != ''">
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>UpdateRepository</_Parameter1>
+      <_Parameter2>$(OpenRctUpdateRepository)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
 
   <!-- Allow building net48 class libraries on Linux/macOS CI using Microsoft's official reference assemblies -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net48' AND '$(OS)' != 'Windows_NT'">

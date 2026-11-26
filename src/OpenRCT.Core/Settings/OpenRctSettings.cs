@@ -63,6 +63,12 @@ namespace OpenRCT.Core.Settings
         [DataMember(Order = 13)]
         public int ClipboardClearSeconds { get; set; } = 30;
 
+        [DataMember(Order = 14)]
+        public string? UpdateRepository { get; set; }
+
+        [DataMember(Order = 15)]
+        public bool EnableUpdateChecks { get; set; } = true;
+
         public void Normalize()
         {
             if (ConnectionTimeoutSeconds < 3) ConnectionTimeoutSeconds = 3;
@@ -75,6 +81,7 @@ namespace OpenRCT.Core.Settings
             PsExecAdditionalArgs ??= string.Empty;
             DefaultSmsProviderServer = string.IsNullOrWhiteSpace(DefaultSmsProviderServer) ? null : DefaultSmsProviderServer!.Trim();
             DefaultSiteCode = string.IsNullOrWhiteSpace(DefaultSiteCode) ? null : DefaultSiteCode!.Trim().ToUpperInvariant();
+            UpdateRepository = string.IsNullOrWhiteSpace(UpdateRepository) ? null : UpdateRepository!.Trim();
         }
     }
 

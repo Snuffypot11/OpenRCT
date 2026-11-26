@@ -94,6 +94,26 @@
           </DockPanel>
         </StackPanel>
       </TabItem>
+
+      <!-- Tab 4: Updates (Fork-Friendly GitHub Release Source) -->
+      <TabItem Header="Updates">
+        <StackPanel Margin="16">
+          <TextBlock Text="Release Update Checks (Optional &amp; Manual)" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
+          <TextBlock Text="OpenRCT never phones home automatically in the background. When you click Check for Updates, it queries the GitHub Releases API for the repository below and opens the release page in your browser."
+                     TextWrapping="Wrap" Margin="0,6,0,14" Foreground="{DynamicResource SecondaryTextBrush}" />
+
+          <CheckBox x:Name="EnableUpdateChecksCheck" Content="Enable manual 'Check for Updates' button (uncheck for air-gapped environments)" Margin="0,0,0,12" />
+
+          <TextBlock Text="GitHub Repository Override (owner/repo or full GitHub URL; leave blank to use build default):" Margin="0,0,0,4" TextWrapping="Wrap" />
+          <TextBox x:Name="UpdateRepoBox" Padding="6,4" TextChanged="UpdateRepoBox_TextChanged" />
+          <TextBlock x:Name="UpdateRepoStatusText" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,14" Foreground="{DynamicResource SecondaryTextBrush}" />
+
+          <StackPanel Orientation="Horizontal">
+            <Button Content="Check for Updates Now" Style="{DynamicResource StandardButton}" Click="CheckUpdatesNow_Click" />
+            <TextBlock x:Name="InstalledVersionText" Margin="12,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
+          </StackPanel>
+        </StackPanel>
+      </TabItem>
     </TabControl>
   </DockPanel>
 </Window>

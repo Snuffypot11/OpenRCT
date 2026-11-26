@@ -19,20 +19,19 @@
 ### Right-Click Context Menu (`OpenRCT`)
 - **Client Actions (12)**: Application Deployment Evaluation, Discovery Data Collection, File Collection, Hardware Inventory, Machine Policy Retrieval & Evaluation, Send Unsent State Messages, Software Inventory, Software Metering Usage Report, Software Updates Deployment Evaluation, Software Updates Scan, State Message Cache Cleanup, Windows Installer Source List Update.
 - **Client Tools (13)**: Add Device(s) to Collection, Client Information (Details, Components, Cache Manager), Open Client Installation Log Folder, Open Client Log Folder, Refresh Updates Compliance State, Remote Software Center, Rerun Deployment, Restart SMS Agent Host Service, Run Client Check, Stop ConfigMgr Client Activities, Show Collections - Advanced (with Maintenance Windows), Repair Client, Uninstall SCCM Client.
-- **Console Tools (21)**: AD Security Groups, Connect to `C$`, Delete/Disable/Enable Device(s) in Active Directory, Delete Device(s) from ConfigMgr, Group Policy Update, Interactive Command Prompt *(optional PsExec)*, Interactive PowerShell Prompt (WinRM), Manage Computer, Open Event Viewer, Open Regedit, Ping System(s), Running Processes (with Terminate), Send Notification, **System Information** (10 tabs: Operating Systems, Hardware, Disks, Applications with search/uninstall, Windows Updates, Services, Drivers, User Profiles, Local Group Members, Batteries), Wake On LAN, Cancel Pending Restart/Shutdown, Schedule Restart/Shutdown, Restart System(s), Shutdown System(s).
+- **Console Tools (19)**: AD Security Groups, Connect to `C$`, Delete/Disable/Enable Device(s) in Active Directory, Delete Device(s) from ConfigMgr, Group Policy Update, Interactive Command Prompt *(optional PsExec)*, Interactive PowerShell Prompt (WinRM), Manage Computer, Open Event Viewer *(remote)*, Open Regedit *(native remote registry browser)*, Ping System(s), Running Processes (with Terminate), Send Notification, **System Information** (Operating Systems, Hardware, Disks, Applications with search/uninstall, Windows Updates, Services, Drivers, User Profiles, Local Group Members, Batteries), Wake On LAN, Cancel Pending Restart/Shutdown, Schedule Restart or Shutdown *(immediate or scheduled with custom user notice)*.
 - **Security Tools (5)**: View LAPS Password *(Legacy & Windows LAPS)*, View BitLocker Recovery Key *(AD & ConfigMgr)*, Windows Defender Quick Scan, Full Scan, and Update Definitions.
 - **Device Status Messages**: Filterable ConfigMgr status message viewer with CSV export.
-- **OpenRCT Settings**: PsExec path browser & validator, concurrency/timeout limits, transport preference, theme (Light/Dark/System), and safety controls.
+- **OpenRCT Settings**: PsExec path browser & validator, concurrency/timeout limits, transport preference, theme (Light/Dark/System), safety controls, and optional fork-friendly GitHub Releases update check (manual-only; never phones home automatically).
 
 ### Embedded Console Dashboards (*Assets and Compliance → Overview → OpenRCT*)
-- **Phase 1 (Implemented)**:
-  1. **Active Directory Cleanup Tool** — Compares AD OUs against ConfigMgr Collections with interactive pie chart (`ConfigMgr`, `Both`, `Active Directory`), 15-column grid, row cleanup actions, error drawer, and CSV export.
-  2. **LAPS Dashboard** — Audits both Legacy Microsoft LAPS and Windows LAPS passwords & client install state with two interactive pie charts, 8-column grid, error drawer, and CSV export.
-  3. **Software Updates Deployment Status** — Analyzes collection update compliance with deployed-only toggle, Software Update Group filter, age slider, 6 classification checkboxes, `Device Compliance Status` & `Missing Updates By Category` pie charts, remediation actions, and CSV export.
-- **Phase 2 (Planned)**:
-  4. **BitLocker Compliance**
-  5. **Content Distribution Monitor**
-  6. **Hardware and Firmware Audit**
+All 6 dashboards are available directly under **OpenRCT** in the MECM Console (and in the standalone app):
+1. **Active Directory Cleanup Tool** — Compares AD OUs against ConfigMgr Collections with interactive pie chart (`ConfigMgr`, `Both`, `Active Directory`), 15-column grid, row cleanup actions, error drawer, and CSV export.
+2. **BitLocker Compliance** — Audits BitLocker recovery key storage in AD & ConfigMgr alongside encryption and compliance status with two interactive pie charts, OU/Collection toggle, error drawer, and CSV export.
+3. **Content Distribution Monitor** — Interactive Distribution Point stacked bar chart, DP properties inspector, content grid, **Content Status** dialog, **Redistribute**, **Validate**, **Remove from DP**, and bulk **Redistribute Failed Content Transfers**.
+4. **Hardware and Firmware Audit** — Audits chassis, manufacturer, model, UEFI, Secure Boot, TPM, and BIOS versions across collections with customizable **Select Charts** picker, **Nested Filtering**, error drawer, and CSV export.
+5. **LAPS Dashboard** — Audits both Legacy Microsoft LAPS and Windows LAPS passwords & client install state with two interactive pie charts, 8-column grid, error drawer, and CSV export.
+6. **Software Updates Deployment Status** — Analyzes collection update compliance with deployed-only toggle, Software Update Group filter, age slider, 6 classification checkboxes, `Device Compliance Status` & `Missing Updates By Category` pie charts, remediation actions, and CSV export.
 
 ---
 

@@ -41,18 +41,9 @@ namespace OpenRCT.UI
                 ToolActionKeys.DashboardAdCleanup => new AdCleanupDashboardView(adClient, smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
                 ToolActionKeys.DashboardLaps => new LapsDashboardView(adClient, smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
                 ToolActionKeys.DashboardSoftwareUpdates => new SoftwareUpdatesDashboardView(smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
-                ToolActionKeys.DashboardBitLockerCompliance => new Phase2PlaceholderDashboardView(
-                    "BitLocker Compliance",
-                    "Tracks BitLocker encryption status, protector compliance, and recovery key escrow across AD and ConfigMgr.",
-                    settings),
-                ToolActionKeys.DashboardContentDistribution => new Phase2PlaceholderDashboardView(
-                    "Content Distribution Monitor",
-                    "Monitors Distribution Point content status (Success, In Progress, Error) with one-click redistribution.",
-                    settings),
-                ToolActionKeys.DashboardHardwareFirmwareAudit => new Phase2PlaceholderDashboardView(
-                    "Hardware and Firmware Audit",
-                    "Audits hardware models, BIOS/UEFI versions, TPM 2.0, and Secure Boot readiness across collections.",
-                    settings),
+                ToolActionKeys.DashboardBitLockerCompliance => new BitLockerComplianceDashboardView(adClient, smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
+                ToolActionKeys.DashboardContentDistribution => new ContentDistributionDashboardView(smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
+                ToolActionKeys.DashboardHardwareFirmwareAudit => new HardwareFirmwareAuditDashboardView(smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings),
                 _ => new OpenRctHomeDashboardView(smsServer, siteCode, settings)
             };
         }

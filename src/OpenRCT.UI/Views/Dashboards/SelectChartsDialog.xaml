@@ -1,0 +1,22 @@
+<Window x:Class="OpenRCT.UI.Views.Dashboards.SelectChartsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Select Charts"
+        Width="340" Height="370"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource AppBackgroundBrush}">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+      <Button Content="Apply" Width="85" Margin="0,0,8,0" Style="{DynamicResource PrimaryButton}" Click="Apply_Click" IsDefault="True" />
+      <Button Content="Cancel" Width="85" Style="{DynamicResource StandardButton}" IsCancel="True" />
+    </StackPanel>
+
+    <StackPanel>
+      <TextBlock Text="Select Charts to Display" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,4" />
+      <TextBlock Text="Choose which hardware and firmware breakdown charts appear above the results table."
+                 FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,12" />
+      <StackPanel x:Name="CheckboxesPanel" />
+    </StackPanel>
+  </DockPanel>
+</Window>

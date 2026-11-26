@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using Microsoft.Win32;
 using OpenRCT.Core.Settings;
+using OpenRCT.Core.Updates;
 using OpenRCT.UI.Themes;
 
 namespace OpenRCT.UI.Views.Tools
@@ -39,7 +40,12 @@ namespace OpenRCT.UI.Views.Tools
             AutoClearClipboardCheck.IsChecked = _settings.AutoClearClipboardSecrets;
             ClipboardSecondsBox.Text = _settings.ClipboardClearSeconds.ToString();
 
+            EnableUpdateChecksCheck.IsChecked = _settings.EnableUpdateChecks;
+            UpdateRepoBox.Text = _settings.UpdateRepository ?? string.Empty;
+            InstalledVersionText.Text = $"Installed: v{GitHubUpdateChecker.GetCurrentVersionString(typeof(SettingsWindow).Assembly)}";
+
             UpdatePsExecValidation();
+            UpdateRepoValidation();
         }
 
         private void BrowsePsExec_Click(object sender, RoutedEventArgs e)
@@ -57,6 +63,9 @@ namespace OpenRCT.UI.Views.Tools
 
         private void PsExecPathBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) =>
             UpdatePsExecValidation();
+
+        private void UpdateRepoBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) =>
+            UpdateRepoValidation();
 
         private void UpdatePsExecValidation()
         {
@@ -80,6 +89,56 @@ namespace OpenRCT.UI.Views.Tools
             }
         }
 
+        private void UpdateRepoValidation()
+        {
+            var buildDefault = GitHubUpdateChecker.GetBuildDefaultRepository(typeof(SettingsWindow).Assembly);
+            var raw = UpdateRepoBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                UpdateRepoStatusText.Foreground = (Brush)(TryFindResource("SecondaryTextBrush") ?? Brushes.Gray);
+                UpdateRepoStatusText.Text = string.IsNullOrWhiteSpace(buildDefault)
+                    ? "No build-time default repository embedded (local build). Enter owner/repo or a GitHub URL to enable update checks."
+                    : $"Using build-time default repository: github.com/{buildDefault}";
+                return;
+            }
+
+            if (GitHubUpdateChecker.TryNormalizeRepository(raw, out var normalized))
+            {
+                UpdateRepoStatusText.Foreground = (Brush)(TryFindResource("SuccessBrush") ?? Brushes.ForestGreen);
+                UpdateRepoStatusText.Text = $"Will check GitHub Releases at: https://github.com/{normalized}/releases";
+            }
+            else
+            {
+                UpdateRepoStatusText.Foreground = (Brush)(TryFindResource("DangerBrush") ?? Brushes.Crimson);
+                UpdateRepoStatusText.Text = "Invalid format. Enter 'owner/repo' or a valid 'https://github.com/owner/repo' URL.";
+            }
+        }
+
+        private void CheckUpdatesNow_Click(object sender, RoutedEventArgs e)
+        {
+            ApplyPendingUpdateSettings();
+            _settingsService.Save(_settings);
+            new UpdateCheckWindow(_settingsService, typeof(SettingsWindow).Assembly) { Owner = this }.ShowDialog();
+        }
+
+        private void ApplyPendingUpdateSettings()
+        {
+            _settings.EnableUpdateChecks = EnableUpdateChecksCheck.IsChecked == true;
+            var rawRepo = UpdateRepoBox.Text?.Trim();
+            if (string.IsNullOrWhiteSpace(rawRepo))
+            {
+                _settings.UpdateRepository = null;
+            }
+            else if (GitHubUpdateChecker.TryNormalizeRepository(rawRepo, out var normalized))
+            {
+                _settings.UpdateRepository = normalized;
+            }
+            else
+            {
+                _settings.UpdateRepository = rawRepo;
+            }
+        }
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             _settings.PsExecPath = PsExecPathBox.Text;
@@ -97,6 +156,8 @@ namespace OpenRCT.UI.Views.Tools
             _settings.ConfirmDestructiveActions = ConfirmDestructiveCheck.IsChecked == true;
             _settings.AutoClearClipboardSecrets = AutoClearClipboardCheck.IsChecked == true;
             if (int.TryParse(ClipboardSecondsBox.Text, out var clipSec)) _settings.ClipboardClearSeconds = clipSec;
+
+            ApplyPendingUpdateSettings();
 
             _settingsService.Save(_settings);
             ThemeManager.ApplyApplicationTheme(_settings.Theme);

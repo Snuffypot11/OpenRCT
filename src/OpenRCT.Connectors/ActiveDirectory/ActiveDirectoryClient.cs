@@ -142,6 +142,93 @@ namespace OpenRCT.Connectors.ActiveDirectory
             }, ct);
         }
 
+        public Task<HashSet<string>> GetComputersWithBitLockerKeysAsync(IEnumerable<string> ouDistinguishedNames, CancellationToken ct = default)
+        {
+            return Task.Run(() =>
+            {
+                ct.ThrowIfCancellationRequested();
+                var result = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                var ous = (ouDistinguishedNames ?? Enumerable.Empty<string>())
+                    .Where(o => !string.IsNullOrWhiteSpace(o))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (ous.Count == 0)
+                {
+                    using var rootDse = new DirectoryEntry("LDAP://RootDSE");
+                    var defaultNc = rootDse.Properties["defaultNamingContext"].Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(defaultNc)) ous.Add(defaultNc!);
+                }
+
+                foreach (var ou in ous)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    try
+                    {
+                        using var entry = new DirectoryEntry($"LDAP://{ou}");
+                        using var searcher = new DirectorySearcher(entry)
+                        {
+                            Filter = "(objectClass=msFVE-RecoveryInformation)",
+                            PageSize = 1000,
+                            SearchScope = SearchScope.Subtree
+                        };
+                        searcher.PropertiesToLoad.Add("distinguishedName");
+
+                        using var found = searcher.FindAll();
+                        foreach (SearchResult sr in found)
+                        {
+                            ct.ThrowIfCancellationRequested();
+                            var keyDn = GetPropString(sr, "distinguishedName");
+                            if (string.IsNullOrWhiteSpace(keyDn)) continue;
+
+                            // Parent DN of an msFVE-RecoveryInformation leaf is the computer object DN
+                            var parentDn = GetParentDistinguishedName(keyDn);
+                            if (!string.IsNullOrWhiteSpace(parentDn))
+                            {
+                                result.Add(parentDn);
+                                var cn = ExtractCn(parentDn);
+                                if (!string.IsNullOrWhiteSpace(cn))
+                                {
+                                    result.Add(cn);
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Continue scanning remaining OUs if one OU denies read on msFVE-RecoveryInformation
+                    }
+                }
+
+                return result;
+            }, ct);
+        }
+
+        private static string GetParentDistinguishedName(string dn)
+        {
+            if (string.IsNullOrWhiteSpace(dn)) return string.Empty;
+            bool escaped = false;
+            for (int i = 0; i < dn.Length; i++)
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+                if (dn[i] == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+                if (dn[i] == ',' && i + 1 < dn.Length)
+                {
+                    return dn.Substring(i + 1).Trim();
+                }
+            }
+            return string.Empty;
+        }
+
         public Task<IReadOnlyList<AdGroupMembershipInfo>> GetComputerGroupsAsync(string computerName, CancellationToken ct = default)
         {
             return Task.Run<IReadOnlyList<AdGroupMembershipInfo>>(() =>

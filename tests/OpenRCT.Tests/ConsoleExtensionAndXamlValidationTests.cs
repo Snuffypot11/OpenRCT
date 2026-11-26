@@ -206,5 +206,29 @@ namespace OpenRCT.Tests
                 .ToList();
             Assert.True(multiTools.Count >= 40, $"Expected >=40 multi-select tools, found {multiTools.Count}");
         }
+
+        [Fact]
+        public void ConsoleNodesXml_IsFlattenedDirectlyUnderOpenRct_AndStandaloneLauncherOmits10TabsLabel()
+        {
+            var root = FindRepoRoot();
+            var nodesFile = Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Nodes", "OpenRCT_Nodes.xml");
+            var doc = XDocument.Load(nodesFile);
+            Assert.NotNull(doc.Root);
+            Assert.Equal("OpenRctRootNode", (string?)doc.Root!.Attribute("Id"));
+
+            // All 6 dashboard nodes must sit directly under OpenRctRootNode with no extra "Right Click Tools" layer
+            var directChildren = doc.Root.Element("ChildNodes")?.Elements("RootNodeDescription").ToList() ?? new System.Collections.Generic.List<XElement>();
+            Assert.Equal(6, directChildren.Count);
+            Assert.DoesNotContain(directChildren, e => string.Equals((string?)e.Attribute("Id"), "OpenRctRightClickToolsNode", StringComparison.OrdinalIgnoreCase));
+            Assert.All(directChildren, child =>
+            {
+                Assert.NotNull(child.Element("ViewAssemblyDescriptions")?.Element("ViewAssemblyDescription"));
+                Assert.NotNull(child.Element("Actions")?.Element("ActionDescription"));
+            });
+
+            var launcherXaml = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.App", "MainLauncherWindow.xaml"));
+            Assert.DoesNotContain("System Information (10 Tabs)", launcherXaml, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("Phase 2 Dashboards (Roadmap)", launcherXaml, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

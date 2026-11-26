@@ -1,0 +1,100 @@
+<UserControl x:Class="OpenRCT.UI.Views.Dashboards.HardwareFirmwareAuditDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:OpenRCT.UI.Controls"
+             Background="{DynamicResource AppBackgroundBrush}">
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="250" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+      <TextBlock Text="Hardware and Firmware Audit"
+                 FontSize="24"
+                 FontWeight="SemiBold"
+                 Foreground="{DynamicResource PrimaryTextBrush}"
+                 VerticalAlignment="Center" />
+      <Button x:Name="PopOutButton"
+              Content="↗"
+              ToolTip="Open in separate window"
+              Margin="10,0,0,0"
+              Padding="7,2"
+              Style="{DynamicResource StandardButton}"
+              Click="PopOut_Click" />
+    </StackPanel>
+
+    <!-- Collection Selector + Scan + Select Charts + Nested Filtering -->
+    <Grid Grid.Row="1" Margin="0,0,0,10">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="80" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+
+      <TextBlock Grid.Column="0" Text="Collections:" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
+      <controls:MultiSelectDropdown x:Name="CollectionDropdown" Grid.Column="1" />
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+        <Button x:Name="ScanButton" Content="Scan" Width="85" Style="{DynamicResource PrimaryButton}" Click="Scan_Click" />
+        <Border Width="1" Background="{DynamicResource BorderBrushSubtle}" Margin="10,3" />
+        <Button Content="Select Charts" Style="{DynamicResource StandardButton}" Margin="0,0,10,0" Click="SelectCharts_Click" />
+        <CheckBox x:Name="NestedFilteringCheck"
+                  Content="Nested Filtering"
+                  VerticalAlignment="Center"
+                  Checked="NestedFiltering_Changed"
+                  Unchecked="NestedFiltering_Changed" />
+        <Button x:Name="ClearFiltersButton"
+                Content="Clear Filters"
+                Margin="10,0,0,0"
+                Visibility="Collapsed"
+                Style="{DynamicResource StandardButton}"
+                Click="ClearFilters_Click" />
+      </StackPanel>
+    </Grid>
+
+    <!-- Dynamic Chart Strip -->
+    <ScrollViewer Grid.Row="2"
+                  Margin="0,0,0,10"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Disabled">
+      <StackPanel x:Name="ChartsStripPanel" Orientation="Horizontal" />
+    </ScrollViewer>
+
+    <!-- Results DataGrid -->
+    <DataGrid x:Name="ResultsGrid" Grid.Row="3" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
+      <DataGrid.ContextMenu>
+        <ContextMenu>
+          <MenuItem Header="System Information" Click="SystemInfo_Click" />
+          <MenuItem Header="Client Information" Click="ClientInfo_Click" />
+          <Separator />
+          <MenuItem Header="Hardware Inventory Cycle" Click="HardwareInventoryCycle_Click" />
+          <MenuItem Header="Ping System(s)" Click="PingSystems_Click" />
+        </ContextMenu>
+      </DataGrid.ContextMenu>
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="145" />
+        <DataGridTextColumn Header="Distinguished Name" Binding="{Binding DistinguishedName}" Width="240" />
+        <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="115" />
+        <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="155" />
+        <DataGridTextColumn Header="Chassis Type" Binding="{Binding ChassisType}" Width="110" />
+        <DataGridTextColumn Header="UEFI Status" Binding="{Binding UefiStatus}" Width="95" />
+        <DataGridTextColumn Header="SecureBoot Status" Binding="{Binding SecureBootStatus}" Width="115" />
+        <DataGridTextColumn Header="TPM Status" Binding="{Binding TpmStatus}" Width="125" />
+        <DataGridTextColumn Header="BIOS Version" Binding="{Binding BiosVersion}" Width="140" />
+        <DataGridTextColumn Header="BIOS Date" Binding="{Binding BiosReleaseDate, StringFormat=yyyy-MM-dd}" Width="95" />
+        <DataGridTextColumn Header="OS" Binding="{Binding OperatingSystem}" Width="165" />
+        <DataGridTextColumn Header="OS Version" Binding="{Binding OsVersion}" Width="105" />
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <DockPanel Grid.Row="4">
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
+      <TextBlock x:Name="FilterStatusText" DockPanel.Dock="Right" Margin="0,0,14,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
+      <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
+    </DockPanel>
+  </Grid>
+</UserControl>

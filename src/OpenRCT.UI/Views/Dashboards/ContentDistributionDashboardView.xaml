@@ -1,0 +1,166 @@
+<UserControl x:Class="OpenRCT.UI.Views.Dashboards.ContentDistributionDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:OpenRCT.UI.Controls"
+             Background="{DynamicResource AppBackgroundBrush}">
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="240" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- Header & Top Actions -->
+    <DockPanel Grid.Row="0" Margin="0,0,0,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+        <Button x:Name="RefreshButton" Content="Refresh" Width="90" Style="{DynamicResource StandardButton}" Margin="0,0,8,0" Click="Refresh_Click" />
+        <Button x:Name="RedistributeFailedButton" Content="Redistribute Failed Content Transfers" Style="{DynamicResource PrimaryButton}" Click="RedistributeFailed_Click" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <TextBlock Text="Content Distribution Monitor"
+                   FontSize="24"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource PrimaryTextBrush}"
+                   VerticalAlignment="Center" />
+        <Button x:Name="PopOutButton"
+                Content="↗"
+                ToolTip="Open in separate window"
+                Margin="10,0,0,0"
+                Padding="7,2"
+                Style="{DynamicResource StandardButton}"
+                Click="PopOut_Click" />
+      </StackPanel>
+    </DockPanel>
+
+    <!-- Upper Split: Stacked DP Bar Chart + Selected DP Properties Card -->
+    <Grid Grid.Row="1" Margin="0,0,0,10">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="12" />
+        <ColumnDefinition Width="320" />
+      </Grid.ColumnDefinitions>
+
+      <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="1" Padding="10">
+        <controls:DistributionStatusBarChart x:Name="DpChart" DistributionPointSelected="DpChart_DistributionPointSelected" />
+      </Border>
+
+      <Border Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="1" Padding="12">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel>
+            <TextBlock x:Name="DpHeaderText"
+                       Text="Select a Distribution Point"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       TextTrimming="CharacterEllipsis"
+                       Foreground="{DynamicResource PrimaryTextBrush}"
+                       Margin="0,0,0,8" />
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="165" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+
+              <TextBlock Grid.Row="0" Grid.Column="0" Text="Description:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpDescText" Grid.Row="0" Grid.Column="1" Margin="0,2" FontSize="11" TextWrapping="Wrap" />
+
+              <TextBlock Grid.Row="1" Grid.Column="0" Text="HTTPS Enabled:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpHttpsText" Grid.Row="1" Grid.Column="1" Margin="0,2" FontSize="11" />
+
+              <TextBlock Grid.Row="2" Grid.Column="0" Text="LEDBAT Enabled:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpLedbatText" Grid.Row="2" Grid.Column="1" Margin="0,2" FontSize="11" />
+
+              <TextBlock Grid.Row="3" Grid.Column="0" Text="Internet Facing:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpInternetText" Grid.Row="3" Grid.Column="1" Margin="0,2" FontSize="11" />
+
+              <TextBlock Grid.Row="4" Grid.Column="0" Text="Multicast Enabled:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpMulticastText" Grid.Row="4" Grid.Column="1" Margin="0,2" FontSize="11" />
+
+              <TextBlock Grid.Row="5" Grid.Column="0" Text="Peer DP:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpPeerText" Grid.Row="5" Grid.Column="1" Margin="0,2" FontSize="11" />
+
+              <TextBlock Grid.Row="6" Grid.Column="0" Text="Pull DP:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpPullText" Grid.Row="6" Grid.Column="1" Margin="0,2" FontSize="11" />
+
+              <TextBlock Grid.Row="7" Grid.Column="0" Text="Maintenance Mode:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpMaintText" Grid.Row="7" Grid.Column="1" Margin="0,2" FontSize="11" />
+
+              <TextBlock Grid.Row="8" Grid.Column="0" Text="PXE Enabled:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpPxeText" Grid.Row="8" Grid.Column="1" Margin="0,2" FontSize="11" />
+
+              <TextBlock Grid.Row="9" Grid.Column="0" Text="Percent Free Space:" HorizontalAlignment="Right" Margin="0,2,8,2" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="11" />
+              <TextBlock x:Name="DpFreeSpaceText" Grid.Row="9" Grid.Column="1" Margin="0,2" FontSize="11" />
+            </Grid>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+
+    <!-- Filter & Quick Action Strip -->
+    <DockPanel Grid.Row="2" Margin="0,0,0,8">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <Button Content="Content Status" Style="{DynamicResource StandardButton}" Margin="0,0,6,0" Click="ContentStatus_Click" />
+        <Button Content="Redistribute" Style="{DynamicResource StandardButton}" Margin="0,0,6,0" Click="RedistributeSelected_Click" />
+        <Button Content="Validate" Style="{DynamicResource StandardButton}" Margin="0,0,6,0" Click="ValidateSelected_Click" />
+        <Button Content="Remove from DP" Style="{DynamicResource DangerButton}" Click="RemoveSelected_Click" />
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <TextBlock Text="Status:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource SecondaryTextBrush}" />
+        <ComboBox x:Name="StatusFilterCombo" Width="115" Margin="0,0,12,0" SelectionChanged="Filter_Changed">
+          <ComboBoxItem Content="All" IsSelected="True" />
+          <ComboBoxItem Content="Error" />
+          <ComboBoxItem Content="In Progress" />
+          <ComboBoxItem Content="Success" />
+        </ComboBox>
+        <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource SecondaryTextBrush}" />
+        <TextBox x:Name="SearchBox" Width="220" Padding="6,3" TextChanged="SearchBox_TextChanged" />
+      </StackPanel>
+    </DockPanel>
+
+    <!-- Content DataGrid with Right-Click Context Menu -->
+    <DataGrid x:Name="ContentGrid" Grid.Row="3" Style="{DynamicResource OpenRctDataGrid}" Margin="0,0,0,8">
+      <DataGrid.ContextMenu>
+        <ContextMenu>
+          <MenuItem Header="Content Status" Click="ContentStatus_Click" />
+          <MenuItem Header="Redistribute Content to DP" Click="RedistributeSelected_Click" />
+          <MenuItem Header="Validate Content on DP" Click="ValidateSelected_Click" />
+          <Separator />
+          <MenuItem Header="Remove Content from DP" Click="RemoveSelected_Click" />
+        </ContextMenu>
+      </DataGrid.ContextMenu>
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Content Name" Binding="{Binding ContentName}" Width="210" />
+        <DataGridTextColumn Header="Type" Binding="{Binding ContentType}" Width="110" />
+        <DataGridTextColumn Header="Distribution Point" Binding="{Binding DistributionPoint}" Width="175" />
+        <DataGridTextColumn Header="Source Version" Binding="{Binding SourceVersion}" Width="95" />
+        <DataGridTextColumn Header="Package ID" Binding="{Binding PackageId}" Width="90" />
+        <DataGridTextColumn Header="Object ID" Binding="{Binding ObjectId}" Width="210" />
+        <DataGridTextColumn Header="Source Size (MB)" Binding="{Binding SourceSizeMb, StringFormat=0.00}" Width="105" />
+        <DataGridTextColumn Header="Distribution Status" Binding="{Binding DistributionStatus}" Width="115" />
+        <DataGridTextColumn Header="Last Update Date" Binding="{Binding LastUpdateDate, StringFormat=yyyy-MM-dd HH:mm}" Width="130" />
+        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <!-- Footer -->
+    <DockPanel Grid.Row="4">
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
+      <TextBlock x:Name="FilterStatusText" DockPanel.Dock="Right" Margin="0,0,14,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
+      <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
+    </DockPanel>
+  </Grid>
+</UserControl>

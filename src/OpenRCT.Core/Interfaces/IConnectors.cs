@@ -21,12 +21,20 @@ namespace OpenRCT.Core.Interfaces
         Task<IReadOnlyList<StatusMessageEntry>> GetDeviceStatusMessagesAsync(string server, string siteCode, TargetDevice device, int daysBack = 7, CancellationToken ct = default);
         Task<IReadOnlyList<string>> GetDeviceMacAddressesAsync(string server, string siteCode, TargetDevice device, CancellationToken ct = default);
         Task<IReadOnlyList<BitLockerRecoveryKeyInfo>> GetConfigMgrBitLockerKeysAsync(string server, string siteCode, TargetDevice device, CancellationToken ct = default);
+        Task<IReadOnlyList<ConfigMgrBitLockerRecord>> GetBitLockerComplianceRecordsAsync(string server, string siteCode, IEnumerable<string> collectionIds, CancellationToken ct = default);
+        Task<ContentDistributionSnapshot> GetContentDistributionSnapshotAsync(string server, string siteCode, CancellationToken ct = default);
+        Task<IReadOnlyList<ContentDpStatusDetail>> GetContentStatusDetailsAsync(string server, string siteCode, string packageId, CancellationToken ct = default);
+        Task<ActionExecutionResult> RedistributeContentAsync(string server, string siteCode, string packageId, string serverNalPath, string dpDisplayName, CancellationToken ct = default);
+        Task<ActionExecutionResult> ValidateContentAsync(string server, string siteCode, string packageId, string serverNalPath, string dpDisplayName, CancellationToken ct = default);
+        Task<ActionExecutionResult> RemoveContentFromDpAsync(string server, string siteCode, string packageId, string serverNalPath, string dpDisplayName, CancellationToken ct = default);
+        Task<IReadOnlyList<HardwareFirmwareAuditRow>> GetHardwareFirmwareInventoryAsync(string server, string siteCode, IEnumerable<string> collectionIds, CancellationToken ct = default);
     }
 
     public interface IActiveDirectoryClient
     {
         Task<IReadOnlyList<OrganizationalUnitInfo>> GetOrganizationalUnitsAsync(CancellationToken ct = default);
         Task<IReadOnlyList<AdComputerRecord>> GetComputersInOusAsync(IEnumerable<string> ouDistinguishedNames, CancellationToken ct = default);
+        Task<HashSet<string>> GetComputersWithBitLockerKeysAsync(IEnumerable<string> ouDistinguishedNames, CancellationToken ct = default);
         Task<IReadOnlyList<AdGroupMembershipInfo>> GetComputerGroupsAsync(string computerName, CancellationToken ct = default);
         Task AddComputerToGroupAsync(string computerName, string groupNameOrDn, CancellationToken ct = default);
         Task RemoveComputerFromGroupAsync(string computerName, string groupDistinguishedName, CancellationToken ct = default);

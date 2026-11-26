@@ -200,4 +200,182 @@ namespace OpenRCT.Core.Models
         public List<PieSliceData> MissingByCategorySlices { get; set; } = new List<PieSliceData>();
         public List<DeviceErrorEntry> Errors { get; set; } = new List<DeviceErrorEntry>();
     }
+
+    // ---- Dashboard 4: BitLocker Compliance (AD + ConfigMgr, no Entra ID) ----
+
+    public enum BitLockerKeyStorageBucket
+    {
+        None,
+        ActiveDirectory,
+        ConfigMgr,
+        MultipleLocations
+    }
+
+    public enum BitLockerUnifiedComplianceState
+    {
+        CmCompliant,
+        EncryptedUnmanaged,
+        NonCompliant,
+        Unknown
+    }
+
+    public sealed class ConfigMgrBitLockerRecord
+    {
+        public string ResourceId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string DistinguishedName { get; set; } = string.Empty;
+        public string OperatingSystem { get; set; } = string.Empty;
+        public string OperatingSystemVersion { get; set; } = string.Empty;
+        public bool HasConfigMgrRecoveryKey { get; set; }
+        public string CmBitLockerCompliance { get; set; } = "Unknown";
+        public string EncryptionMethod { get; set; } = "Unknown";
+        public string ProtectionStatus { get; set; } = "Unknown";
+        public int? ConversionStatus { get; set; }
+    }
+
+    public sealed class BitLockerComplianceRow
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ResourceId { get; set; } = string.Empty;
+        public BitLockerKeyStorageBucket KeyStorageBucket { get; set; }
+        public string KeyStorage { get; set; } = "None";
+        public BitLockerUnifiedComplianceState UnifiedComplianceState { get; set; }
+        public string UnifiedCompliance => UnifiedComplianceState switch
+        {
+            BitLockerUnifiedComplianceState.CmCompliant => "CM Compliant",
+            BitLockerUnifiedComplianceState.EncryptedUnmanaged => "Encrypted (Unmanaged)",
+            BitLockerUnifiedComplianceState.NonCompliant => "Non-Compliant",
+            _ => "Unknown"
+        };
+        public string CmBitLockerCompliance { get; set; } = "Unknown";
+        public string EncryptionMethod { get; set; } = "Unknown";
+        public string ProtectionStatus { get; set; } = "Unknown";
+        public string DistinguishedName { get; set; } = string.Empty;
+        public DateTime? PasswordLastSet { get; set; }
+        public string OperatingSystem { get; set; } = string.Empty;
+        public string OperatingSystemVersion { get; set; } = string.Empty;
+    }
+
+    public sealed class BitLockerComplianceScanResult
+    {
+        public List<BitLockerComplianceRow> Rows { get; set; } = new List<BitLockerComplianceRow>();
+        public List<PieSliceData> KeyStorageSlices { get; set; } = new List<PieSliceData>();
+        public List<PieSliceData> UnifiedComplianceSlices { get; set; } = new List<PieSliceData>();
+        public List<DeviceErrorEntry> Errors { get; set; } = new List<DeviceErrorEntry>();
+    }
+
+    // ---- Dashboard 5: Content Distribution Monitor ----
+
+    public enum ContentDistributionState
+    {
+        Success,
+        InProgress,
+        Error,
+        Unknown
+    }
+
+    public sealed class DistributionPointSummary
+    {
+        public string ServerName { get; set; } = string.Empty;
+        public string NalPath { get; set; } = string.Empty;
+        public string SiteCode { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public bool HttpsEnabled { get; set; }
+        public bool LedbatEnabled { get; set; }
+        public bool InternetFacing { get; set; }
+        public bool MulticastEnabled { get; set; }
+        public bool PeerDp { get; set; }
+        public bool PullDp { get; set; }
+        public bool MaintenanceModeEnabled { get; set; }
+        public bool PxeEnabled { get; set; }
+        public string PercentFreeSpace { get; set; } = string.Empty;
+
+        public int SuccessCount { get; set; }
+        public int InProgressCount { get; set; }
+        public int ErrorCount { get; set; }
+        public int TotalCount => SuccessCount + InProgressCount + ErrorCount;
+    }
+
+    public sealed class ContentDistributionItem
+    {
+        public string ContentName { get; set; } = string.Empty;
+        public string ContentType { get; set; } = string.Empty;
+        public string DistributionPoint { get; set; } = string.Empty;
+        public string ServerNalPath { get; set; } = string.Empty;
+        public int SourceVersion { get; set; }
+        public string PackageId { get; set; } = string.Empty;
+        public string ObjectId { get; set; } = string.Empty;
+        public double SourceSizeMb { get; set; }
+        public ContentDistributionState State { get; set; }
+        public string DistributionStatus => State switch
+        {
+            ContentDistributionState.Success => "Success",
+            ContentDistributionState.InProgress => "In Progress",
+            ContentDistributionState.Error => "Error",
+            _ => "Unknown"
+        };
+        public int MessageState { get; set; }
+        public uint MessageId { get; set; }
+        public DateTime? LastUpdateDate { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string StatusDetails { get; set; } = string.Empty;
+    }
+
+    public sealed class ContentDpStatusDetail
+    {
+        public string PackageId { get; set; } = string.Empty;
+        public string DistributionPoint { get; set; } = string.Empty;
+        public string ServerNalPath { get; set; } = string.Empty;
+        public string SiteCode { get; set; } = string.Empty;
+        public ContentDistributionState State { get; set; }
+        public string StatusLabel => State switch
+        {
+            ContentDistributionState.Success => "Success",
+            ContentDistributionState.InProgress => "In Progress",
+            ContentDistributionState.Error => "Error",
+            _ => "Unknown"
+        };
+        public uint MessageId { get; set; }
+        public string MessageSummary { get; set; } = string.Empty;
+        public DateTime? LastUpdateDate { get; set; }
+    }
+
+    public sealed class ContentDistributionSnapshot
+    {
+        public List<DistributionPointSummary> DistributionPoints { get; set; } = new List<DistributionPointSummary>();
+        public List<ContentDistributionItem> Items { get; set; } = new List<ContentDistributionItem>();
+        public List<DeviceErrorEntry> Errors { get; set; } = new List<DeviceErrorEntry>();
+    }
+
+    // ---- Dashboard 6: Hardware and Firmware Audit ----
+
+    public enum HardwareAuditDimension
+    {
+        Chassis,
+        Manufacturer,
+        Model,
+        UefiStatus,
+        SecureBootStatus,
+        TpmStatus,
+        BiosVersion,
+        OsVersion
+    }
+
+    public sealed class HardwareFirmwareAuditRow
+    {
+        public string ResourceId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string DistinguishedName { get; set; } = string.Empty;
+        public string Manufacturer { get; set; } = "Unknown";
+        public string Model { get; set; } = "Unknown";
+        public string ChassisType { get; set; } = "Unknown";
+        public string UefiStatus { get; set; } = "Unknown";
+        public string SecureBootStatus { get; set; } = "Unknown";
+        public string TpmStatus { get; set; } = "Unknown";
+        public string TpmVersion { get; set; } = string.Empty;
+        public string BiosVersion { get; set; } = "Unknown";
+        public DateTime? BiosReleaseDate { get; set; }
+        public string OperatingSystem { get; set; } = string.Empty;
+        public string OsVersion { get; set; } = "Unknown";
+    }
 }
