@@ -37,8 +37,11 @@ namespace OpenRCT.UI.Controls
 
         private string _childStatusHeader = "Status";
         private string _childSecondaryHeader = "Details";
+        private string _childExtraHeader = "Extra";
         private string _childTimestampHeader = "Last Run / Eval";
         private string _childErrorHeader = "Error Code";
+        private Visibility _childSecondaryVisibility = Visibility.Visible;
+        private Visibility _childExtraVisibility = Visibility.Collapsed;
         private Visibility _childTimestampVisibility = Visibility.Visible;
         private Visibility _childErrorVisibility = Visibility.Visible;
 
@@ -65,6 +68,12 @@ namespace OpenRCT.UI.Controls
             set { _childSecondaryHeader = value; OnPropertyChanged(nameof(ChildSecondaryHeader)); }
         }
 
+        public string ChildExtraHeader
+        {
+            get => _childExtraHeader;
+            set { _childExtraHeader = value; OnPropertyChanged(nameof(ChildExtraHeader)); }
+        }
+
         public string ChildTimestampHeader
         {
             get => _childTimestampHeader;
@@ -75,6 +84,18 @@ namespace OpenRCT.UI.Controls
         {
             get => _childErrorHeader;
             set { _childErrorHeader = value; OnPropertyChanged(nameof(ChildErrorHeader)); }
+        }
+
+        public Visibility ChildSecondaryVisibility
+        {
+            get => _childSecondaryVisibility;
+            set { _childSecondaryVisibility = value; OnPropertyChanged(nameof(ChildSecondaryVisibility)); }
+        }
+
+        public Visibility ChildExtraVisibility
+        {
+            get => _childExtraVisibility;
+            set { _childExtraVisibility = value; OnPropertyChanged(nameof(ChildExtraVisibility)); }
         }
 
         public Visibility ChildTimestampVisibility
@@ -101,17 +122,29 @@ namespace OpenRCT.UI.Controls
             bool showSecondary = true,
             bool showVersion = true,
             bool showChildTimestamp = true,
-            bool showChildError = true)
+            bool showChildError = true,
+            string extraHeader = "Details",
+            bool showExtra = false,
+            bool showStatus = true,
+            string childExtraHeader = "Extra",
+            bool showChildSecondary = true,
+            bool showChildExtra = false)
         {
             NameColumn.Header = nameHeader;
             SecondaryColumn.Header = secondaryHeader;
             SecondaryColumn.Visibility = showSecondary ? Visibility.Visible : Visibility.Collapsed;
             VersionColumn.Header = versionHeader;
             VersionColumn.Visibility = showVersion ? Visibility.Visible : Visibility.Collapsed;
+            ExtraColumn.Header = extraHeader;
+            ExtraColumn.Visibility = showExtra ? Visibility.Visible : Visibility.Collapsed;
             StatusColumn.Header = statusHeader;
+            StatusColumn.Visibility = showStatus ? Visibility.Visible : Visibility.Collapsed;
 
             ChildStatusHeader = childStatusHeader;
             ChildSecondaryHeader = childSecondaryHeader;
+            ChildSecondaryVisibility = showChildSecondary ? Visibility.Visible : Visibility.Collapsed;
+            ChildExtraHeader = childExtraHeader;
+            ChildExtraVisibility = showChildExtra ? Visibility.Visible : Visibility.Collapsed;
             ChildTimestampHeader = childTimestampHeader;
             ChildErrorHeader = childErrorHeader;
             ChildTimestampVisibility = showChildTimestamp ? Visibility.Visible : Visibility.Collapsed;
@@ -157,7 +190,6 @@ namespace OpenRCT.UI.Controls
                 }
             }
 
-            // Fallback: if nothing is checked, use all children of highlighted parent row(s)
             if (result.Count == 0)
             {
                 foreach (var selectedGroup in ParentGrid.SelectedItems.OfType<ExpandableItemGroup>())
@@ -228,8 +260,7 @@ namespace OpenRCT.UI.Controls
 
         private void ChildGrid_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            // Forward scroll wheel events up to the outer parent DataGrid so scrolling never gets trapped.
-            if (!e.Handled && sender is UIElement ui)
+            if (!e.Handled)
             {
                 e.Handled = true;
                 var routed = new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta)

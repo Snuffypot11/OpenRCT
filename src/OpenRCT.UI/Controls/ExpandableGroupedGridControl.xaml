@@ -3,13 +3,83 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:OpenRCT.UI.Controls">
   <UserControl.Resources>
-    <BooleanToVisibilityConverter x:Key="BoolToVis" />
     <controls:BindingProxy x:Key="GridProxy" />
+
+    <!-- Lazily instantiated only when IsExpanded == True so columns measure at full visible width -->
+    <DataTemplate x:Key="ExpandedChildTemplate">
+      <Border Background="{DynamicResource AppBackgroundBrush}"
+              BorderBrush="{DynamicResource BorderBrushSubtle}"
+              BorderThickness="0,1,0,1"
+              Padding="36,8,14,10"
+              HorizontalAlignment="Stretch">
+        <DataGrid ItemsSource="{Binding Children}"
+                  Style="{DynamicResource OpenRctDataGrid}"
+                  IsReadOnly="False"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  HorizontalAlignment="Stretch"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto"
+                  RowHeight="26"
+                  MaxHeight="300"
+                  SelectionMode="Extended"
+                  PreviewMouseWheel="ChildGrid_PreviewMouseWheel">
+          <DataGrid.Columns>
+            <DataGridTemplateColumn Width="36" MinWidth="36" CanUserResize="False" CanUserSort="False">
+              <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                  <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                </DataTemplate>
+              </DataGridTemplateColumn.CellTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTextColumn Header="Device Name"
+                                Binding="{Binding DeviceName}"
+                                IsReadOnly="True"
+                                Width="190"
+                                MinWidth="120" />
+            <DataGridTextColumn Header="{Binding Data.ChildStatusHeader, Source={StaticResource GridProxy}}"
+                                Binding="{Binding Status}"
+                                IsReadOnly="True"
+                                Width="165"
+                                MinWidth="105" />
+            <DataGridTextColumn Header="{Binding Data.ChildSecondaryHeader, Source={StaticResource GridProxy}}"
+                                Binding="{Binding SecondaryDetail}"
+                                Visibility="{Binding Data.ChildSecondaryVisibility, Source={StaticResource GridProxy}}"
+                                IsReadOnly="True"
+                                Width="220"
+                                MinWidth="120" />
+            <DataGridTextColumn Header="{Binding Data.ChildExtraHeader, Source={StaticResource GridProxy}}"
+                                Binding="{Binding ExtraDetail}"
+                                Visibility="{Binding Data.ChildExtraVisibility, Source={StaticResource GridProxy}}"
+                                IsReadOnly="True"
+                                Width="175"
+                                MinWidth="100" />
+            <DataGridTextColumn Header="{Binding Data.ChildTimestampHeader, Source={StaticResource GridProxy}}"
+                                Binding="{Binding TimestampDisplay}"
+                                Visibility="{Binding Data.ChildTimestampVisibility, Source={StaticResource GridProxy}}"
+                                IsReadOnly="True"
+                                Width="150"
+                                MinWidth="115" />
+            <DataGridTextColumn Header="{Binding Data.ChildErrorHeader, Source={StaticResource GridProxy}}"
+                                Binding="{Binding ErrorCode}"
+                                Visibility="{Binding Data.ChildErrorVisibility, Source={StaticResource GridProxy}}"
+                                IsReadOnly="True"
+                                Width="130"
+                                MinWidth="95" />
+          </DataGrid.Columns>
+        </DataGrid>
+      </Border>
+    </DataTemplate>
   </UserControl.Resources>
 
   <DataGrid x:Name="ParentGrid"
             Style="{DynamicResource OpenRctDataGrid}"
             IsReadOnly="False"
+            CanUserResizeColumns="True"
+            CanUserSortColumns="True"
+            AreRowDetailsFrozen="True"
             RowHeight="NaN"
             MinRowHeight="30"
             RowDetailsVisibilityMode="Visible"
@@ -17,7 +87,7 @@
             MouseDoubleClick="ParentGrid_MouseDoubleClick">
     <DataGrid.Columns>
       <!-- Expand / Collapse Chevron Column -->
-      <DataGridTemplateColumn Width="34" CanUserResize="False" CanUserSort="False">
+      <DataGridTemplateColumn Width="34" MinWidth="34" CanUserResize="False" CanUserSort="False">
         <DataGridTemplateColumn.Header>
           <Button x:Name="ExpandAllButton"
                   Content="&#x25B8;"
@@ -46,7 +116,7 @@
       </DataGridTemplateColumn>
 
       <!-- Select All / Group Checkbox Column -->
-      <DataGridTemplateColumn Width="36" CanUserResize="False" CanUserSort="False">
+      <DataGridTemplateColumn Width="36" MinWidth="36" CanUserResize="False" CanUserSort="False">
         <DataGridTemplateColumn.Header>
           <CheckBox x:Name="SelectAllCheckBox"
                     ToolTip="Select / Deselect All"
@@ -64,84 +134,65 @@
         </DataGridTemplateColumn.CellTemplate>
       </DataGridTemplateColumn>
 
-      <!-- Main Item Columns -->
+      <!-- Main Item Columns (up to 5 data columns + Devices count) -->
       <DataGridTextColumn x:Name="NameColumn"
                           Header="Name"
                           Binding="{Binding Name}"
                           IsReadOnly="True"
-                          Width="2*" />
+                          Width="2*"
+                          MinWidth="140" />
       <DataGridTextColumn x:Name="SecondaryColumn"
                           Header="Publisher"
                           Binding="{Binding SecondaryInfo}"
                           IsReadOnly="True"
-                          Width="1.1*" />
+                          Width="1.1*"
+                          MinWidth="100" />
       <DataGridTextColumn x:Name="VersionColumn"
                           Header="Version"
                           Binding="{Binding Version}"
                           IsReadOnly="True"
-                          Width="115" />
+                          Width="120"
+                          MinWidth="80" />
+      <DataGridTextColumn x:Name="ExtraColumn"
+                          Header="Details"
+                          Binding="{Binding ExtraInfo}"
+                          IsReadOnly="True"
+                          Visibility="Collapsed"
+                          Width="135"
+                          MinWidth="85" />
       <DataGridTextColumn x:Name="StatusColumn"
                           Header="Status"
                           Binding="{Binding StatusSummary}"
                           IsReadOnly="True"
-                          Width="175" />
+                          Width="165"
+                          MinWidth="95" />
       <DataGridTextColumn x:Name="DevicesColumn"
                           Header="Devices"
                           Binding="{Binding DeviceCount}"
                           IsReadOnly="True"
-                          Width="75" />
+                          Width="75"
+                          MinWidth="65" />
     </DataGrid.Columns>
 
-    <!-- Nested Applicable Devices Table -->
+    <!-- Nested Applicable Devices Table (only materialized when IsExpanded == True) -->
     <DataGrid.RowDetailsTemplate>
       <DataTemplate>
-        <Border Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVis}}"
-                Background="{DynamicResource AppBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrushSubtle}"
-                BorderThickness="0,1,0,1"
-                Padding="36,8,14,10">
-          <DataGrid ItemsSource="{Binding Children}"
-                    Style="{DynamicResource OpenRctDataGrid}"
-                    IsReadOnly="False"
-                    RowHeight="26"
-                    MaxHeight="280"
-                    SelectionMode="Extended"
-                    PreviewMouseWheel="ChildGrid_PreviewMouseWheel">
-            <DataGrid.Columns>
-              <DataGridTemplateColumn Width="34" CanUserResize="False" CanUserSort="False">
-                <DataGridTemplateColumn.CellTemplate>
-                  <DataTemplate>
-                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center" />
-                  </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-              </DataGridTemplateColumn>
-              <DataGridTextColumn Header="Device Name"
-                                  Binding="{Binding DeviceName}"
-                                  IsReadOnly="True"
-                                  Width="175" />
-              <DataGridTextColumn Header="{Binding Data.ChildStatusHeader, Source={StaticResource GridProxy}}"
-                                  Binding="{Binding Status}"
-                                  IsReadOnly="True"
-                                  Width="145" />
-              <DataGridTextColumn Header="{Binding Data.ChildSecondaryHeader, Source={StaticResource GridProxy}}"
-                                  Binding="{Binding SecondaryDetail}"
-                                  IsReadOnly="True"
-                                  Width="*" />
-              <DataGridTextColumn Header="{Binding Data.ChildTimestampHeader, Source={StaticResource GridProxy}}"
-                                  Binding="{Binding TimestampDisplay}"
-                                  Visibility="{Binding Data.ChildTimestampVisibility, Source={StaticResource GridProxy}}"
-                                  IsReadOnly="True"
-                                  Width="135" />
-              <DataGridTextColumn Header="{Binding Data.ChildErrorHeader, Source={StaticResource GridProxy}}"
-                                  Binding="{Binding ErrorCode}"
-                                  Visibility="{Binding Data.ChildErrorVisibility, Source={StaticResource GridProxy}}"
-                                  IsReadOnly="True"
-                                  Width="95" />
-            </DataGrid.Columns>
-          </DataGrid>
-        </Border>
+        <ContentControl Content="{Binding}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch">
+          <ContentControl.Style>
+            <Style TargetType="ContentControl">
+              <Setter Property="ContentTemplate" Value="{x:Null}" />
+              <Setter Property="Visibility" Value="Collapsed" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                  <Setter Property="Visibility" Value="Visible" />
+                  <Setter Property="ContentTemplate" Value="{StaticResource ExpandedChildTemplate}" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </ContentControl.Style>
+        </ContentControl>
       </DataTemplate>
     </DataGrid.RowDetailsTemplate>
   </DataGrid>

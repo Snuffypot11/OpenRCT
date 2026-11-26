@@ -135,6 +135,11 @@
                 <WrapPanel x:Name="QuickAccessPanel" Orientation="Horizontal" />
               </ScrollViewer>
             </TabItem>
+            <TabItem Header="Remote Tools (10)">
+              <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6">
+                <WrapPanel x:Name="RemoteToolsPanel" Orientation="Horizontal" />
+              </ScrollViewer>
+            </TabItem>
             <TabItem Header="Client Actions (12)">
               <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6">
                 <WrapPanel x:Name="ClientActionsPanel" Orientation="Horizontal" />
@@ -145,14 +150,19 @@
                 <WrapPanel x:Name="ClientToolsPanel" Orientation="Horizontal" />
               </ScrollViewer>
             </TabItem>
-            <TabItem Header="Console Tools (20)">
+            <TabItem Header="Device &amp; Power (6)">
               <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6">
-                <WrapPanel x:Name="ConsoleToolsPanel" Orientation="Horizontal" />
+                <WrapPanel x:Name="DevicePowerPanel" Orientation="Horizontal" />
               </ScrollViewer>
             </TabItem>
-            <TabItem Header="Security Tools (5)">
+            <TabItem Header="Security (5)">
               <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6">
                 <WrapPanel x:Name="SecurityToolsPanel" Orientation="Horizontal" />
+              </ScrollViewer>
+            </TabItem>
+            <TabItem Header="AD &amp; ConfigMgr (5)">
+              <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="6">
+                <WrapPanel x:Name="AdConfigMgrPanel" Orientation="Horizontal" />
               </ScrollViewer>
             </TabItem>
           </TabControl>

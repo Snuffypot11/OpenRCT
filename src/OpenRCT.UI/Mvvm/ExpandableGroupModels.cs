@@ -74,7 +74,10 @@ namespace OpenRCT.UI.Mvvm
         public string SecondaryDetail { get; set; } = string.Empty;
         public string ExtraDetail { get; set; } = string.Empty;
         public DateTime? Timestamp { get; set; }
-        public string TimestampDisplay => Timestamp.HasValue ? Timestamp.Value.ToString("yyyy-MM-dd HH:mm") : string.Empty;
+        public string? TimestampText { get; set; }
+        public string TimestampDisplay => !string.IsNullOrEmpty(TimestampText)
+            ? TimestampText!
+            : (Timestamp.HasValue ? Timestamp.Value.ToString("yyyy-MM-dd HH:mm") : string.Empty);
         public string ErrorCode { get; set; } = string.Empty;
         public object? Payload { get; set; }
     }
@@ -183,6 +186,7 @@ namespace OpenRCT.UI.Mvvm
                         SecondaryDetail = c.SecondaryDetail,
                         ExtraDetail = c.ExtraDetail,
                         Timestamp = c.Timestamp,
+                        TimestampText = c.TimestampText,
                         ErrorCode = c.ErrorCode,
                         Payload = c.Payload
                     });

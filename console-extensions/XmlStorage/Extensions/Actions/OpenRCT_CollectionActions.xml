@@ -10,6 +10,30 @@
     <string>DefaultHomeTab</string>
   </ShowOn>
   <ActionGroups>
+    <!-- 1. Remote Tools (Multi-Device Collection Support) -->
+    <ActionDescription Class="Group" DisplayName="Remote Tools" MnemonicDisplayName="Remote Tools" Description="Run multi-device remote inspection tools across this Device Collection">
+      <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+      <ActionGroups>
+        <ActionDescription Class="AssemblyType" DisplayName="System Information" MnemonicDisplayName="System Information" Description="Inspect system information across collection members">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
+        </ActionDescription>
+        <ActionDescription Class="AssemblyType" DisplayName="Remote Software Center" MnemonicDisplayName="Remote Software Center" Description="View and trigger Software Center apps, updates, task sequences, and compliance across collection">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
+        </ActionDescription>
+        <ActionDescription Class="AssemblyType" DisplayName="Remote Windows Security" MnemonicDisplayName="Remote Windows Security" Description="Inspect BitLocker, TPM, Firmware, VBS, Defender, and Firewall across collection">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
+        </ActionDescription>
+        <ActionDescription Class="AssemblyType" DisplayName="Running Processes" MnemonicDisplayName="Running Processes" Description="View running processes across collection members">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
+        </ActionDescription>
+      </ActionGroups>
+    </ActionDescription>
+
+    <!-- 2. Client Actions -->
     <ActionDescription Class="Group" DisplayName="Client Actions" MnemonicDisplayName="Client Actions" Description="Trigger ConfigMgr client actions across the entire collection">
       <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionGroups>
@@ -40,9 +64,14 @@
       </ActionGroups>
     </ActionDescription>
 
+    <!-- 3. Client Tools -->
     <ActionDescription Class="Group" DisplayName="Client Tools" MnemonicDisplayName="Client Tools" Description="Run Client Tools across this Device Collection">
       <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionGroups>
+        <ActionDescription Class="AssemblyType" DisplayName="Client Information" MnemonicDisplayName="Client Information" Description="View ConfigMgr client details, components, and cache across collection">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
+        </ActionDescription>
         <ActionDescription Class="AssemblyType" DisplayName="Refresh Updates Compliance State" MnemonicDisplayName="Refresh Updates Compliance State" Description="Refresh Updates Compliance State for collection">
           <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
@@ -62,18 +91,11 @@
       </ActionGroups>
     </ActionDescription>
 
-    <ActionDescription Class="Group" DisplayName="Console Tools" MnemonicDisplayName="Console Tools" Description="Run Console Tools across this Device Collection">
+    <!-- 4. Device & Power Tools -->
+    <ActionDescription Class="Group" DisplayName="Device &amp; Power Tools" MnemonicDisplayName="Device &amp; Power Tools" Description="Run Device and Power Tools across this Device Collection">
       <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionGroups>
-        <ActionDescription Class="AssemblyType" DisplayName="Group Policy Update" MnemonicDisplayName="Group Policy Update" Description="Run gpupdate /force on collection">
-          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
-          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
-        </ActionDescription>
         <ActionDescription Class="AssemblyType" DisplayName="Ping System(s)" MnemonicDisplayName="Ping System(s)" Description="Ping all members in collection">
-          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
-          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
-        </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Send Notification" MnemonicDisplayName="Send Notification" Description="Send notification to all members in collection">
           <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
@@ -81,7 +103,11 @@
           <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
-        <ActionDescription Class="AssemblyType" DisplayName="Cancel Pending Restart or Shutdown" MnemonicDisplayName="Cancel Pending Restart or Shutdown" Description="Cancel pending restart/shutdown on collection">
+        <ActionDescription Class="AssemblyType" DisplayName="Group Policy Update" MnemonicDisplayName="Group Policy Update" Description="Run gpupdate /force on collection">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
+        </ActionDescription>
+        <ActionDescription Class="AssemblyType" DisplayName="Send Notification" MnemonicDisplayName="Send Notification" Description="Send notification to all members in collection">
           <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
@@ -89,9 +115,14 @@
           <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
           <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
         </ActionDescription>
+        <ActionDescription Class="AssemblyType" DisplayName="Cancel Pending Restart or Shutdown" MnemonicDisplayName="Cancel Pending Restart or Shutdown" Description="Cancel pending restart/shutdown on collection">
+          <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
+          <ActionAssembly><Assembly>{{OPENRCT_INSTALL_DIR}}\OpenRCT.ConsoleExtension.dll</Assembly><Type>OpenRCT.ConsoleExtension.OpenRctActionHandler</Type><Method>Execute</Method></ActionAssembly>
+        </ActionDescription>
       </ActionGroups>
     </ActionDescription>
 
+    <!-- 5. Security Tools -->
     <ActionDescription Class="Group" DisplayName="Security Tools" MnemonicDisplayName="Security Tools" Description="Run Security Tools across this Device Collection">
       <ShowOn><string>ContextMenu</string><string>DefaultHomeTab</string></ShowOn>
       <ActionGroups>

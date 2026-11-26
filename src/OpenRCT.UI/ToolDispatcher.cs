@@ -235,7 +235,12 @@ namespace OpenRCT.UI
                     break;
 
                 case ToolActionKeys.OpenEventViewer:
-                    LaunchForAll(devices, d => endpointService.LaunchLocalMmcToolAsync(d, "eventvwr.msc", "/computer:\\\\{host}"));
+                case ToolActionKeys.RemoteEventViewer:
+                    new RemoteEventViewerWindow(devices, new RemoteEventViewerService(), settings).Show();
+                    break;
+
+                case ToolActionKeys.RemoteWindowsSecurity:
+                    new RemoteWindowsSecurityWindow(devices, new RemoteWindowsSecurityService(wmi), endpointService, adClient, smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings).Show();
                     break;
 
                 case ToolActionKeys.OpenRegedit:

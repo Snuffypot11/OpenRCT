@@ -47,12 +47,14 @@ namespace OpenRCT.Core.Models
         public const string RestartSystems = "ConsoleTool.RestartSystems";
         public const string ShutdownSystems = "ConsoleTool.ShutdownSystems";
 
-        // Security Tools (5)
+        // Security Tools (5) + Remote Windows Security
         public const string ViewLapsPassword = "SecurityTool.ViewLapsPassword";
         public const string ViewBitLockerRecoveryKey = "SecurityTool.ViewBitLockerRecoveryKey";
         public const string DefenderQuickScan = "SecurityTool.DefenderQuickScan";
         public const string DefenderFullScan = "SecurityTool.DefenderFullScan";
         public const string DefenderUpdateDefinitions = "SecurityTool.DefenderUpdateDefinitions";
+        public const string RemoteWindowsSecurity = "RemoteTool.RemoteWindowsSecurity";
+        public const string RemoteEventViewer = "RemoteTool.RemoteEventViewer";
 
         // Other top-level tools
         public const string DeviceStatusMessages = "Tool.DeviceStatusMessages";
@@ -93,7 +95,7 @@ namespace OpenRCT.Core.Models
             map["Repair Client"] = RepairClient;
             map["Uninstall SCCM Client"] = UninstallSccmClient;
 
-            // Console Tools
+            // Remote Tools / Console Tools
             map["AD Security Groups"] = AdSecurityGroups;
             map["Connect to C$"] = ConnectToCShare;
             map["Delete Device(s) from Active Directory"] = DeleteFromActiveDirectory;
@@ -104,8 +106,11 @@ namespace OpenRCT.Core.Models
             map["Interactive Command Prompt"] = InteractiveCommandPrompt;
             map["Interactive PowerShell Prompt"] = InteractivePowerShellPrompt;
             map["Manage Computer"] = ManageComputer;
-            map["Open Event Viewer"] = OpenEventViewer;
+            map["Open Event Viewer"] = RemoteEventViewer;
+            map["Remote Event Viewer"] = RemoteEventViewer;
             map["Open Regedit"] = OpenRegedit;
+            map["Remote Registry Editor"] = OpenRegedit;
+            map["Remote Windows Security"] = RemoteWindowsSecurity;
             map["Ping System(s)"] = PingSystems;
             map["Running Processes"] = RunningProcesses;
             map["Send Notification"] = SendNotification;

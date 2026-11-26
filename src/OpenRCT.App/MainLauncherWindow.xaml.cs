@@ -51,11 +51,22 @@ namespace OpenRCT.App
         {
             var list = new List<ToolCatalogEntry>();
 
-            // Quick Access / Core Tools
             void Add(string cat, string name, string key, bool quick = false, bool primary = false) =>
                 list.Add(new ToolCatalogEntry { Category = cat, DisplayName = name, ActionKey = key, ShowInQuickAccess = quick, IsPrimary = primary });
 
-            // Client Actions (12)
+            // 1. Remote Tools (10)
+            Add("Remote Tools", "System Information", ToolActionKeys.SystemInformation, quick: true, primary: true);
+            Add("Remote Tools", "Remote Software Center", ToolActionKeys.RemoteSoftwareCenter, quick: true);
+            Add("Remote Tools", "Remote Windows Security", ToolActionKeys.RemoteWindowsSecurity, quick: true);
+            Add("Remote Tools", "Remote Registry Editor", ToolActionKeys.OpenRegedit, quick: true);
+            Add("Remote Tools", "Remote Event Viewer", ToolActionKeys.RemoteEventViewer, quick: true);
+            Add("Remote Tools", "Running Processes", ToolActionKeys.RunningProcesses, quick: true);
+            Add("Remote Tools", "Connect to C$", ToolActionKeys.ConnectToCShare);
+            Add("Remote Tools", "Interactive PowerShell Prompt", ToolActionKeys.InteractivePowerShellPrompt, quick: true);
+            Add("Remote Tools", "Interactive Command Prompt (PsExec)", ToolActionKeys.InteractiveCommandPrompt, quick: true);
+            Add("Remote Tools", "Manage Computer", ToolActionKeys.ManageComputer);
+
+            // 2. Client Actions (12)
             foreach (var action in ClientActionRegistry.All)
             {
                 bool quick = string.Equals(action.Key, ClientActionRegistry.MachinePolicyRetrievalAndEval, StringComparison.OrdinalIgnoreCase) ||
@@ -63,11 +74,11 @@ namespace OpenRCT.App
                 Add("Client Actions", action.DisplayName, action.Key, quick: quick);
             }
 
-            // Client Tools (13)
+            // 3. Client Tools (13)
             Add("Client Tools", "Client Information", ToolActionKeys.ClientInformation, quick: true);
-            Add("Client Tools", "Remote Software Center", ToolActionKeys.RemoteSoftwareCenter, quick: true);
             Add("Client Tools", "Show Collections - Advanced", ToolActionKeys.ShowCollectionsAdvanced);
             Add("Client Tools", "Add Device(s) to Collection", ToolActionKeys.AddDevicesToCollection);
+            Add("Client Tools", "Device Status Messages", ToolActionKeys.DeviceStatusMessages, quick: true);
             Add("Client Tools", "Open Client Log File Folder", ToolActionKeys.OpenClientLogs);
             Add("Client Tools", "Open Client Installation Log File Folder", ToolActionKeys.OpenClientInstallLogs);
             Add("Client Tools", "Refresh Updates Compliance State", ToolActionKeys.RefreshUpdatesComplianceState);
@@ -78,34 +89,27 @@ namespace OpenRCT.App
             Add("Client Tools", "Repair Client", ToolActionKeys.RepairClient);
             Add("Client Tools", "Uninstall SCCM Client", ToolActionKeys.UninstallSccmClient);
 
-            // Console Tools (19 + Device Status Messages)
-            Add("Console Tools", "System Information", ToolActionKeys.SystemInformation, quick: true, primary: true);
-            Add("Console Tools", "Ping System(s)", ToolActionKeys.PingSystems, quick: true);
-            Add("Console Tools", "Running Processes", ToolActionKeys.RunningProcesses, quick: true);
-            Add("Console Tools", "Open Regedit", ToolActionKeys.OpenRegedit, quick: true);
-            Add("Console Tools", "Open Event Viewer", ToolActionKeys.OpenEventViewer, quick: true);
-            Add("Console Tools", "Schedule Restart or Shutdown", ToolActionKeys.ScheduleRestartOrShutdown, quick: true);
-            Add("Console Tools", "Cancel Pending Restart or Shutdown", ToolActionKeys.CancelPendingRestart);
-            Add("Console Tools", "Interactive PowerShell Prompt", ToolActionKeys.InteractivePowerShellPrompt, quick: true);
-            Add("Console Tools", "Interactive Command Prompt (PsExec)", ToolActionKeys.InteractiveCommandPrompt, quick: true);
-            Add("Console Tools", "Manage Computer", ToolActionKeys.ManageComputer);
-            Add("Console Tools", "Connect to C$", ToolActionKeys.ConnectToCShare);
-            Add("Console Tools", "Group Policy Update", ToolActionKeys.GroupPolicyUpdate);
-            Add("Console Tools", "AD Security Groups", ToolActionKeys.AdSecurityGroups);
-            Add("Console Tools", "Send Notification", ToolActionKeys.SendNotification);
-            Add("Console Tools", "Wake On LAN", ToolActionKeys.WakeOnLan);
-            Add("Console Tools", "Device Status Messages", ToolActionKeys.DeviceStatusMessages, quick: true);
-            Add("Console Tools", "Enable Device(s) in Active Directory", ToolActionKeys.EnableInActiveDirectory);
-            Add("Console Tools", "Disable Device(s) in Active Directory", ToolActionKeys.DisableInActiveDirectory);
-            Add("Console Tools", "Delete Device(s) from Active Directory", ToolActionKeys.DeleteFromActiveDirectory);
-            Add("Console Tools", "Delete Device(s) From ConfigMgr", ToolActionKeys.DeleteFromConfigMgr);
+            // 4. Device & Power Tools (6)
+            Add("Device & Power", "Ping System(s)", ToolActionKeys.PingSystems, quick: true);
+            Add("Device & Power", "Wake On LAN", ToolActionKeys.WakeOnLan);
+            Add("Device & Power", "Group Policy Update", ToolActionKeys.GroupPolicyUpdate);
+            Add("Device & Power", "Send Notification", ToolActionKeys.SendNotification);
+            Add("Device & Power", "Schedule Restart or Shutdown", ToolActionKeys.ScheduleRestartOrShutdown, quick: true);
+            Add("Device & Power", "Cancel Pending Restart or Shutdown", ToolActionKeys.CancelPendingRestart);
 
-            // Security Tools (5)
+            // 5. Security Tools (5)
             Add("Security Tools", "View LAPS Password", ToolActionKeys.ViewLapsPassword, quick: true);
             Add("Security Tools", "View BitLocker Recovery Key", ToolActionKeys.ViewBitLockerRecoveryKey, quick: true);
             Add("Security Tools", "Windows Defender - Quick Scan", ToolActionKeys.DefenderQuickScan);
             Add("Security Tools", "Windows Defender - Full Scan", ToolActionKeys.DefenderFullScan);
             Add("Security Tools", "Windows Defender - Update Definitions", ToolActionKeys.DefenderUpdateDefinitions);
+
+            // 6. Active Directory & ConfigMgr (5)
+            Add("AD & ConfigMgr", "AD Security Groups", ToolActionKeys.AdSecurityGroups);
+            Add("AD & ConfigMgr", "Enable Device(s) in Active Directory", ToolActionKeys.EnableInActiveDirectory);
+            Add("AD & ConfigMgr", "Disable Device(s) in Active Directory", ToolActionKeys.DisableInActiveDirectory);
+            Add("AD & ConfigMgr", "Delete Device(s) from Active Directory", ToolActionKeys.DeleteFromActiveDirectory);
+            Add("AD & ConfigMgr", "Delete Device(s) From ConfigMgr", ToolActionKeys.DeleteFromConfigMgr);
 
             return list;
         }
@@ -113,15 +117,20 @@ namespace OpenRCT.App
         private void PopulateToolTabs()
         {
             QuickAccessPanel.Children.Clear();
+            RemoteToolsPanel.Children.Clear();
             ClientActionsPanel.Children.Clear();
             ClientToolsPanel.Children.Clear();
-            ConsoleToolsPanel.Children.Clear();
+            DevicePowerPanel.Children.Clear();
             SecurityToolsPanel.Children.Clear();
+            AdConfigMgrPanel.Children.Clear();
 
-            // Put System Information first in Quick Access
             foreach (var entry in _catalog.Where(c => c.ShowInQuickAccess).OrderByDescending(c => c.IsPrimary))
             {
                 QuickAccessPanel.Children.Add(CreateToolButton(entry));
+            }
+            foreach (var entry in _catalog.Where(c => c.Category == "Remote Tools"))
+            {
+                RemoteToolsPanel.Children.Add(CreateToolButton(entry));
             }
             foreach (var entry in _catalog.Where(c => c.Category == "Client Actions"))
             {
@@ -131,13 +140,17 @@ namespace OpenRCT.App
             {
                 ClientToolsPanel.Children.Add(CreateToolButton(entry));
             }
-            foreach (var entry in _catalog.Where(c => c.Category == "Console Tools"))
+            foreach (var entry in _catalog.Where(c => c.Category == "Device & Power"))
             {
-                ConsoleToolsPanel.Children.Add(CreateToolButton(entry));
+                DevicePowerPanel.Children.Add(CreateToolButton(entry));
             }
             foreach (var entry in _catalog.Where(c => c.Category == "Security Tools"))
             {
                 SecurityToolsPanel.Children.Add(CreateToolButton(entry));
+            }
+            foreach (var entry in _catalog.Where(c => c.Category == "AD & ConfigMgr"))
+            {
+                AdConfigMgrPanel.Children.Add(CreateToolButton(entry));
             }
         }
 

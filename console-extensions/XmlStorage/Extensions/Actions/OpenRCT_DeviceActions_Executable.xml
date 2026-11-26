@@ -7,6 +7,36 @@
 <ActionDescription Class="Group" DisplayName="OpenRCT" MnemonicDisplayName="OpenRCT" Description="Open Source Right Click Tools for MECM (Executable Mode)" SqmDataPoint="53" SelectionMode="Both">
   <ShowOn><string>ContextMenu</string></ShowOn>
   <ActionGroups>
+    <ActionDescription Class="Group" DisplayName="Remote Tools" MnemonicDisplayName="Remote Tools" Description="Interactive Remote Tools" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string></ShowOn>
+      <ActionGroups>
+        <ActionDescription Class="Executable" DisplayName="System Information" MnemonicDisplayName="System Information" Description="Open System Information" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.SystemInformation --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Remote Software Center" MnemonicDisplayName="Remote Software Center" Description="Open Remote Software Center" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ClientTool.RemoteSoftwareCenter --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Remote Windows Security" MnemonicDisplayName="Remote Windows Security" Description="Open Remote Windows Security" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action RemoteTool.RemoteWindowsSecurity --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Remote Registry Editor" MnemonicDisplayName="Remote Registry Editor" Description="Open Remote Registry Editor" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.OpenRegedit --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Remote Event Viewer" MnemonicDisplayName="Remote Event Viewer" Description="Open Remote Event Viewer" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action RemoteTool.RemoteEventViewer --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Interactive Command Prompt" MnemonicDisplayName="Interactive Command Prompt" Description="Open Interactive Command Prompt (PsExec)" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.InteractiveCommandPrompt --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+      </ActionGroups>
+    </ActionDescription>
+
     <ActionDescription Class="Group" DisplayName="Client Actions" MnemonicDisplayName="Client Actions" Description="Trigger ConfigMgr Client Actions" SelectionMode="Both">
       <ShowOn><string>ContextMenu</string></ShowOn>
       <ActionGroups>
@@ -29,17 +59,9 @@
       </ActionGroups>
     </ActionDescription>
 
-    <ActionDescription Class="Group" DisplayName="Console Tools" MnemonicDisplayName="Console Tools" Description="Console Tools" SelectionMode="Both">
+    <ActionDescription Class="Group" DisplayName="Device &amp; Power Tools" MnemonicDisplayName="Device &amp; Power Tools" Description="Device and Power Tools" SelectionMode="Both">
       <ShowOn><string>ContextMenu</string></ShowOn>
       <ActionGroups>
-        <ActionDescription Class="Executable" DisplayName="System Information" MnemonicDisplayName="System Information" Description="Open System Information" SelectionMode="Both">
-          <ShowOn><string>ContextMenu</string></ShowOn>
-          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.SystemInformation --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
-        </ActionDescription>
-        <ActionDescription Class="Executable" DisplayName="Interactive Command Prompt" MnemonicDisplayName="Interactive Command Prompt" Description="Open Interactive Command Prompt (PsExec)" SelectionMode="Single">
-          <ShowOn><string>ContextMenu</string></ShowOn>
-          <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.InteractiveCommandPrompt --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
-        </ActionDescription>
         <ActionDescription Class="Executable" DisplayName="Ping System(s)" MnemonicDisplayName="Ping System(s)" Description="Ping System(s)" SelectionMode="Both">
           <ShowOn><string>ContextMenu</string></ShowOn>
           <Executable><FilePath>{{OPENRCT_INSTALL_DIR}}\OpenRCT.App.exe</FilePath><Parameters>--action ConsoleTool.PingSystems --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>

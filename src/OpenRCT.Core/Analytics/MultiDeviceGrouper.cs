@@ -12,6 +12,7 @@ namespace OpenRCT.Core.Analytics
         public string SecondaryDetail { get; set; } = string.Empty;
         public string ExtraDetail { get; set; } = string.Empty;
         public DateTime? Timestamp { get; set; }
+        public string? TimestampText { get; set; }
         public string ErrorCode { get; set; } = string.Empty;
         public T Payload { get; set; } = default!;
     }
@@ -485,6 +486,273 @@ namespace OpenRCT.Core.Analytics
                     SecondaryInfo = string.IsNullOrWhiteSpace(first.ContentVersion) ? string.Empty : $"v{first.ContentVersion}",
                     Version = $"{Math.Round(totalMb, 1)} MB total",
                     StatusSummary = $"Cached on {devCount} device(s)",
+                    Children = children
+                });
+            }
+
+            return result.OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        public static List<GroupedItemData<BitLockerVolumeInfo>> GroupBitLockerVolumes(IEnumerable<BitLockerVolumeInfo> items)
+        {
+            if (items == null) return new List<GroupedItemData<BitLockerVolumeInfo>>();
+            var result = new List<GroupedItemData<BitLockerVolumeInfo>>();
+
+            foreach (var grp in items.Where(i => i != null)
+                .GroupBy(i => $"{i.DriveLetter}|{i.ProtectionStatus}|{i.EncryptionMethod}|{i.ConversionStatus}", StringComparer.OrdinalIgnoreCase))
+            {
+                var first = grp.First();
+                var children = grp.OrderBy(i => i.DeviceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(i => new GroupedChildData<BitLockerVolumeInfo>
+                    {
+                        DeviceName = i.DeviceName,
+                        Status = i.VolumeType,
+                        SecondaryDetail = i.LockStatus,
+                        ExtraDetail = $"{i.EncryptionPercentage}%",
+                        TimestampText = i.KeyProtectors,
+                        Payload = i
+                    }).ToList();
+
+                result.Add(new GroupedItemData<BitLockerVolumeInfo>
+                {
+                    GroupKey = grp.Key,
+                    Name = first.DriveLetter,
+                    SecondaryInfo = first.ProtectionStatus,
+                    Version = first.EncryptionMethod,
+                    StatusSummary = first.ConversionStatus,
+                    Children = children
+                });
+            }
+
+            return result.OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        public static List<GroupedItemData<TpmStatusInfo>> GroupTpmStatuses(IEnumerable<TpmStatusInfo> items)
+        {
+            if (items == null) return new List<GroupedItemData<TpmStatusInfo>>();
+            var result = new List<GroupedItemData<TpmStatusInfo>>();
+
+            foreach (var grp in items.Where(i => i != null)
+                .GroupBy(i => $"{i.SpecVersion}|{i.IsActivated}|{i.IsEnabled}|{i.IsOwned}|{i.IsReady}", StringComparer.OrdinalIgnoreCase))
+            {
+                var first = grp.First();
+                var children = grp.OrderBy(i => i.DeviceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(i => new GroupedChildData<TpmStatusInfo>
+                    {
+                        DeviceName = i.DeviceName,
+                        Status = i.Manufacturer,
+                        SecondaryDetail = i.ManufacturerVersion,
+                        ExtraDetail = i.FipsReady.ToString(),
+                        TimestampText = i.LockedOut.ToString(),
+                        Payload = i
+                    }).ToList();
+
+                result.Add(new GroupedItemData<TpmStatusInfo>
+                {
+                    GroupKey = grp.Key,
+                    Name = first.SpecVersion,
+                    SecondaryInfo = first.IsActivated.ToString(),
+                    Version = first.IsEnabled.ToString(),
+                    ExtraInfo = first.IsOwned.ToString(),
+                    StatusSummary = first.IsReady.ToString(),
+                    Children = children
+                });
+            }
+
+            return result.OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        public static List<GroupedItemData<FirmwareSecurityInfo>> GroupFirmwareSecurity(IEnumerable<FirmwareSecurityInfo> items)
+        {
+            if (items == null) return new List<GroupedItemData<FirmwareSecurityInfo>>();
+            var result = new List<GroupedItemData<FirmwareSecurityInfo>>();
+
+            foreach (var grp in items.Where(i => i != null)
+                .GroupBy(i => $"{i.UefiEnabled}|{i.SecureBootEnabled}|{i.CertificateStatus}", StringComparer.OrdinalIgnoreCase))
+            {
+                var first = grp.First();
+                var children = grp.OrderBy(i => i.DeviceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(i => new GroupedChildData<FirmwareSecurityInfo>
+                    {
+                        DeviceName = i.DeviceName,
+                        Status = i.BiosVersion,
+                        SecondaryDetail = i.CertificateUpdateReadiness,
+                        ExtraDetail = i.CertificateError,
+                        TimestampText = i.CertificateErrorEvent,
+                        ErrorCode = i.ConfidenceLevel,
+                        Payload = i
+                    }).ToList();
+
+                result.Add(new GroupedItemData<FirmwareSecurityInfo>
+                {
+                    GroupKey = grp.Key,
+                    Name = first.UefiEnabled.ToString(),
+                    SecondaryInfo = first.SecureBootEnabled.ToString(),
+                    StatusSummary = first.CertificateStatus,
+                    Children = children
+                });
+            }
+
+            return result.OrderByDescending(g => g.DeviceCount).ThenBy(g => g.StatusSummary, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        public static List<GroupedItemData<VbsStatusInfo>> GroupVbsStatuses(IEnumerable<VbsStatusInfo> items)
+        {
+            if (items == null) return new List<GroupedItemData<VbsStatusInfo>>();
+            var result = new List<GroupedItemData<VbsStatusInfo>>();
+
+            foreach (var grp in items.Where(i => i != null)
+                .GroupBy(i => $"{i.VbsStatus}|{i.CredentialGuardStatus}|{i.HvciStatus}", StringComparer.OrdinalIgnoreCase))
+            {
+                var first = grp.First();
+                var children = grp.OrderBy(i => i.DeviceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(i => new GroupedChildData<VbsStatusInfo>
+                    {
+                        DeviceName = i.DeviceName,
+                        Status = i.VbsStatus,
+                        SecondaryDetail = i.RunningServices,
+                        ExtraDetail = i.ConfiguredServices,
+                        TimestampText = i.RequiredProperties,
+                        Payload = i
+                    }).ToList();
+
+                result.Add(new GroupedItemData<VbsStatusInfo>
+                {
+                    GroupKey = grp.Key,
+                    Name = first.VbsStatus,
+                    SecondaryInfo = first.CredentialGuardStatus,
+                    StatusSummary = first.HvciStatus,
+                    Children = children
+                });
+            }
+
+            return result.OrderByDescending(g => g.DeviceCount).ToList();
+        }
+
+        public static List<GroupedItemData<DefenderStatusInfo>> GroupDefenderStatuses(IEnumerable<DefenderStatusInfo> items)
+        {
+            if (items == null) return new List<GroupedItemData<DefenderStatusInfo>>();
+            var result = new List<GroupedItemData<DefenderStatusInfo>>();
+
+            static string Fmt(DateTime? dt) => dt.HasValue ? dt.Value.ToString("yyyy-MM-dd HH:mm") : "Never";
+
+            foreach (var grp in items.Where(i => i != null)
+                .GroupBy(i => $"{i.AntivirusEnabled}|{i.RealTimeProtectionEnabled}|{i.SignatureVersion}|{i.ClientVersion}|{i.EngineVersion}", StringComparer.OrdinalIgnoreCase))
+            {
+                var first = grp.First();
+                var children = grp.OrderBy(i => i.DeviceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(i => new GroupedChildData<DefenderStatusInfo>
+                    {
+                        DeviceName = i.DeviceName,
+                        Status = Fmt(i.LastSignatureUpdate),
+                        SecondaryDetail = Fmt(i.LastFullScan),
+                        ExtraDetail = Fmt(i.LastQuickScan),
+                        Payload = i
+                    }).ToList();
+
+                result.Add(new GroupedItemData<DefenderStatusInfo>
+                {
+                    GroupKey = grp.Key,
+                    Name = first.AntivirusEnabled ? "Enabled" : "Disabled",
+                    SecondaryInfo = first.RealTimeProtectionEnabled ? "Enabled" : "Disabled",
+                    Version = first.SignatureVersion,
+                    ExtraInfo = first.ClientVersion,
+                    StatusSummary = first.EngineVersion,
+                    Children = children
+                });
+            }
+
+            return result.OrderByDescending(g => g.DeviceCount).ToList();
+        }
+
+        public static List<GroupedItemData<DefenderExclusionInfo>> GroupDefenderExclusions(IEnumerable<DefenderExclusionInfo> items)
+        {
+            if (items == null) return new List<GroupedItemData<DefenderExclusionInfo>>();
+            var result = new List<GroupedItemData<DefenderExclusionInfo>>();
+
+            foreach (var grp in items.Where(i => i != null)
+                .GroupBy(i => $"{i.ExclusionType}|{i.Value}", StringComparer.OrdinalIgnoreCase))
+            {
+                var first = grp.First();
+                var children = grp.OrderBy(i => i.DeviceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(i => new GroupedChildData<DefenderExclusionInfo>
+                    {
+                        DeviceName = i.DeviceName,
+                        Status = i.ExclusionType,
+                        SecondaryDetail = i.Value,
+                        Payload = i
+                    }).ToList();
+
+                result.Add(new GroupedItemData<DefenderExclusionInfo>
+                {
+                    GroupKey = grp.Key,
+                    Name = first.Value,
+                    StatusSummary = first.ExclusionType,
+                    Children = children
+                });
+            }
+
+            return result.OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        public static List<GroupedItemData<FirewallProfileInfo>> GroupFirewallProfiles(IEnumerable<FirewallProfileInfo> items)
+        {
+            if (items == null) return new List<GroupedItemData<FirewallProfileInfo>>();
+            var result = new List<GroupedItemData<FirewallProfileInfo>>();
+
+            foreach (var grp in items.Where(i => i != null)
+                .GroupBy(i => $"{i.ProfileName}|{i.Enabled}", StringComparer.OrdinalIgnoreCase))
+            {
+                var first = grp.First();
+                var children = grp.OrderBy(i => i.DeviceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(i => new GroupedChildData<FirewallProfileInfo>
+                    {
+                        DeviceName = i.DeviceName,
+                        Status = i.Enabled ? "Enabled" : "Disabled",
+                        SecondaryDetail = i.DefaultInboundAction,
+                        ExtraDetail = i.DefaultOutboundAction,
+                        Payload = i
+                    }).ToList();
+
+                result.Add(new GroupedItemData<FirewallProfileInfo>
+                {
+                    GroupKey = grp.Key,
+                    Name = first.ProfileName,
+                    StatusSummary = first.Enabled ? "Enabled" : "Disabled",
+                    Children = children
+                });
+            }
+
+            return result.OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
+        public static List<GroupedItemData<FirewallRuleInfo>> GroupFirewallRules(IEnumerable<FirewallRuleInfo> items)
+        {
+            if (items == null) return new List<GroupedItemData<FirewallRuleInfo>>();
+            var result = new List<GroupedItemData<FirewallRuleInfo>>();
+
+            foreach (var grp in items.Where(i => i != null)
+                .GroupBy(i => $"{i.DisplayName}|{i.Action}|{i.Direction}|{i.Profiles}|{i.Enabled}", StringComparer.OrdinalIgnoreCase))
+            {
+                var first = grp.First();
+                var children = grp.OrderBy(i => i.DeviceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(i => new GroupedChildData<FirewallRuleInfo>
+                    {
+                        DeviceName = i.DeviceName,
+                        Status = i.Enabled ? "Enabled" : "Disabled",
+                        SecondaryDetail = i.Group,
+                        ExtraDetail = $"{i.Direction} / {i.Action}",
+                        Payload = i
+                    }).ToList();
+
+                result.Add(new GroupedItemData<FirewallRuleInfo>
+                {
+                    GroupKey = grp.Key,
+                    Name = first.DisplayName,
+                    SecondaryInfo = first.Action,
+                    Version = first.Direction,
+                    ExtraInfo = first.Profiles,
+                    StatusSummary = first.Enabled ? "Enabled" : "Disabled",
                     Children = children
                 });
             }
