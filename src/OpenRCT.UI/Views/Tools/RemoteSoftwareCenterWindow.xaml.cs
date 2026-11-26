@@ -210,7 +210,9 @@ namespace OpenRCT.UI.Views.Tools
             var collected = new ConcurrentBag<RemoteSoftwareCenterItem>();
             var errs = new ConcurrentBag<DeviceErrorEntry>();
             var completed = 0;
+            var offlineOrFailed = 0;
             var maxConcurrency = Math.Max(1, _settings.MaxConcurrentDevices);
+            var perDeviceTimeout = TimeSpan.FromSeconds(Math.Max(10, _settings.ConnectionTimeoutSeconds * 2));
 
             try
             {
@@ -221,7 +223,8 @@ namespace OpenRCT.UI.Views.Tools
                         await gate.WaitAsync();
                         try
                         {
-                            var items = await _service.GetRemoteSoftwareCenterItemsAsync(dev);
+                            using var devCts = new CancellationTokenSource(perDeviceTimeout);
+                            var items = await _service.GetRemoteSoftwareCenterItemsAsync(dev, devCts.Token);
                             foreach (var item in items)
                             {
                                 if (string.IsNullOrWhiteSpace(item.DeviceName))
@@ -233,6 +236,7 @@ namespace OpenRCT.UI.Views.Tools
                         }
                         catch (Exception ex)
                         {
+                            Interlocked.Increment(ref offlineOrFailed);
                             errs.Add(new DeviceErrorEntry
                             {
                                 Source = dev.DisplayName,
@@ -244,10 +248,12 @@ namespace OpenRCT.UI.Views.Tools
                         {
                             gate.Release();
                             var done = Interlocked.Increment(ref completed);
+                            var failSnap = Volatile.Read(ref offlineOrFailed);
                             if (_devices.Count > 1)
                             {
+                                var suffix = failSnap > 0 ? $" ({failSnap} offline/unreachable)" : string.Empty;
                                 Dispatcher.InvokeAsync(() =>
-                                    LoadingText.Text = $"Querying Software Center across {done} / {_devices.Count} computers...");
+                                    LoadingText.Text = $"Querying Software Center across {done} / {_devices.Count} computers{suffix}...");
                             }
                         }
                     }).ToList();

@@ -84,6 +84,29 @@ namespace OpenRCT.Core.Settings
         [DataMember(Order = 18)]
         public int OfflineCheckTimeoutMs { get; set; } = 1500;
 
+        [OnDeserializing]
+        private void OnDeserializing(StreamingContext context)
+        {
+            // DataContractJsonSerializer uses FormatterServices.GetUninitializedObject (skipping
+            // C# constructors and property initializers). Initialize defaults here so newly added
+            // settings (like EnableFastOfflineCheck) keep their true defaults when loading older
+            // settings.json files.
+            PsExecRunAsSystem = true;
+            PsExecAcceptEula = true;
+            PsExecAdditionalArgs = string.Empty;
+            TransportPreference = RemoteTransportPreference.WmiDcomFirst;
+            ConnectionTimeoutSeconds = 15;
+            MaxConcurrentDevices = 16;
+            Theme = AppThemePreference.Light;
+            ConfirmDestructiveActions = true;
+            AutoClearClipboardSecrets = true;
+            ClipboardClearSeconds = 30;
+            EnableUpdateChecks = true;
+            IconStyle = IconStylePreference.FluentDuotone;
+            EnableFastOfflineCheck = true;
+            OfflineCheckTimeoutMs = 1500;
+        }
+
         public void Normalize()
         {
             if (ConnectionTimeoutSeconds < 3) ConnectionTimeoutSeconds = 3;

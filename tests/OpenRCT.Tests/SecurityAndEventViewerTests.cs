@@ -300,5 +300,28 @@ namespace OpenRCT.Tests
             Assert.DoesNotContain("\"SELECT MachineID, CI_ID, Status FROM SMS_UpdateComplianceStatus\"", smsClientText);
             Assert.Contains("WHERE (Status = 2 OR Status = 3) AND MachineID IN", smsClientText);
         }
+
+        [Fact]
+        public void LegacySettingsJson_DeserializesNewFastOfflineDefaultsProperly()
+        {
+            var tempFile = Path.Combine(Path.GetTempPath(), $"openrct_legacy_{Guid.NewGuid():N}.json");
+            try
+            {
+                // Simulate an existing v0.2.5 settings.json that does not have EnableFastOfflineCheck or OfflineCheckTimeoutMs
+                File.WriteAllText(tempFile, "{\n  \"ConnectionTimeoutSeconds\": 20,\n  \"MaxConcurrentDevices\": 12,\n  \"IconStyle\": 0\n}");
+                var svc = new OpenRCT.Core.Settings.SettingsService(tempFile);
+                var loaded = svc.Load();
+                Assert.True(loaded.EnableFastOfflineCheck);
+                Assert.Equal(1500, loaded.OfflineCheckTimeoutMs);
+                Assert.True(loaded.EnableUpdateChecks);
+                Assert.True(loaded.ConfirmDestructiveActions);
+                Assert.Equal(20, loaded.ConnectionTimeoutSeconds);
+                Assert.Equal(12, loaded.MaxConcurrentDevices);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
     }
 }

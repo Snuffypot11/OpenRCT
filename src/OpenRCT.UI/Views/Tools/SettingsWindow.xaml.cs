@@ -12,12 +12,14 @@ namespace OpenRCT.UI.Views.Tools
     {
         private readonly SettingsService _settingsService;
         private readonly OpenRctSettings _settings;
+        private readonly AppThemePreference _initialTheme;
         private IconStylePreference _initialIconStyle;
 
         public SettingsWindow(SettingsService settingsService)
         {
             _settingsService = settingsService ?? new SettingsService();
             _settings = _settingsService.Load();
+            _initialTheme = _settings.Theme;
             _initialIconStyle = _settings.IconStyle;
 
             ThemeManager.ApplyTheme(this, _settings.Theme);
@@ -58,6 +60,21 @@ namespace OpenRCT.UI.Views.Tools
             try { UpdateRepoValidation(); } catch { }
 
             Loaded += (_, __) => UpdateConsoleIconSyncHintAsync();
+        }
+
+        private static void LogSettingsDiagnostic(string message)
+        {
+            try
+            {
+                var logDir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "OpenRCT");
+                System.IO.Directory.CreateDirectory(logDir);
+                System.IO.File.AppendAllText(
+                    System.IO.Path.Combine(logDir, "openrct.log"),
+                    $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [SettingsWindow] {message}\r\n");
+            }
+            catch { }
         }
 
         private void UpdateConsoleIconSyncHintAsync()
@@ -130,6 +147,7 @@ namespace OpenRCT.UI.Views.Tools
             }
             catch (Exception ex)
             {
+                LogSettingsDiagnostic($"ApplyConsoleIcons_Click error: {ex}");
                 MessageBox.Show(this, $"Could not apply MECM Console icon style:\n\n{ex.Message}", "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
@@ -277,10 +295,10 @@ namespace OpenRCT.UI.Views.Tools
                 ApplyPendingUpdateSettings();
 
                 _settingsService.Save(_settings);
-                ThemeManager.ApplyApplicationTheme(_settings.Theme);
-                ThemeManager.SetIconStyle(_settings.IconStyle);
 
+                var themeChanged = _settings.Theme != _initialTheme;
                 var iconStyleChanged = _settings.IconStyle != _initialIconStyle;
+
                 if (iconStyleChanged)
                 {
                     var sync = ConsoleIconSyncService.ApplyConsoleIconStyle(_settings.IconStyle, this, allowElevationPrompt: true);
@@ -293,14 +311,28 @@ namespace OpenRCT.UI.Views.Tools
                         MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
-                else if (ConsoleIconSyncService.IsConsoleInstalledAndOutOfSync(_settings.IconStyle))
+
+                // Defer live theme/icon updates onto Background priority AFTER SettingsWindow closes
+                // so we never mutate ResourceDictionaries on a modal Window mid-Click / mid-Close.
+                var savedTheme = _settings.Theme;
+                var savedIconStyle = _settings.IconStyle;
+                var closingWindow = this;
+                if (themeChanged || iconStyleChanged)
                 {
-                    // Silently self-heal if already running elevated; avoids surprise UAC prompts on unrelated setting edits.
-                    var sync = ConsoleIconSyncService.ApplyConsoleIconStyle(_settings.IconStyle, this, allowElevationPrompt: false);
-                    if (sync.Status == ConsoleIconSyncStatus.Updated)
-                    {
-                        MessageBox.Show(this, sync.Message, "MECM Console Icons Updated", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
+                    Dispatcher.BeginInvoke(
+                        System.Windows.Threading.DispatcherPriority.Background,
+                        new Action(() =>
+                        {
+                            try
+                            {
+                                if (themeChanged) ThemeManager.ApplyApplicationTheme(savedTheme, excludeWindow: closingWindow);
+                                if (iconStyleChanged) ThemeManager.SetIconStyle(savedIconStyle);
+                            }
+                            catch (Exception ex)
+                            {
+                                LogSettingsDiagnostic($"Deferred appearance update error: {ex}");
+                            }
+                        }));
                 }
 
                 try
@@ -314,6 +346,7 @@ namespace OpenRCT.UI.Views.Tools
             }
             catch (Exception ex)
             {
+                LogSettingsDiagnostic($"Save_Click error: {ex}");
                 MessageBox.Show(this, $"Could not save OpenRCT Settings:\n\n{ex.Message}", "OpenRCT Settings Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

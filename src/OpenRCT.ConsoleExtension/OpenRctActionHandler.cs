@@ -199,7 +199,7 @@ namespace OpenRCT.ConsoleExtension
             string siteCode;
             ExtractSmsConnection(scopeNode, selectedResultObject, out smsServer, out siteCode);
 
-            var context = BuildInvocationContext(actionKey, smsServer, siteCode, selectedResultObject);
+            var context = BuildInvocationContext(actionKey, smsServer, siteCode, scopeNode, selectedResultObject);
 
             if (Application.Current != null && Application.Current.Dispatcher != null)
             {
@@ -218,6 +218,7 @@ namespace OpenRCT.ConsoleExtension
             string actionKey,
             string smsServer,
             string siteCode,
+            ScopeNode scopeNode,
             IResultObject selected)
         {
             var devices = new List<TargetDevice>();
@@ -257,6 +258,13 @@ namespace OpenRCT.ConsoleExtension
                 }
             }
 
+            // When right-clicking a pinned/opened Device Collection node under Devices in the left tree,
+            // MECM may pass the collection via scopeNode rather than selectedResultObject.
+            if (string.IsNullOrEmpty(collectionId) && devices.Count == 0 && scopeNode != null)
+            {
+                ExtractCollectionFromScopeNode(scopeNode, out collectionId, out collectionName);
+            }
+
             return new ToolInvocationContext
             {
                 ActionKey = actionKey,
@@ -266,6 +274,58 @@ namespace OpenRCT.ConsoleExtension
                 CollectionName = collectionName,
                 Devices = devices.ToArray()
             };
+        }
+
+        private static void ExtractCollectionFromScopeNode(ScopeNode scopeNode, out string collectionId, out string collectionName)
+        {
+            collectionId = null;
+            collectionName = null;
+            if (scopeNode == null) return;
+
+            try
+            {
+                var t = scopeNode.GetType();
+                var candidateProps = new[] { "Tag", "ResultObject", "ObjectInstance", "Instance", "SelectedObject" };
+                for (int i = 0; i < candidateProps.Length; i++)
+                {
+                    var prop = t.GetProperty(candidateProps[i], BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (prop == null) continue;
+                    var val = prop.GetValue(scopeNode, null) as IResultObject;
+                    if (val != null)
+                    {
+                        var colId = TryGetProp(val, "CollectionID");
+                        if (!string.IsNullOrEmpty(colId))
+                        {
+                            collectionId = colId;
+                            collectionName = TryGetProp(val, "Name");
+                            break;
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(collectionId))
+                {
+                    var directColProp = t.GetProperty("CollectionID", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (directColProp != null)
+                    {
+                        var directVal = directColProp.GetValue(scopeNode, null);
+                        if (directVal != null) collectionId = directVal.ToString();
+                    }
+                }
+
+                if (string.IsNullOrEmpty(collectionName))
+                {
+                    var dispProp = t.GetProperty("DisplayName", BindingFlags.Public | BindingFlags.Instance);
+                    if (dispProp != null)
+                    {
+                        var dispVal = dispProp.GetValue(scopeNode, null);
+                        if (dispVal != null) collectionName = dispVal.ToString();
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         private static IEnumerable<IResultObject> EnumerateSelectedObjects(IResultObject selected)

@@ -426,12 +426,19 @@ namespace OpenRCT.App
         {
             try
             {
+                var before = _settingsService.Load();
                 var win = new SettingsWindow(_settingsService) { Owner = this };
-                win.ShowDialog();
+                if (win.ShowDialog() != true) return;
 
                 var updated = _settingsService.Load();
-                ThemeManager.SetIconStyle(updated.IconStyle);
-                ThemeManager.ApplyTheme(this, updated.Theme);
+                if (updated.IconStyle != before.IconStyle)
+                {
+                    ThemeManager.SetIconStyle(updated.IconStyle);
+                }
+                if (updated.Theme != before.Theme)
+                {
+                    ThemeManager.ApplyTheme(this, updated.Theme);
+                }
                 ApplyUpdateCheckVisibility(updated);
                 ResolveSmsConnectionAndFooter(updated);
             }

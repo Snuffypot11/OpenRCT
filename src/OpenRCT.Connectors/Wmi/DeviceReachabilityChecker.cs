@@ -146,16 +146,28 @@ namespace OpenRCT.Connectors.Wmi
                 }
             }
 
-            // Stage 1: Fast ICMP Ping (~1-15ms on LAN when online)
-            var pingTimeoutMs = Math.Max(300, Math.Min(clampedTimeoutMs, 1000));
+            // Stage 1: Fast ICMP Ping (~1-15ms on LAN when online).
+            // Wrap with Task.WhenAny because Windows IcmpSendEcho2 can wait ~4s on local ARP timeout.
+            var pingTimeoutMs = Math.Max(300, Math.Min(clampedTimeoutMs, 800));
             try
             {
                 using var ping = new Ping();
-                var reply = await ping.SendPingAsync(targetIp!, pingTimeoutMs).ConfigureAwait(false);
-                if (reply != null && reply.Status == IPStatus.Success)
+                var pingTask = ping.SendPingAsync(targetIp!, pingTimeoutMs);
+                var delayTask = Task.Delay(pingTimeoutMs, ct);
+                var completed = await Task.WhenAny(pingTask, delayTask).ConfigureAwait(false);
+                if (completed == pingTask)
                 {
-                    CacheSuccess(normalized);
-                    return;
+                    var reply = await pingTask.ConfigureAwait(false);
+                    if (reply != null && reply.Status == IPStatus.Success)
+                    {
+                        CacheSuccess(normalized);
+                        return;
+                    }
+                }
+                else
+                {
+                    ObserveFault(pingTask);
+                    try { ping.SendAsyncCancel(); } catch { }
                 }
             }
             catch
@@ -167,7 +179,7 @@ namespace OpenRCT.Connectors.Wmi
 
             // Stage 2: Fast parallel TCP probe on RPC (135) and SMB (445)
             // Handles corporate subnets where ICMP Echo is dropped by firewall.
-            var tcpTimeoutMs = Math.Max(400, Math.Min(clampedTimeoutMs, 1000));
+            var tcpTimeoutMs = Math.Max(400, Math.Min(clampedTimeoutMs, 800));
             var probe135 = ProbeTcpPortAliveAsync(targetIp!, 135, tcpTimeoutMs, ct);
             var probe445 = ProbeTcpPortAliveAsync(targetIp!, 445, tcpTimeoutMs, ct);
             var tcpResults = await Task.WhenAll(probe135, probe445).ConfigureAwait(false);
@@ -193,6 +205,7 @@ namespace OpenRCT.Connectors.Wmi
                 var completed = await Task.WhenAny(connectTask, delayTask).ConfigureAwait(false);
                 if (completed != connectTask)
                 {
+                    ObserveFault(connectTask);
                     return false;
                 }
 
@@ -208,6 +221,15 @@ namespace OpenRCT.Connectors.Wmi
             {
                 return false;
             }
+        }
+
+        private static void ObserveFault(Task task)
+        {
+            _ = task.ContinueWith(
+                t => { _ = t.Exception; },
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
         }
 
         private static void CacheSuccess(string host)

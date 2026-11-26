@@ -48,18 +48,19 @@ namespace OpenRCT.Connectors.Wmi
             CancellationToken ct = default)
         {
             await EnsureReachableIfEnabledAsync(host, ct).ConfigureAwait(false);
+            var effectiveTimeout = timeout ?? DefaultTimeout;
 
-            return await Task.Run(() =>
+            var workTask = Task.Run(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 var results = new List<Dictionary<string, object?>>();
-                var scope = CreateScope(host, wmiNamespace, timeout);
+                var scope = CreateScope(host, wmiNamespace, effectiveTimeout);
                 var query = new ObjectQuery(wql);
                 var enumOptions = new EnumerationOptions
                 {
                     ReturnImmediately = true,
                     Rewindable = false,
-                    Timeout = timeout ?? DefaultTimeout
+                    Timeout = effectiveTimeout
                 };
 
                 using var searcher = new ManagementObjectSearcher(scope, query, enumOptions);
@@ -78,7 +79,9 @@ namespace OpenRCT.Connectors.Wmi
                     }
                 }
                 return results;
-            }, ct).ConfigureAwait(false);
+            }, ct);
+
+            return await AwaitWithHardTimeoutAsync(workTask, host, effectiveTimeout, ct).ConfigureAwait(false);
         }
 
         public async Task<ManagementBaseObject?> InvokeStaticMethodAsync(
@@ -91,11 +94,12 @@ namespace OpenRCT.Connectors.Wmi
             CancellationToken ct = default)
         {
             await EnsureReachableIfEnabledAsync(host, ct).ConfigureAwait(false);
+            var effectiveTimeout = timeout ?? DefaultTimeout;
 
-            return await Task.Run<ManagementBaseObject?>(() =>
+            var workTask = Task.Run<ManagementBaseObject?>(() =>
             {
                 ct.ThrowIfCancellationRequested();
-                var scope = CreateScope(host, wmiNamespace, timeout);
+                var scope = CreateScope(host, wmiNamespace, effectiveTimeout);
                 using var mgmtClass = new ManagementClass(scope, new ManagementPath(className), null);
                 using var inParams = mgmtClass.GetMethodParameters(methodName);
                 if (parameters != null)
@@ -106,8 +110,35 @@ namespace OpenRCT.Connectors.Wmi
                     }
                 }
 
-                return mgmtClass.InvokeMethod(methodName, inParams, new InvokeMethodOptions { Timeout = timeout ?? DefaultTimeout });
-            }, ct).ConfigureAwait(false);
+                return mgmtClass.InvokeMethod(methodName, inParams, new InvokeMethodOptions { Timeout = effectiveTimeout });
+            }, ct);
+
+            return await AwaitWithHardTimeoutAsync(workTask, host, effectiveTimeout, ct).ConfigureAwait(false);
+        }
+
+        private static async Task<T> AwaitWithHardTimeoutAsync<T>(Task<T> workTask, string host, TimeSpan timeout, CancellationToken ct)
+        {
+            if (timeout <= TimeSpan.Zero || timeout == Timeout.InfiniteTimeSpan)
+            {
+                return await workTask.ConfigureAwait(false);
+            }
+
+            var delayTask = Task.Delay(timeout, ct);
+            var completed = await Task.WhenAny(workTask, delayTask).ConfigureAwait(false);
+            if (completed == workTask)
+            {
+                return await workTask.ConfigureAwait(false);
+            }
+
+            // Observe any late exception from the background WMI thread when OS DCOM finally releases.
+            _ = workTask.ContinueWith(
+                t => { _ = t.Exception; },
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
+
+            ct.ThrowIfCancellationRequested();
+            throw new TimeoutException($"WMI connection to '{host}' timed out after {timeout.TotalSeconds:0.#}s.");
         }
 
         public async Task<uint> CreateRemoteProcessAsync(

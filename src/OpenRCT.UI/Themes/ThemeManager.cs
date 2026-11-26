@@ -57,6 +57,7 @@ namespace OpenRCT.UI.Themes
         }
 
         private const string OpenRctThemeMarkerKey = "__OpenRctThemeDictionary";
+        private const string OpenRctThemeIsDarkKey = "__OpenRctThemeIsDark";
 
         private static bool IsOpenRctThemeDictionary(ResourceDictionary d)
         {
@@ -75,20 +76,53 @@ namespace OpenRCT.UI.Themes
             return false;
         }
 
-        private static void ReplaceOpenRctThemeDictionary(ResourceDictionary resources, ResourceDictionary newDict)
+        private static bool AlreadyHasMatchingThemeDictionary(ResourceDictionary resources, bool useDark)
+        {
+            if (resources == null) return false;
+            try
+            {
+                foreach (var d in resources.MergedDictionaries)
+                {
+                    if (d != null && d.Contains(OpenRctThemeIsDarkKey) && d[OpenRctThemeIsDarkKey] is bool existingDark)
+                    {
+                        if (existingDark == useDark) return true;
+                    }
+                    else if (d?.Source?.OriginalString != null)
+                    {
+                        var src = d.Source.OriginalString;
+                        if (useDark && src.IndexOf("DarkTheme.xaml", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+                        if (!useDark && src.IndexOf("LightTheme.xaml", StringComparison.OrdinalIgnoreCase) >= 0) return true;
+                    }
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        private static void ReplaceOpenRctThemeDictionary(ResourceDictionary resources, ResourceDictionary newDict, bool useDark)
         {
             if (resources == null || newDict == null) return;
-            newDict[OpenRctThemeMarkerKey] = true;
+            if (AlreadyHasMatchingThemeDictionary(resources, useDark)) return;
 
-            for (int i = resources.MergedDictionaries.Count - 1; i >= 0; i--)
+            newDict[OpenRctThemeMarkerKey] = true;
+            newDict[OpenRctThemeIsDarkKey] = useDark;
+
+            var existingToRemove = new System.Collections.Generic.List<ResourceDictionary>();
+            foreach (var d in resources.MergedDictionaries)
             {
-                if (IsOpenRctThemeDictionary(resources.MergedDictionaries[i]))
+                if (IsOpenRctThemeDictionary(d))
                 {
-                    resources.MergedDictionaries.RemoveAt(i);
+                    existingToRemove.Add(d);
                 }
             }
 
+            // Add the new dictionary BEFORE removing the old one so DynamicResource lookups
+            // never observe a transient state with missing brushes/styles.
             resources.MergedDictionaries.Add(newDict);
+            foreach (var old in existingToRemove)
+            {
+                resources.MergedDictionaries.Remove(old);
+            }
         }
 
         public static void ApplyTheme(FrameworkElement element, AppThemePreference preference)
@@ -111,12 +145,15 @@ namespace OpenRCT.UI.Themes
 
             try
             {
-                var dict = LoadThemeDictionary(preference);
-                ReplaceOpenRctThemeDictionary(element.Resources, dict);
-
-                if (dict["PrimaryTextBrush"] is Brush fg)
+                if (!AlreadyHasMatchingThemeDictionary(element.Resources, useDark))
                 {
-                    TextElement.SetForeground(element, fg);
+                    var dict = LoadThemeDictionary(preference);
+                    ReplaceOpenRctThemeDictionary(element.Resources, dict, useDark);
+
+                    if (dict["PrimaryTextBrush"] is Brush fg)
+                    {
+                        TextElement.SetForeground(element, fg);
+                    }
                 }
             }
             catch { }
@@ -133,9 +170,10 @@ namespace OpenRCT.UI.Themes
             catch { }
         }
 
-        public static void ApplyApplicationTheme(AppThemePreference preference)
+        public static void ApplyApplicationTheme(AppThemePreference preference, Window? excludeWindow = null)
         {
-            CurrentIsDark = ResolveIsDark(preference);
+            var useDark = ResolveIsDark(preference);
+            CurrentIsDark = useDark;
             try
             {
                 var app = Application.Current;
@@ -149,22 +187,24 @@ namespace OpenRCT.UI.Themes
                         "OpenRCT.App.App",
                         StringComparison.Ordinal);
 
-                    if (isStandaloneOpenRct)
+                    if (isStandaloneOpenRct && !AlreadyHasMatchingThemeDictionary(app.Resources, useDark))
                     {
                         var dict = LoadThemeDictionary(preference);
-                        ReplaceOpenRctThemeDictionary(app.Resources, dict);
+                        ReplaceOpenRctThemeDictionary(app.Resources, dict, useDark);
                     }
 
                     foreach (Window win in app.Windows)
                     {
                         try
                         {
-                            var ns = win?.GetType().Namespace;
+                            if (win == null || ReferenceEquals(win, excludeWindow)) continue;
+                            var ns = win.GetType().Namespace;
                             if (!string.IsNullOrEmpty(ns) &&
-                                ns!.StartsWith("OpenRCT.", StringComparison.Ordinal))
+                                ns!.StartsWith("OpenRCT.", StringComparison.Ordinal) &&
+                                !AlreadyHasMatchingThemeDictionary(win.Resources, useDark))
                             {
                                 var winDict = LoadThemeDictionary(preference);
-                                ReplaceOpenRctThemeDictionary(win!.Resources, winDict);
+                                ReplaceOpenRctThemeDictionary(win.Resources, winDict, useDark);
                                 if (winDict["PrimaryTextBrush"] is Brush fg)
                                 {
                                     TextElement.SetForeground(win, fg);

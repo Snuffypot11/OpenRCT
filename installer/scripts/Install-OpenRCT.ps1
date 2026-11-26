@@ -160,6 +160,46 @@ function Resolve-AssetsOverviewNodeGuid {
     return $defaultGuid
 }
 
+function Resolve-DeviceCollectionActionGuids {
+    param([string]$AdminConsoleRoot)
+    $guids = New-Object System.Collections.Generic.List[string]
+    foreach ($known in @(
+        "a92615d6-9df3-49ba-a8c9-6ecb0e8b956b", # Device Collections (standard)
+        "e92615d6-9df3-49ba-a8c9-6ecb0e8b956b", # Device Collections (MECM 2010+ alternate)
+        "3785759b-db2c-414e-a540-e879497c6f97"  # Opened/pinned Device Collection node under Devices
+    )) {
+        $guids.Add($known)
+    }
+
+    $assetXmlPath = Join-Path $AdminConsoleRoot "XmlStorage\ConsoleRoot\AssetManagementNode.xml"
+    if (Test-Path $assetXmlPath) {
+        try {
+            [xml]$doc = Get-Content -Path $assetXmlPath -Raw -Encoding UTF8
+            $nodes = $doc.SelectNodes("//*[@NamespaceGuid]")
+            foreach ($n in $nodes) {
+                $g = ($n.GetAttribute("NamespaceGuid") + "").Trim().ToLowerInvariant()
+                if (-not ($g -match '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')) { continue }
+                $actionsNode = $n.SelectSingleNode("./Actions")
+                if ($null -eq $actionsNode) { continue }
+                $actionsXml = $actionsNode.InnerXml
+                # Device Collection nodes (both in Device Collections pane and pinned under Devices)
+                # expose ClearRequiredPxeDeployments / UpdateMembership + ClientNotification.
+                $isDeviceCollectionMenu = ($actionsXml -match "ClearRequiredPxe" -or $actionsXml -match "Clear Required PXE") -or
+                                          (($actionsXml -match "UpdateMembership" -or $actionsXml -match "Update Membership") -and
+                                           ($actionsXml -match "ClientNotification" -or $actionsXml -match "Client Notification"))
+                if ($isDeviceCollectionMenu -and -not $guids.Contains($g)) {
+                    $guids.Add($g)
+                    Write-Log "Discovered additional Device Collection Action GUID from AssetManagementNode.xml: $g (Node=$($n.Name), Id=$($n.GetAttribute('Id')))"
+                }
+            }
+        } catch {
+            Write-Log "Could not scan AssetManagementNode.xml for additional Device Collection GUIDs: $($_.Exception.Message)" "WARN"
+        }
+    }
+
+    return @($guids)
+}
+
 function Get-ConsoleScanAssemblies {
     param([string]$AdminConsoleBin)
     $candidates = @()
@@ -781,10 +821,7 @@ try {
         }
 
         if ($effectiveMode -eq "Assembly" -and (Test-Path $collectionActionTemplate)) {
-            $collectionGuids = @(
-                "a92615d6-9df3-49ba-a8c9-6ecb0e8b956b", # Device Collections (standard)
-                "e92615d6-9df3-49ba-a8c9-6ecb0e8b956b"  # Device Collections (MECM 2010+ alternate)
-            )
+            $collectionGuids = Resolve-DeviceCollectionActionGuids -AdminConsoleRoot $detectedConsole
             foreach ($colGuid in $collectionGuids) {
                 $colDestDir = Join-Path $detectedConsole "XmlStorage\Extensions\Actions\$colGuid"
                 New-Item -ItemType Directory -Path $colDestDir -Force | Out-Null
