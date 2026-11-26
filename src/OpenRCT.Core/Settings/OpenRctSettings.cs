@@ -78,6 +78,12 @@ namespace OpenRCT.Core.Settings
         [DataMember(Order = 16)]
         public IconStylePreference IconStyle { get; set; } = IconStylePreference.FluentDuotone;
 
+        [DataMember(Order = 17)]
+        public bool EnableFastOfflineCheck { get; set; } = true;
+
+        [DataMember(Order = 18)]
+        public int OfflineCheckTimeoutMs { get; set; } = 1500;
+
         public void Normalize()
         {
             if (ConnectionTimeoutSeconds < 3) ConnectionTimeoutSeconds = 3;
@@ -86,6 +92,8 @@ namespace OpenRCT.Core.Settings
             if (MaxConcurrentDevices > 64) MaxConcurrentDevices = 64;
             if (ClipboardClearSeconds < 5) ClipboardClearSeconds = 5;
             if (ClipboardClearSeconds > 300) ClipboardClearSeconds = 300;
+            if (OfflineCheckTimeoutMs < 300) OfflineCheckTimeoutMs = 300;
+            if (OfflineCheckTimeoutMs > 10000) OfflineCheckTimeoutMs = 10000;
             PsExecPath = string.IsNullOrWhiteSpace(PsExecPath) ? null : PsExecPath!.Trim();
             PsExecAdditionalArgs ??= string.Empty;
             DefaultSmsProviderServer = string.IsNullOrWhiteSpace(DefaultSmsProviderServer) ? null : DefaultSmsProviderServer!.Trim();

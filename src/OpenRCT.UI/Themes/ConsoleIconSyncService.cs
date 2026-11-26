@@ -43,19 +43,26 @@ namespace OpenRCT.UI.Themes
 
         public static bool IsConsoleInstalledAndOutOfSync(IconStylePreference style)
         {
-            var consoleRoot = FindMecmConsoleRoot();
-            if (string.IsNullOrWhiteSpace(consoleRoot)) return false;
+            try
+            {
+                var consoleRoot = FindMecmConsoleRoot();
+                if (string.IsNullOrWhiteSpace(consoleRoot)) return false;
 
-            var installDir = FindOpenRctInstallDir(consoleRoot);
-            if (string.IsNullOrWhiteSpace(installDir)) return false;
+                var installDir = FindOpenRctInstallDir(consoleRoot);
+                if (string.IsNullOrWhiteSpace(installDir)) return false;
 
-            var sourceDll = ResolveSourceIconDll(installDir!, style);
-            if (string.IsNullOrWhiteSpace(sourceDll) || !File.Exists(sourceDll)) return false;
+                var sourceDll = ResolveSourceIconDll(installDir!, style);
+                if (string.IsNullOrWhiteSpace(sourceDll) || !File.Exists(sourceDll)) return false;
 
-            var destDll = Path.Combine(consoleRoot!, "bin", "OpenRCT.Icons.dll");
-            if (!File.Exists(destDll)) return true;
+                var destDll = Path.Combine(consoleRoot!, "bin", "OpenRCT.Icons.dll");
+                if (!File.Exists(destDll)) return true;
 
-            return !FilesHaveSameSha256(sourceDll!, destDll);
+                return !FilesHaveSameSha256(sourceDll!, destDll);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static ConsoleIconSyncResult ApplyConsoleIconStyle(

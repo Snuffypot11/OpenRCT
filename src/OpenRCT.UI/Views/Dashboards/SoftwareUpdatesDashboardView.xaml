@@ -32,7 +32,7 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto" />
         <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="95" />
+        <ColumnDefinition Width="Auto" />
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
@@ -42,11 +42,15 @@
 
       <TextBlock Grid.Row="0" Grid.Column="0" Text="Collection:" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
       <ComboBox x:Name="CollectionCombo" Grid.Row="0" Grid.Column="1" DisplayMemberPath="Name" MinHeight="28" />
-      <Button x:Name="StartButton" Grid.Row="0" Grid.Column="2" Content="Start" Margin="10,0,0,0" Style="{DynamicResource PrimaryButton}" Click="Start_Click" />
+      <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+        <Button x:Name="StartButton" Content="Start" Width="85" Margin="10,0,0,0" Style="{DynamicResource PrimaryButton}" Click="Start_Click" />
+        <Button x:Name="CancelButton" Content="Cancel" Width="75" Margin="6,0,0,0" Style="{DynamicResource StandardButton}" Click="Cancel_Click" Visibility="Collapsed" />
+      </StackPanel>
 
       <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
         <CheckBox x:Name="LimitDeployedCheck"
                   Content="Limit to deployed updates"
+                  IsChecked="True"
                   VerticalAlignment="Center"
                   Margin="0,0,18,0"
                   Checked="FilterControlChanged"

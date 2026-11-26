@@ -17,7 +17,14 @@ namespace OpenRCT.Core.Interfaces
         Task AddDevicesToCollectionAsync(string server, string siteCode, string collectionId, IEnumerable<TargetDevice> devices, CancellationToken ct = default);
         Task DeleteDeviceAsync(string server, string siteCode, TargetDevice device, CancellationToken ct = default);
         Task<IReadOnlyList<SoftwareUpdateGroupInfo>> GetSoftwareUpdateGroupsAsync(string server, string siteCode, CancellationToken ct = default);
-        Task<IReadOnlyList<RawDeviceUpdateRecord>> GetUpdateComplianceForCollectionAsync(string server, string siteCode, string collectionId, CancellationToken ct = default);
+        Task<IReadOnlyList<RawDeviceUpdateRecord>> GetUpdateComplianceForCollectionAsync(
+            string server,
+            string siteCode,
+            string collectionId,
+            bool limitToDeployedUpdates = false,
+            IReadOnlyCollection<string>? selectedUpdateGroupIds = null,
+            IProgress<string>? progress = null,
+            CancellationToken ct = default);
         Task<IReadOnlyList<StatusMessageEntry>> GetDeviceStatusMessagesAsync(string server, string siteCode, TargetDevice device, int daysBack = 7, CancellationToken ct = default);
         Task<IReadOnlyList<string>> GetDeviceMacAddressesAsync(string server, string siteCode, TargetDevice device, CancellationToken ct = default);
         Task<IReadOnlyList<BitLockerRecoveryKeyInfo>> GetConfigMgrBitLockerKeysAsync(string server, string siteCode, TargetDevice device, CancellationToken ct = default);

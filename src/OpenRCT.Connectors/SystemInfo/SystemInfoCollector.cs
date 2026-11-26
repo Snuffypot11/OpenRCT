@@ -130,14 +130,16 @@ namespace OpenRCT.Connectors.SystemInfo
             }).OrderBy(d => d.DriveLetter, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
-        public Task<IReadOnlyList<InstalledApplicationInfo>> GetApplicationsAsync(TargetDevice device, CancellationToken ct = default)
+        public async Task<IReadOnlyList<InstalledApplicationInfo>> GetApplicationsAsync(TargetDevice device, CancellationToken ct = default)
         {
+            var host = device.ConnectAddress;
+            await _wmi.EnsureReachableIfEnabledAsync(host, ct).ConfigureAwait(false);
+
             // Uses Remote Registry (Uninstall + WOW6432Node) — fast and completely avoids Win32_Product MSI self-repair!
-            return Task.Run<IReadOnlyList<InstalledApplicationInfo>>(() =>
+            return await Task.Run<IReadOnlyList<InstalledApplicationInfo>>(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 var apps = new List<InstalledApplicationInfo>();
-                var host = device.ConnectAddress;
 
                 using var hklm = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, host, RegistryView.Registry64);
                 ReadUninstallHive(apps, device.DisplayName, hklm, @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", "x64", ct);
@@ -146,7 +148,7 @@ namespace OpenRCT.Connectors.SystemInfo
                 return apps
                     .OrderBy(a => a.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
 
         public async Task<ActionExecutionResult> UninstallApplicationAsync(TargetDevice device, InstalledApplicationInfo app, CancellationToken ct = default)

@@ -55,6 +55,10 @@
               <RowDefinition Height="Auto" />
               <RowDefinition Height="10" />
               <RowDefinition Height="Auto" />
+              <RowDefinition Height="12" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="10" />
+              <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Preferred Remote Transport:" VerticalAlignment="Center" />
@@ -71,6 +75,13 @@
 
             <TextBlock Grid.Row="8" Grid.Column="0" Text="Default Site Code (optional):" VerticalAlignment="Center" />
             <TextBox x:Name="SiteCodeBox" Grid.Row="8" Grid.Column="1" Padding="6,4" MaxLength="3" />
+
+            <CheckBox x:Name="FastOfflineCheckBox"
+                      Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2"
+                      Content="Fast offline pre-check before querying remote devices (ICMP Ping + RPC/SMB probe)" />
+
+            <TextBlock Grid.Row="12" Grid.Column="0" Text="Offline Check Timeout (ms):" VerticalAlignment="Center" />
+            <TextBox x:Name="OfflineTimeoutMsBox" Grid.Row="12" Grid.Column="1" Padding="6,4" />
           </Grid>
         </StackPanel>
       </TabItem>

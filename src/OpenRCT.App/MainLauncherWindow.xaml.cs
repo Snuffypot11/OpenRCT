@@ -201,26 +201,38 @@ namespace OpenRCT.App
             _smsServer = settings.DefaultSmsProviderServer;
             _siteCode = settings.DefaultSiteCode;
 
-            if (string.IsNullOrWhiteSpace(_smsServer) || string.IsNullOrWhiteSpace(_siteCode))
+            void UpdateFooter()
             {
-                try
-                {
-                    var sms = new SmsProviderClient(new WmiClient { DefaultTimeout = TimeSpan.FromSeconds(5) });
-                    if (sms.TryAutoDiscover(out var srv, out var site))
-                    {
-                        if (string.IsNullOrWhiteSpace(_smsServer)) _smsServer = srv;
-                        if (string.IsNullOrWhiteSpace(_siteCode)) _siteCode = site;
-                    }
-                }
-                catch
-                {
-                }
+                var smsStatus = !string.IsNullOrWhiteSpace(_siteCode) && !string.IsNullOrWhiteSpace(_smsServer)
+                    ? $"Site: {_siteCode} ({_smsServer})"
+                    : "SMS Provider: Auto-discover / Configure in Settings";
+                FooterStatusText.Text = $"OpenRCT v{ver} • MIT License • {smsStatus}";
             }
 
-            var smsStatus = !string.IsNullOrWhiteSpace(_siteCode) && !string.IsNullOrWhiteSpace(_smsServer)
-                ? $"Site: {_siteCode} ({_smsServer})"
-                : "SMS Provider: Auto-discover / Configure in Settings";
-            FooterStatusText.Text = $"OpenRCT v{ver} • MIT License • {smsStatus}";
+            UpdateFooter();
+
+            if (string.IsNullOrWhiteSpace(_smsServer) || string.IsNullOrWhiteSpace(_siteCode))
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        var sms = new SmsProviderClient(new WmiClient { DefaultTimeout = TimeSpan.FromSeconds(5) });
+                        if (sms.TryAutoDiscover(out var srv, out var site))
+                        {
+                            Dispatcher.InvokeAsync(() =>
+                            {
+                                if (string.IsNullOrWhiteSpace(_smsServer)) _smsServer = srv;
+                                if (string.IsNullOrWhiteSpace(_siteCode)) _siteCode = site;
+                                UpdateFooter();
+                            });
+                        }
+                    }
+                    catch
+                    {
+                    }
+                });
+            }
         }
 
         private async Task LoadCollectionsAsync()
@@ -412,12 +424,26 @@ namespace OpenRCT.App
 
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
-            ToolDispatcher.Dispatch(new ToolInvocationContext { ActionKey = ToolActionKeys.OpenSettings });
-            var updated = _settingsService.Load();
-            ThemeManager.SetIconStyle(updated.IconStyle);
-            ThemeManager.ApplyTheme(this, updated.Theme);
-            ApplyUpdateCheckVisibility(updated);
-            ResolveSmsConnectionAndFooter(updated);
+            try
+            {
+                var win = new SettingsWindow(_settingsService) { Owner = this };
+                win.ShowDialog();
+
+                var updated = _settingsService.Load();
+                ThemeManager.SetIconStyle(updated.IconStyle);
+                ThemeManager.ApplyTheme(this, updated.Theme);
+                ApplyUpdateCheckVisibility(updated);
+                ResolveSmsConnectionAndFooter(updated);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    this,
+                    $"Could not open OpenRCT Settings:\n\n{ex.Message}",
+                    "OpenRCT Settings Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         private void ViewInstallLog_Click(object sender, RoutedEventArgs e)

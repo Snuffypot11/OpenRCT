@@ -56,6 +56,41 @@ namespace OpenRCT.UI.Themes
             }
         }
 
+        private const string OpenRctThemeMarkerKey = "__OpenRctThemeDictionary";
+
+        private static bool IsOpenRctThemeDictionary(ResourceDictionary d)
+        {
+            if (d == null) return false;
+            try
+            {
+                if (d.Contains(OpenRctThemeMarkerKey)) return true;
+                var src = d.Source?.OriginalString;
+                if (!string.IsNullOrWhiteSpace(src) &&
+                    src!.IndexOf("OpenRCT.UI;component/Themes/", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        private static void ReplaceOpenRctThemeDictionary(ResourceDictionary resources, ResourceDictionary newDict)
+        {
+            if (resources == null || newDict == null) return;
+            newDict[OpenRctThemeMarkerKey] = true;
+
+            for (int i = resources.MergedDictionaries.Count - 1; i >= 0; i--)
+            {
+                if (IsOpenRctThemeDictionary(resources.MergedDictionaries[i]))
+                {
+                    resources.MergedDictionaries.RemoveAt(i);
+                }
+            }
+
+            resources.MergedDictionaries.Add(newDict);
+        }
+
         public static void ApplyTheme(FrameworkElement element, AppThemePreference preference)
         {
             if (element == null) return;
@@ -74,33 +109,79 @@ namespace OpenRCT.UI.Themes
             }
             catch { }
 
-            var dict = LoadThemeDictionary(preference);
-            element.Resources.MergedDictionaries.Clear();
-            element.Resources.MergedDictionaries.Add(dict);
-
-            if (dict["PrimaryTextBrush"] is Brush fg)
+            try
             {
-                TextElement.SetForeground(element, fg);
+                var dict = LoadThemeDictionary(preference);
+                ReplaceOpenRctThemeDictionary(element.Resources, dict);
+
+                if (dict["PrimaryTextBrush"] is Brush fg)
+                {
+                    TextElement.SetForeground(element, fg);
+                }
             }
+            catch { }
 
             if (element is Window window)
             {
                 ApplyWindowIcon(window);
             }
 
-            AppearanceChanged?.Invoke(null, EventArgs.Empty);
+            try
+            {
+                AppearanceChanged?.Invoke(null, EventArgs.Empty);
+            }
+            catch { }
         }
 
         public static void ApplyApplicationTheme(AppThemePreference preference)
         {
             CurrentIsDark = ResolveIsDark(preference);
-            if (Application.Current != null)
+            try
             {
-                var dict = LoadThemeDictionary(preference);
-                Application.Current.Resources.MergedDictionaries.Clear();
-                Application.Current.Resources.MergedDictionaries.Add(dict);
+                var app = Application.Current;
+                if (app != null)
+                {
+                    // CRITICAL: Never touch Application.Current.Resources when hosted inside
+                    // Microsoft.ConfigurationManagement.exe (MECM Admin Console), because clearing
+                    // or mutating the host Application's MergedDictionaries crashes the console.
+                    var isStandaloneOpenRct = string.Equals(
+                        app.GetType().FullName,
+                        "OpenRCT.App.App",
+                        StringComparison.Ordinal);
+
+                    if (isStandaloneOpenRct)
+                    {
+                        var dict = LoadThemeDictionary(preference);
+                        ReplaceOpenRctThemeDictionary(app.Resources, dict);
+                    }
+
+                    foreach (Window win in app.Windows)
+                    {
+                        try
+                        {
+                            var ns = win?.GetType().Namespace;
+                            if (!string.IsNullOrEmpty(ns) &&
+                                ns!.StartsWith("OpenRCT.", StringComparison.Ordinal))
+                            {
+                                var winDict = LoadThemeDictionary(preference);
+                                ReplaceOpenRctThemeDictionary(win!.Resources, winDict);
+                                if (winDict["PrimaryTextBrush"] is Brush fg)
+                                {
+                                    TextElement.SetForeground(win, fg);
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+                }
             }
-            AppearanceChanged?.Invoke(null, EventArgs.Empty);
+            catch { }
+
+            try
+            {
+                AppearanceChanged?.Invoke(null, EventArgs.Empty);
+            }
+            catch { }
         }
 
         public static void ApplyWindowIcon(Window window)

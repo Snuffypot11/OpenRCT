@@ -13,6 +13,14 @@ namespace OpenRCT.Connectors.Wmi
     public sealed class WmiClient
     {
         public TimeSpan DefaultTimeout { get; set; } = TimeSpan.FromSeconds(15);
+        public bool EnableFastReachabilityCheck { get; set; }
+        public int ReachabilityTimeoutMs { get; set; } = 1500;
+
+        public Task EnsureReachableIfEnabledAsync(string host, CancellationToken ct = default)
+        {
+            if (!EnableFastReachabilityCheck) return Task.CompletedTask;
+            return DeviceReachabilityChecker.EnsureReachableAsync(host, ReachabilityTimeoutMs, ct);
+        }
 
         public ManagementScope CreateScope(string host, string wmiNamespace, TimeSpan? timeout = null)
         {
@@ -32,14 +40,16 @@ namespace OpenRCT.Connectors.Wmi
             return scope;
         }
 
-        public Task<List<Dictionary<string, object?>>> QueryAsync(
+        public async Task<List<Dictionary<string, object?>>> QueryAsync(
             string host,
             string wmiNamespace,
             string wql,
             TimeSpan? timeout = null,
             CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await EnsureReachableIfEnabledAsync(host, ct).ConfigureAwait(false);
+
+            return await Task.Run(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 var results = new List<Dictionary<string, object?>>();
@@ -68,10 +78,10 @@ namespace OpenRCT.Connectors.Wmi
                     }
                 }
                 return results;
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
 
-        public Task<ManagementBaseObject?> InvokeStaticMethodAsync(
+        public async Task<ManagementBaseObject?> InvokeStaticMethodAsync(
             string host,
             string wmiNamespace,
             string className,
@@ -80,7 +90,9 @@ namespace OpenRCT.Connectors.Wmi
             TimeSpan? timeout = null,
             CancellationToken ct = default)
         {
-            return Task.Run<ManagementBaseObject?>(() =>
+            await EnsureReachableIfEnabledAsync(host, ct).ConfigureAwait(false);
+
+            return await Task.Run<ManagementBaseObject?>(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 var scope = CreateScope(host, wmiNamespace, timeout);
@@ -95,7 +107,7 @@ namespace OpenRCT.Connectors.Wmi
                 }
 
                 return mgmtClass.InvokeMethod(methodName, inParams, new InvokeMethodOptions { Timeout = timeout ?? DefaultTimeout });
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
 
         public async Task<uint> CreateRemoteProcessAsync(

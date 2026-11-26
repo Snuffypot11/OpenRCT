@@ -105,7 +105,11 @@ namespace OpenRCT.UI.Views.Tools
             if (IsLoaded) ApplyFilterAndBind();
         }
 
-        private async void Refresh_Click(object sender, RoutedEventArgs e) => await LoadAsync();
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            OpenRCT.Connectors.Wmi.DeviceReachabilityChecker.ClearCache();
+            await LoadAsync();
+        }
 
         private void UpdateSectionChrome()
         {

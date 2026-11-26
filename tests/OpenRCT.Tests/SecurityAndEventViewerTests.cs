@@ -254,8 +254,51 @@ namespace OpenRCT.Tests
                 var bytes = File.ReadAllBytes(ps1);
                 var nonAsciiIndex = Array.FindIndex(bytes, b => b > 127);
                 Assert.True(nonAsciiIndex < 0,
-                    $"{Path.GetFileName(ps1)} contains non-ASCII byte 0x{ (nonAsciiIndex >= 0 ? bytes[nonAsciiIndex] : 0):X2} at offset {nonAsciiIndex}.");
+                    $"{Path.GetFileName(ps1)} contains non-ASCII byte 0x{(nonAsciiIndex >= 0 ? bytes[nonAsciiIndex] : 0):X2} at offset {nonAsciiIndex}.");
             }
+        }
+
+        [Fact]
+        public void ThemeManager_NeverClearsHostApplicationMergedDictionaries()
+        {
+            var root = FindRepoRoot();
+            var themeMgrText = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.UI", "Themes", "ThemeManager.cs"));
+            Assert.DoesNotContain("Application.Current.Resources.MergedDictionaries.Clear()", themeMgrText);
+            Assert.Contains("OpenRCT.App.App", themeMgrText);
+        }
+
+        [Fact]
+        public void FastOfflineCheckSettings_DefaultEnabled_AndNormalizeTimeoutBounds()
+        {
+            var tempFile = Path.Combine(Path.GetTempPath(), $"openrct_offline_{Guid.NewGuid():N}.json");
+            try
+            {
+                var svc = new OpenRCT.Core.Settings.SettingsService(tempFile);
+                var def = svc.Load();
+                Assert.True(def.EnableFastOfflineCheck);
+                Assert.Equal(1500, def.OfflineCheckTimeoutMs);
+
+                def.EnableFastOfflineCheck = false;
+                def.OfflineCheckTimeoutMs = 50; // below min 300
+                svc.Save(def);
+
+                var reloaded = svc.Load();
+                Assert.False(reloaded.EnableFastOfflineCheck);
+                Assert.Equal(300, reloaded.OfflineCheckTimeoutMs);
+            }
+            finally
+            {
+                if (File.Exists(tempFile)) File.Delete(tempFile);
+            }
+        }
+
+        [Fact]
+        public void SoftwareUpdatesQuery_ScopesComplianceStatusServerSide()
+        {
+            var root = FindRepoRoot();
+            var smsClientText = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.Connectors", "SmsProvider", "SmsProviderClient.cs"));
+            Assert.DoesNotContain("\"SELECT MachineID, CI_ID, Status FROM SMS_UpdateComplianceStatus\"", smsClientText);
+            Assert.Contains("WHERE (Status = 2 OR Status = 3) AND MachineID IN", smsClientText);
         }
     }
 }

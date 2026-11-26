@@ -358,27 +358,269 @@ namespace OpenRCT.Connectors.SmsProvider
             string server,
             string siteCode,
             string collectionId,
+            bool limitToDeployedUpdates = false,
+            IReadOnlyCollection<string>? selectedUpdateGroupIds = null,
+            IProgress<string>? progress = null,
             CancellationToken ct = default)
         {
             var ns = SiteNamespace(siteCode);
-            var members = await GetCollectionMembersAsync(server, siteCode, collectionId, ct).ConfigureAwait(false);
-            var memberByRid = members
-                .Where(m => !string.IsNullOrWhiteSpace(m.ResourceId))
-                .ToDictionary(m => m.ResourceId!, m => m.DisplayName, StringComparer.OrdinalIgnoreCase);
+            var queryTimeout = TimeSpan.FromSeconds(Math.Max(120, _wmi.DefaultTimeout.TotalSeconds));
 
-            if (memberByRid.Count == 0)
+            progress?.Report("Loading collection members from MECM...");
+            var members = await GetCollectionMembersAsync(server, siteCode, collectionId, ct).ConfigureAwait(false);
+            var memberByRid = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var numericRids = new List<string>();
+            foreach (var m in members)
+            {
+                if (!string.IsNullOrWhiteSpace(m.ResourceId) && !memberByRid.ContainsKey(m.ResourceId!))
+                {
+                    var rid = m.ResourceId!.Trim();
+                    memberByRid[rid] = m.DisplayName;
+                    if (long.TryParse(rid, out _))
+                    {
+                        numericRids.Add(rid);
+                    }
+                }
+            }
+
+            if (numericRids.Count == 0)
             {
                 return Array.Empty<RawDeviceUpdateRecord>();
             }
 
-            var updates = await _wmi.QueryAsync(
-                server,
-                ns,
-                "SELECT CI_ID, ArticleID, LocalizedDisplayName, DatePosted, IsDeployed FROM SMS_SoftwareUpdate WHERE IsSuperseded = 0 AND IsExpired = 0",
-                ct: ct).ConfigureAwait(false);
+            // 1. Load Software Update Group (SUG) -> Update CI_ID mappings via SMS_AuthorizationList + SMS_CIRelation
+            var updateToSugUniqueIds = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            var selectedSugSet = selectedUpdateGroupIds != null && selectedUpdateGroupIds.Count > 0
+                ? new HashSet<string>(selectedUpdateGroupIds, StringComparer.OrdinalIgnoreCase)
+                : null;
+            HashSet<string>? allowedCiIdsBySug = null;
 
+            try
+            {
+                progress?.Report("Loading Software Update Group mappings from MECM...");
+                var sugRows = await _wmi.QueryAsync(
+                    server,
+                    ns,
+                    "SELECT CI_ID, CI_UniqueID FROM SMS_AuthorizationList",
+                    timeout: queryTimeout,
+                    ct: ct).ConfigureAwait(false);
+
+                var sugCiIdToUnique = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var sr in sugRows)
+                {
+                    var sCiId = WmiClient.GetString(sr, "CI_ID");
+                    var sUniq = WmiClient.GetString(sr, "CI_UniqueID");
+                    if (!string.IsNullOrWhiteSpace(sCiId) && !string.IsNullOrWhiteSpace(sUniq))
+                    {
+                        sugCiIdToUnique[sCiId] = sUniq;
+                    }
+                }
+
+                if (sugCiIdToUnique.Count > 0)
+                {
+                    var relRows = await _wmi.QueryAsync(
+                        server,
+                        ns,
+                        "SELECT FromCIID, ToCIID FROM SMS_CIRelation WHERE RelationType = 1",
+                        timeout: queryTimeout,
+                        ct: ct).ConfigureAwait(false);
+
+                    foreach (var rr in relRows)
+                    {
+                        var fromId = WmiClient.GetString(rr, "FromCIID");
+                        var toId = WmiClient.GetString(rr, "ToCIID");
+                        if (!string.IsNullOrWhiteSpace(toId) && sugCiIdToUnique.TryGetValue(fromId, out var sugUniqueId))
+                        {
+                            if (!updateToSugUniqueIds.TryGetValue(toId, out var list))
+                            {
+                                list = new List<string>();
+                                updateToSugUniqueIds[toId] = list;
+                            }
+                            if (!list.Contains(sugUniqueId))
+                            {
+                                list.Add(sugUniqueId);
+                            }
+                        }
+                    }
+                }
+
+                if (selectedSugSet != null)
+                {
+                    allowedCiIdsBySug = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var kvp in updateToSugUniqueIds)
+                    {
+                        if (kvp.Value.Any(id => selectedSugSet.Contains(id)))
+                        {
+                            allowedCiIdsBySug.Add(kvp.Key);
+                        }
+                    }
+
+                    if (allowedCiIdsBySug.Count == 0)
+                    {
+                        return Array.Empty<RawDeviceUpdateRecord>();
+                    }
+                }
+            }
+            catch
+            {
+                // Non-fatal: continue without SUG mappings if SMS_CIRelation is unavailable
+            }
+
+            // 2. Load SMS_SoftwareUpdate metadata (scoped by SUG or Deployed flag; include superseded so installed updates resolve)
+            progress?.Report("Loading software update catalog metadata from MECM...");
             var updateMap = new Dictionary<string, (string ArticleId, string Title, DateTime? DatePosted, bool IsDeployed)>(StringComparer.OrdinalIgnoreCase);
-            foreach (var u in updates)
+
+            if (allowedCiIdsBySug != null && allowedCiIdsBySug.Count > 0)
+            {
+                var sugCiList = allowedCiIdsBySug.Where(id => long.TryParse(id, out _)).ToList();
+                const int ciChunkSize = 200;
+                for (int i = 0; i < sugCiList.Count; i += ciChunkSize)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var chunk = sugCiList.Skip(i).Take(ciChunkSize);
+                    var whereCi = $"CI_ID IN ({string.Join(",", chunk)})" + (limitToDeployedUpdates ? " AND IsDeployed = 1" : string.Empty);
+                    var uRows = await _wmi.QueryAsync(
+                        server,
+                        ns,
+                        $"SELECT CI_ID, ArticleID, LocalizedDisplayName, DatePosted, IsDeployed FROM SMS_SoftwareUpdate WHERE {whereCi}",
+                        timeout: queryTimeout,
+                        ct: ct).ConfigureAwait(false);
+                    AddUpdateMetadata(updateMap, uRows);
+                }
+            }
+            else
+            {
+                var updateWhere = limitToDeployedUpdates
+                    ? "IsDeployed = 1 AND IsExpired = 0"
+                    : "IsExpired = 0";
+                var uRows = await _wmi.QueryAsync(
+                    server,
+                    ns,
+                    $"SELECT CI_ID, ArticleID, LocalizedDisplayName, DatePosted, IsDeployed FROM SMS_SoftwareUpdate WHERE {updateWhere}",
+                    timeout: queryTimeout,
+                    ct: ct).ConfigureAwait(false);
+                AddUpdateMetadata(updateMap, uRows);
+            }
+
+            if (limitToDeployedUpdates && updateMap.Count == 0)
+            {
+                return Array.Empty<RawDeviceUpdateRecord>();
+            }
+
+            // Build optional server-side CI_ID filter to minimize rows streamed from SQL Server
+            string? ciServerClause = null;
+            if (allowedCiIdsBySug != null && updateMap.Count > 0 && updateMap.Count <= 250)
+            {
+                var numericCis = updateMap.Keys.Where(k => long.TryParse(k, out _)).ToList();
+                if (numericCis.Count > 0)
+                {
+                    ciServerClause = $" AND CI_ID IN ({string.Join(",", numericCis)})";
+                }
+            }
+            else if (limitToDeployedUpdates)
+            {
+                if (updateMap.Count > 0 && updateMap.Count <= 250)
+                {
+                    var numericCis = updateMap.Keys.Where(k => long.TryParse(k, out _)).ToList();
+                    if (numericCis.Count > 0)
+                    {
+                        ciServerClause = $" AND CI_ID IN ({string.Join(",", numericCis)})";
+                    }
+                }
+                else
+                {
+                    ciServerClause = " AND CI_ID IN (SELECT CI_ID FROM SMS_SoftwareUpdate WHERE IsDeployed = 1 AND IsExpired = 0)";
+                }
+            }
+
+            // 3. Query SMS_UpdateComplianceStatus in server-side MachineID batches for Status = 2 (Required) or Status = 3 (Installed).
+            // Skipping Status = 1 (Not Required) and Status = 0 (Unknown) eliminates ~98% of rows while keeping Unknown devices accurate.
+            const int deviceBatchSize = 40;
+            var batches = new List<List<string>>();
+            for (int i = 0; i < numericRids.Count; i += deviceBatchSize)
+            {
+                batches.Add(numericRids.Skip(i).Take(deviceBatchSize).ToList());
+            }
+
+            var resultsBag = new System.Collections.Concurrent.ConcurrentBag<RawDeviceUpdateRecord>();
+            var completedBatches = 0;
+            var completedDevices = 0;
+            using var gate = new SemaphoreSlim(4, 4);
+
+            var batchTasks = batches.Select(async batch =>
+            {
+                await gate.WaitAsync(ct).ConfigureAwait(false);
+                try
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var inList = string.Join(",", batch);
+                    var baseWql = $"SELECT MachineID, CI_ID, Status FROM SMS_UpdateComplianceStatus WHERE (Status = 2 OR Status = 3) AND MachineID IN ({inList})";
+                    List<Dictionary<string, object?>> complianceRows;
+
+                    if (!string.IsNullOrEmpty(ciServerClause))
+                    {
+                        try
+                        {
+                            complianceRows = await _wmi.QueryAsync(server, ns, baseWql + ciServerClause, timeout: queryTimeout, ct: ct).ConfigureAwait(false);
+                        }
+                        catch (ManagementException)
+                        {
+                            // Fallback if SMS Provider rejects nested subquery
+                            complianceRows = await _wmi.QueryAsync(server, ns, baseWql, timeout: queryTimeout, ct: ct).ConfigureAwait(false);
+                        }
+                    }
+                    else
+                    {
+                        complianceRows = await _wmi.QueryAsync(server, ns, baseWql, timeout: queryTimeout, ct: ct).ConfigureAwait(false);
+                    }
+
+                    foreach (var row in complianceRows)
+                    {
+                        var rid = WmiClient.GetString(row, "MachineID");
+                        if (!memberByRid.TryGetValue(rid, out var devName)) continue;
+
+                        var ciId = WmiClient.GetString(row, "CI_ID");
+                        var hasMeta = updateMap.TryGetValue(ciId, out var uMeta);
+                        if ((limitToDeployedUpdates || allowedCiIdsBySug != null) && !hasMeta)
+                        {
+                            continue;
+                        }
+
+                        updateToSugUniqueIds.TryGetValue(ciId, out var sugIds);
+
+                        resultsBag.Add(new RawDeviceUpdateRecord
+                        {
+                            ResourceId = rid,
+                            DeviceName = devName,
+                            UpdateCiId = ciId,
+                            ArticleId = hasMeta ? uMeta.ArticleId : string.Empty,
+                            UpdateTitle = hasMeta && !string.IsNullOrWhiteSpace(uMeta.Title) ? uMeta.Title : $"CI {ciId}",
+                            Classification = InferClassificationFromTitle(hasMeta ? uMeta.Title : null),
+                            DatePosted = hasMeta ? uMeta.DatePosted : null,
+                            IsDeployed = hasMeta && uMeta.IsDeployed,
+                            StatusCode = WmiClient.GetInt32(row, "Status"),
+                            UpdateGroupIds = sugIds != null ? new List<string>(sugIds) : new List<string>()
+                        });
+                    }
+                }
+                finally
+                {
+                    gate.Release();
+                    var doneB = Interlocked.Increment(ref completedBatches);
+                    var doneD = Interlocked.Add(ref completedDevices, batch.Count);
+                    progress?.Report($"Querying MECM update compliance: batch {doneB} / {batches.Count} ({Math.Min(doneD, numericRids.Count)} / {numericRids.Count} devices)...");
+                }
+            }).ToArray();
+
+            await Task.WhenAll(batchTasks).ConfigureAwait(false);
+            return resultsBag.ToList();
+        }
+
+        private static void AddUpdateMetadata(
+            Dictionary<string, (string ArticleId, string Title, DateTime? DatePosted, bool IsDeployed)> updateMap,
+            IEnumerable<Dictionary<string, object?>> rows)
+        {
+            foreach (var u in rows)
             {
                 var ciId = WmiClient.GetString(u, "CI_ID");
                 if (!string.IsNullOrEmpty(ciId))
@@ -391,37 +633,6 @@ namespace OpenRCT.Connectors.SmsProvider
                     );
                 }
             }
-
-            var complianceRows = await _wmi.QueryAsync(
-                server,
-                ns,
-                "SELECT MachineID, CI_ID, Status FROM SMS_UpdateComplianceStatus",
-                ct: ct).ConfigureAwait(false);
-
-            var results = new List<RawDeviceUpdateRecord>();
-            foreach (var row in complianceRows)
-            {
-                var rid = WmiClient.GetString(row, "MachineID");
-                if (!memberByRid.TryGetValue(rid, out var devName)) continue;
-
-                var ciId = WmiClient.GetString(row, "CI_ID");
-                updateMap.TryGetValue(ciId, out var uMeta);
-
-                results.Add(new RawDeviceUpdateRecord
-                {
-                    ResourceId = rid,
-                    DeviceName = devName,
-                    UpdateCiId = ciId,
-                    ArticleId = uMeta.ArticleId ?? string.Empty,
-                    UpdateTitle = uMeta.Title ?? $"CI {ciId}",
-                    Classification = InferClassificationFromTitle(uMeta.Title),
-                    DatePosted = uMeta.DatePosted,
-                    IsDeployed = uMeta.IsDeployed,
-                    StatusCode = WmiClient.GetInt32(row, "Status")
-                });
-            }
-
-            return results;
         }
 
         public async Task<IReadOnlyList<StatusMessageEntry>> GetDeviceStatusMessagesAsync(

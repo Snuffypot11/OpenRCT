@@ -30,8 +30,12 @@ namespace OpenRCT.UI
         {
             var settingsService = new SettingsService();
             var settings = settingsService.Load();
-            var wmi = new WmiClient { DefaultTimeout = TimeSpan.FromSeconds(settings.ConnectionTimeoutSeconds) };
-            var smsClient = new SmsProviderClient(wmi);
+            var smsWmi = new WmiClient
+            {
+                DefaultTimeout = TimeSpan.FromSeconds(Math.Max(90, settings.ConnectionTimeoutSeconds * 4)),
+                EnableFastReachabilityCheck = false
+            };
+            var smsClient = new SmsProviderClient(smsWmi);
             var adClient = new ActiveDirectoryClient();
             ResolveSmsConnection(smsClient, settings, ref smsServer, ref siteCode);
 
@@ -57,15 +61,32 @@ namespace OpenRCT.UI
 
             if (string.Equals(context.ActionKey, ToolActionKeys.OpenSettings, StringComparison.OrdinalIgnoreCase))
             {
-                new SettingsWindow(settingsService).ShowDialog();
+                try
+                {
+                    new SettingsWindow(settingsService).ShowDialog();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Could not open OpenRCT Settings:\n\n{ex.Message}", "OpenRCT Settings Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
                 return;
             }
 
-            var wmi = new WmiClient { DefaultTimeout = TimeSpan.FromSeconds(settings.ConnectionTimeoutSeconds) };
-            var smsClient = new SmsProviderClient(wmi);
+            var smsWmi = new WmiClient
+            {
+                DefaultTimeout = TimeSpan.FromSeconds(Math.Max(60, settings.ConnectionTimeoutSeconds * 4)),
+                EnableFastReachabilityCheck = false
+            };
+            var endpointWmi = new WmiClient
+            {
+                DefaultTimeout = TimeSpan.FromSeconds(settings.ConnectionTimeoutSeconds),
+                EnableFastReachabilityCheck = settings.EnableFastOfflineCheck,
+                ReachabilityTimeoutMs = settings.OfflineCheckTimeoutMs
+            };
+            var smsClient = new SmsProviderClient(smsWmi);
             var adClient = new ActiveDirectoryClient();
-            var sysInfoCollector = new SystemInfoCollector(wmi);
-            var endpointService = new EndpointActionService(wmi);
+            var sysInfoCollector = new SystemInfoCollector(endpointWmi);
+            var endpointService = new EndpointActionService(endpointWmi);
 
             var smsServer = context.SmsProviderServer;
             var siteCode = context.SiteCode;
@@ -240,7 +261,7 @@ namespace OpenRCT.UI
                     break;
 
                 case ToolActionKeys.RemoteWindowsSecurity:
-                    new RemoteWindowsSecurityWindow(devices, new RemoteWindowsSecurityService(wmi), endpointService, adClient, smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings).Show();
+                    new RemoteWindowsSecurityWindow(devices, new RemoteWindowsSecurityService(endpointWmi), endpointService, adClient, smsClient, smsServer ?? string.Empty, siteCode ?? string.Empty, settings).Show();
                     break;
 
                 case ToolActionKeys.OpenRegedit:

@@ -29,6 +29,9 @@ namespace OpenRCT.UI.Views.Dashboards
         private List<DeviceUpdateComplianceRow> _currentRows = new List<DeviceUpdateComplianceRow>();
         private string? _complianceSliceFilter;
         private string? _categorySliceFilter;
+        private System.Threading.CancellationTokenSource? _scanCts;
+        private bool _lastQueryWasDeployedOnly;
+        private HashSet<string> _lastQuerySugIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public SoftwareUpdatesDashboardView(
             ISmsProviderClient smsClient,
@@ -48,7 +51,7 @@ namespace OpenRCT.UI.Views.Dashboards
             if (isPoppedOut) PopOutButton.Visibility = Visibility.Collapsed;
 
             SugDropdown.PlaceholderText = "All Software Update Groups";
-            SugDropdown.SelectionChanged += (_, __) => RecomputeAnalysis();
+            SugDropdown.SelectionChanged += (_, __) => HandleScopeOrFilterChanged();
 
             Loaded += async (_, __) => await LoadSelectorsAsync();
         }
@@ -84,28 +87,59 @@ namespace OpenRCT.UI.Views.Dashboards
                 return;
             }
 
+            _scanCts?.Cancel();
+            _scanCts?.Dispose();
+            _scanCts = new System.Threading.CancellationTokenSource();
+            var ct = _scanCts.Token;
+
             StartButton.IsEnabled = false;
-            FilterStatusText.Text = $"Querying update compliance for '{selectedCol.Name}'...";
+            CancelButton.Visibility = Visibility.Visible;
+            FilterStatusText.Text = $"Querying MECM update compliance for '{selectedCol.Name}'...";
             _errors.Clear();
+
+            var deployedOnly = LimitDeployedCheck.IsChecked == true;
+            var selectedSugs = SugDropdown.GetSelectedKeys().ToList();
+            var progress = new Progress<string>(msg => FilterStatusText.Text = msg);
 
             try
             {
-                _collectionMembers = await _smsClient.GetCollectionMembersAsync(_smsServer, _siteCode, selectedCol.CollectionId);
-                _rawUpdateRecords = await _smsClient.GetUpdateComplianceForCollectionAsync(_smsServer, _siteCode, selectedCol.CollectionId);
+                _collectionMembers = await _smsClient.GetCollectionMembersAsync(_smsServer, _siteCode, selectedCol.CollectionId, ct);
+                _rawUpdateRecords = await _smsClient.GetUpdateComplianceForCollectionAsync(
+                    _smsServer,
+                    _siteCode,
+                    selectedCol.CollectionId,
+                    limitToDeployedUpdates: deployedOnly,
+                    selectedUpdateGroupIds: selectedSugs,
+                    progress: progress,
+                    ct: ct);
+
+                _lastQueryWasDeployedOnly = deployedOnly;
+                _lastQuerySugIds = new HashSet<string>(selectedSugs, StringComparer.OrdinalIgnoreCase);
                 _complianceSliceFilter = null;
                 _categorySliceFilter = null;
                 CompliancePieChart.SelectedSliceKey = null;
                 CategoryPieChart.SelectedSliceKey = null;
                 RecomputeAnalysis();
             }
+            catch (OperationCanceledException)
+            {
+                FilterStatusText.Text = "Query cancelled.";
+            }
             catch (Exception ex)
             {
+                FilterStatusText.Text = $"Query failed: {ex.Message}";
                 _errors.Add(new DeviceErrorEntry { Source = selectedCol.Name, Message = ex.Message, Details = ex.ToString() });
             }
             finally
             {
                 StartButton.IsEnabled = true;
+                CancelButton.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            _scanCts?.Cancel();
         }
 
         private void AgeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -119,7 +153,22 @@ namespace OpenRCT.UI.Views.Dashboards
 
         private void FilterControlChanged(object sender, RoutedEventArgs e)
         {
-            if (IsLoaded && _collectionMembers.Count > 0) RecomputeAnalysis();
+            HandleScopeOrFilterChanged();
+        }
+
+        private void HandleScopeOrFilterChanged()
+        {
+            if (!IsLoaded || _collectionMembers.Count == 0) return;
+            RecomputeAnalysis();
+
+            var nowDeployedOnly = LimitDeployedCheck.IsChecked == true;
+            var nowSugs = new HashSet<string>(SugDropdown.GetSelectedKeys(), StringComparer.OrdinalIgnoreCase);
+            bool broadenedDeployed = _lastQueryWasDeployedOnly && !nowDeployedOnly;
+            bool broadenedSug = _lastQuerySugIds.Count > 0 && (nowSugs.Count == 0 || nowSugs.Any(s => !_lastQuerySugIds.Contains(s)));
+            if (broadenedDeployed || broadenedSug)
+            {
+                FilterStatusText.Text += " — Click Start to load broadened MECM scope";
+            }
         }
 
         private void RecomputeAnalysis()

@@ -200,6 +200,7 @@ namespace OpenRCT.Connectors.Services
         public async Task<IReadOnlyList<RemoteSoftwareCenterItem>> GetRemoteSoftwareCenterItemsAsync(TargetDevice device, CancellationToken ct = default)
         {
             var host = device.ConnectAddress;
+            await _wmi.EnsureReachableIfEnabledAsync(host, ct).ConfigureAwait(false);
             var items = new List<RemoteSoftwareCenterItem>();
             var queryErrors = new List<string>();
 

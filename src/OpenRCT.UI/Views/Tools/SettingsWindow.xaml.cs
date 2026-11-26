@@ -16,12 +16,12 @@ namespace OpenRCT.UI.Views.Tools
 
         public SettingsWindow(SettingsService settingsService)
         {
-            InitializeComponent();
-            _settingsService = settingsService;
+            _settingsService = settingsService ?? new SettingsService();
             _settings = _settingsService.Load();
             _initialIconStyle = _settings.IconStyle;
 
             ThemeManager.ApplyTheme(this, _settings.Theme);
+            InitializeComponent();
 
             TransportCombo.ItemsSource = Enum.GetValues(typeof(RemoteTransportPreference));
             ThemeCombo.ItemsSource = Enum.GetValues(typeof(AppThemePreference));
@@ -41,6 +41,8 @@ namespace OpenRCT.UI.Views.Tools
             ConcurrencyBox.Text = _settings.MaxConcurrentDevices.ToString();
             SmsServerBox.Text = _settings.DefaultSmsProviderServer ?? string.Empty;
             SiteCodeBox.Text = _settings.DefaultSiteCode ?? string.Empty;
+            FastOfflineCheckBox.IsChecked = _settings.EnableFastOfflineCheck;
+            OfflineTimeoutMsBox.Text = _settings.OfflineCheckTimeoutMs.ToString();
 
             ThemeCombo.SelectedItem = _settings.Theme;
             IconStyleCombo.SelectedIndex = _settings.IconStyle == IconStylePreference.CrispOutline ? 1 : 0;
@@ -52,57 +54,83 @@ namespace OpenRCT.UI.Views.Tools
             UpdateRepoBox.Text = _settings.UpdateRepository ?? string.Empty;
             InstalledVersionText.Text = $"Installed: v{GitHubUpdateChecker.GetCurrentVersionString(typeof(SettingsWindow).Assembly)}";
 
-            UpdatePsExecValidation();
-            UpdateRepoValidation();
-            UpdateConsoleIconSyncHint();
+            try { UpdatePsExecValidation(); } catch { }
+            try { UpdateRepoValidation(); } catch { }
+
+            Loaded += (_, __) => UpdateConsoleIconSyncHintAsync();
         }
 
-        private void UpdateConsoleIconSyncHint()
+        private void UpdateConsoleIconSyncHintAsync()
         {
-            if (ConsoleIconSyncService.IsConsoleInstalledAndOutOfSync(_settings.IconStyle))
+            var currentStyle = _settings.IconStyle;
+            System.Threading.Tasks.Task.Run(() =>
             {
-                IconStyleStatusText.Foreground = (Brush)(TryFindResource("WarningBrush") ?? Brushes.DarkOrange);
-                IconStyleStatusText.Text =
-                    "MECM Console icons do not yet match your saved Icon Style. Click 'Apply to MECM Console' and restart the console to update tree and right-click icons.";
-            }
-            else
-            {
-                IconStyleStatusText.Foreground = (Brush)(TryFindResource("SecondaryTextBrush") ?? Brushes.Gray);
-                IconStyleStatusText.Text =
-                    "Changes apply immediately to OpenRCT windows. MECM Console tree and right-click icons update after restarting the console.";
-            }
+                bool outOfSync = false;
+                try
+                {
+                    outOfSync = ConsoleIconSyncService.IsConsoleInstalledAndOutOfSync(currentStyle);
+                }
+                catch { }
+
+                Dispatcher.InvokeAsync(() =>
+                {
+                    try
+                    {
+                        if (outOfSync)
+                        {
+                            IconStyleStatusText.Foreground = (Brush)(TryFindResource("WarningBrush") ?? Brushes.DarkOrange);
+                            IconStyleStatusText.Text =
+                                "MECM Console icons do not yet match your saved Icon Style. Click 'Apply to MECM Console' and restart the console to update tree and right-click icons.";
+                        }
+                        else
+                        {
+                            IconStyleStatusText.Foreground = (Brush)(TryFindResource("SecondaryTextBrush") ?? Brushes.Gray);
+                            IconStyleStatusText.Text =
+                                "Changes apply immediately to OpenRCT windows. MECM Console tree and right-click icons update after restarting the console.";
+                        }
+                    }
+                    catch { }
+                });
+            });
         }
 
         private void ApplyConsoleIcons_Click(object sender, RoutedEventArgs e)
         {
-            var selectedStyle = IconStyleCombo.SelectedItem is IconStyleOption iconOpt
-                ? iconOpt.Value
-                : _settings.IconStyle;
+            try
+            {
+                var selectedStyle = IconStyleCombo.SelectedItem is IconStyleOption iconOpt
+                    ? iconOpt.Value
+                    : _settings.IconStyle;
 
-            _settings.IconStyle = selectedStyle;
-            _settingsService.Save(_settings);
-            ThemeManager.SetIconStyle(selectedStyle);
+                _settings.IconStyle = selectedStyle;
+                _settingsService.Save(_settings);
+                ThemeManager.SetIconStyle(selectedStyle);
 
-            var sync = ConsoleIconSyncService.ApplyConsoleIconStyle(selectedStyle, this, allowElevationPrompt: true);
-            ApplySyncStatusVisual(sync);
+                var sync = ConsoleIconSyncService.ApplyConsoleIconStyle(selectedStyle, this, allowElevationPrompt: true);
+                ApplySyncStatusVisual(sync);
 
-            if (sync.Status == ConsoleIconSyncStatus.Updated)
-            {
-                _initialIconStyle = selectedStyle;
-                MessageBox.Show(this, sync.Message, "MECM Console Icons Updated", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (sync.Status == ConsoleIconSyncStatus.Updated)
+                {
+                    _initialIconStyle = selectedStyle;
+                    MessageBox.Show(this, sync.Message, "MECM Console Icons Updated", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else if (sync.Status == ConsoleIconSyncStatus.AlreadyUpToDate)
+                {
+                    _initialIconStyle = selectedStyle;
+                    MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else if (sync.Status == ConsoleIconSyncStatus.Failed || sync.Status == ConsoleIconSyncStatus.SourceDllNotFound)
+                {
+                    MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
-            else if (sync.Status == ConsoleIconSyncStatus.AlreadyUpToDate)
+            catch (Exception ex)
             {
-                _initialIconStyle = selectedStyle;
-                MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            else if (sync.Status == ConsoleIconSyncStatus.Failed || sync.Status == ConsoleIconSyncStatus.SourceDllNotFound)
-            {
-                MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            else
-            {
-                MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(this, $"Could not apply MECM Console icon style:\n\n{ex.Message}", "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -141,11 +169,15 @@ namespace OpenRCT.UI.Views.Tools
             }
         }
 
-        private void PsExecPathBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) =>
-            UpdatePsExecValidation();
+        private void PsExecPathBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (PsExecStatusText != null) UpdatePsExecValidation();
+        }
 
-        private void UpdateRepoBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) =>
-            UpdateRepoValidation();
+        private void UpdateRepoBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (UpdateRepoStatusText != null) UpdateRepoValidation();
+        }
 
         private void UpdatePsExecValidation()
         {
@@ -221,54 +253,69 @@ namespace OpenRCT.UI.Views.Tools
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            _settings.PsExecPath = PsExecPathBox.Text;
-            _settings.PsExecRunAsSystem = PsExecSystemCheck.IsChecked == true;
-            _settings.PsExecAcceptEula = PsExecEulaCheck.IsChecked == true;
-            _settings.PsExecAdditionalArgs = PsExecArgsBox.Text ?? string.Empty;
-
-            if (TransportCombo.SelectedItem is RemoteTransportPreference tp) _settings.TransportPreference = tp;
-            if (int.TryParse(TimeoutBox.Text, out var timeout)) _settings.ConnectionTimeoutSeconds = timeout;
-            if (int.TryParse(ConcurrencyBox.Text, out var conc)) _settings.MaxConcurrentDevices = conc;
-            _settings.DefaultSmsProviderServer = SmsServerBox.Text;
-            _settings.DefaultSiteCode = SiteCodeBox.Text;
-
-            if (ThemeCombo.SelectedItem is AppThemePreference theme) _settings.Theme = theme;
-            if (IconStyleCombo.SelectedItem is IconStyleOption iconOpt) _settings.IconStyle = iconOpt.Value;
-            _settings.ConfirmDestructiveActions = ConfirmDestructiveCheck.IsChecked == true;
-            _settings.AutoClearClipboardSecrets = AutoClearClipboardCheck.IsChecked == true;
-            if (int.TryParse(ClipboardSecondsBox.Text, out var clipSec)) _settings.ClipboardClearSeconds = clipSec;
-
-            ApplyPendingUpdateSettings();
-
-            _settingsService.Save(_settings);
-            ThemeManager.ApplyApplicationTheme(_settings.Theme);
-            ThemeManager.SetIconStyle(_settings.IconStyle);
-
-            var iconStyleChanged = _settings.IconStyle != _initialIconStyle;
-            if (iconStyleChanged)
+            try
             {
-                var sync = ConsoleIconSyncService.ApplyConsoleIconStyle(_settings.IconStyle, this, allowElevationPrompt: true);
-                if (sync.Status == ConsoleIconSyncStatus.Updated)
+                _settings.PsExecPath = PsExecPathBox.Text;
+                _settings.PsExecRunAsSystem = PsExecSystemCheck.IsChecked == true;
+                _settings.PsExecAcceptEula = PsExecEulaCheck.IsChecked == true;
+                _settings.PsExecAdditionalArgs = PsExecArgsBox.Text ?? string.Empty;
+
+                if (TransportCombo.SelectedItem is RemoteTransportPreference tp) _settings.TransportPreference = tp;
+                if (int.TryParse(TimeoutBox.Text, out var timeout)) _settings.ConnectionTimeoutSeconds = timeout;
+                if (int.TryParse(ConcurrencyBox.Text, out var conc)) _settings.MaxConcurrentDevices = conc;
+                _settings.DefaultSmsProviderServer = SmsServerBox.Text;
+                _settings.DefaultSiteCode = SiteCodeBox.Text;
+                _settings.EnableFastOfflineCheck = FastOfflineCheckBox.IsChecked == true;
+                if (int.TryParse(OfflineTimeoutMsBox.Text, out var offlineMs)) _settings.OfflineCheckTimeoutMs = offlineMs;
+
+                if (ThemeCombo.SelectedItem is AppThemePreference theme) _settings.Theme = theme;
+                if (IconStyleCombo.SelectedItem is IconStyleOption iconOpt) _settings.IconStyle = iconOpt.Value;
+                _settings.ConfirmDestructiveActions = ConfirmDestructiveCheck.IsChecked == true;
+                _settings.AutoClearClipboardSecrets = AutoClearClipboardCheck.IsChecked == true;
+                if (int.TryParse(ClipboardSecondsBox.Text, out var clipSec)) _settings.ClipboardClearSeconds = clipSec;
+
+                ApplyPendingUpdateSettings();
+
+                _settingsService.Save(_settings);
+                ThemeManager.ApplyApplicationTheme(_settings.Theme);
+                ThemeManager.SetIconStyle(_settings.IconStyle);
+
+                var iconStyleChanged = _settings.IconStyle != _initialIconStyle;
+                if (iconStyleChanged)
                 {
-                    MessageBox.Show(this, sync.Message, "MECM Console Icons Updated", MessageBoxButton.OK, MessageBoxImage.Information);
+                    var sync = ConsoleIconSyncService.ApplyConsoleIconStyle(_settings.IconStyle, this, allowElevationPrompt: true);
+                    if (sync.Status == ConsoleIconSyncStatus.Updated)
+                    {
+                        MessageBox.Show(this, sync.Message, "MECM Console Icons Updated", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else if (sync.Status == ConsoleIconSyncStatus.Failed || sync.Status == ConsoleIconSyncStatus.SourceDllNotFound)
+                    {
+                        MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
                 }
-                else if (sync.Status == ConsoleIconSyncStatus.Failed || sync.Status == ConsoleIconSyncStatus.SourceDllNotFound)
+                else if (ConsoleIconSyncService.IsConsoleInstalledAndOutOfSync(_settings.IconStyle))
                 {
-                    MessageBox.Show(this, sync.Message, "MECM Console Icons", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    // Silently self-heal if already running elevated; avoids surprise UAC prompts on unrelated setting edits.
+                    var sync = ConsoleIconSyncService.ApplyConsoleIconStyle(_settings.IconStyle, this, allowElevationPrompt: false);
+                    if (sync.Status == ConsoleIconSyncStatus.Updated)
+                    {
+                        MessageBox.Show(this, sync.Message, "MECM Console Icons Updated", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+
+                try
+                {
+                    DialogResult = true;
+                }
+                catch
+                {
+                    Close();
                 }
             }
-            else if (ConsoleIconSyncService.IsConsoleInstalledAndOutOfSync(_settings.IconStyle))
+            catch (Exception ex)
             {
-                // Silently self-heal if already running elevated; avoids surprise UAC prompts on unrelated setting edits.
-                var sync = ConsoleIconSyncService.ApplyConsoleIconStyle(_settings.IconStyle, this, allowElevationPrompt: false);
-                if (sync.Status == ConsoleIconSyncStatus.Updated)
-                {
-                    MessageBox.Show(this, sync.Message, "MECM Console Icons Updated", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
+                MessageBox.Show(this, $"Could not save OpenRCT Settings:\n\n{ex.Message}", "OpenRCT Settings Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            DialogResult = true;
-            Close();
         }
 
         private sealed class IconStyleOption

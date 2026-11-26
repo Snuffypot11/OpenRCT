@@ -34,6 +34,8 @@ Tune how OpenRCT communicates with remote endpoints and your MECM SMS Provider:
 | **Max Concurrent Devices** | `16` | `1` – `64` | Maximum number of devices queried in parallel during multi-device and collection operations |
 | **Default SMS Provider Server** | *(auto-detect)* | Hostname / FQDN | Optional override if you manage multiple sites or run standalone without a local MECM Console |
 | **Default Site Code** | *(auto-detect)* | 3-character site code | Optional MECM Site Code override (e.g., `LAB`, `P01`) |
+| **Fast Offline Pre-Check** | Enabled (`true`) | Checkbox | Runs a fast ICMP Ping + RPC (`135`) / SMB (`445`) probe before WMI/Remote Registry queries so powered-off devices fail in ~1.5s instead of hanging on OS DCOM timeouts |
+| **Offline Check Timeout (ms)** | `1500` | `300` – `10000` | Per-device timeout for the fast online reachability pre-check |
 
 ---
 
