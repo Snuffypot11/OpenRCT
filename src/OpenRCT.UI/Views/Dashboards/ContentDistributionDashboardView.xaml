@@ -152,7 +152,7 @@
         <DataGridTextColumn Header="Source Size (MB)" Binding="{Binding SourceSizeMb, StringFormat=0.00}" Width="105" />
         <DataGridTextColumn Header="Distribution Status" Binding="{Binding DistributionStatus}" Width="115" />
         <DataGridTextColumn Header="Last Update Date" Binding="{Binding LastUpdateDate, StringFormat=yyyy-MM-dd HH:mm}" Width="130" />
-        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
+        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" MinWidth="200" />
       </DataGrid.Columns>
     </DataGrid>
 

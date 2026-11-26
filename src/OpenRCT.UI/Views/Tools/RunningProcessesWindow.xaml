@@ -28,7 +28,7 @@
         <DataGridTextColumn Header="Process Name" Binding="{Binding Name}" Width="180" />
         <DataGridTextColumn Header="Memory (MB)" Binding="{Binding WorkingSetMb}" Width="95" />
         <DataGridTextColumn Header="Started" Binding="{Binding CreationDate, StringFormat=yyyy-MM-dd HH:mm}" Width="130" />
-        <DataGridTextColumn Header="Command Line" Binding="{Binding CommandLine}" Width="*" />
+        <DataGridTextColumn Header="Command Line" Binding="{Binding CommandLine}" Width="*" MinWidth="200" />
       </DataGrid.Columns>
     </DataGrid>
 

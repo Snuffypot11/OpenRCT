@@ -27,7 +27,7 @@
             <DataGridTextColumn Header="Collection Name" Binding="{Binding CollectionName}" Width="260" />
             <DataGridTextColumn Header="Membership" Binding="{Binding MembershipType}" Width="115" />
             <DataGridTextColumn Header="Members" Binding="{Binding MemberCount}" Width="80" />
-            <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" Width="*" />
+            <DataGridTextColumn Header="Comment" Binding="{Binding Comment}" Width="*" MinWidth="200" />
           </DataGrid.Columns>
         </DataGrid>
       </TabItem>
@@ -39,7 +39,7 @@
             <DataGridTextColumn Header="Type" Binding="{Binding ServiceWindowType}" Width="130" />
             <DataGridTextColumn Header="Enabled" Binding="{Binding IsEnabled}" Width="75" />
             <DataGridTextColumn Header="Duration (min)" Binding="{Binding DurationMinutes}" Width="105" />
-            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
+            <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" MinWidth="200" />
           </DataGrid.Columns>
         </DataGrid>
       </TabItem>

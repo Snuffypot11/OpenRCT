@@ -32,7 +32,7 @@
         <DataGridTextColumn Header="Status" Binding="{Binding StatusLabel}" Width="90" />
         <DataGridTextColumn Header="Msg ID" Binding="{Binding MessageId}" Width="65" />
         <DataGridTextColumn Header="Last Update" Binding="{Binding LastUpdateDate, StringFormat=yyyy-MM-dd HH:mm}" Width="125" />
-        <DataGridTextColumn Header="Message Summary" Binding="{Binding MessageSummary}" Width="*" />
+        <DataGridTextColumn Header="Message Summary" Binding="{Binding MessageSummary}" Width="*" MinWidth="200" />
       </DataGrid.Columns>
     </DataGrid>
 

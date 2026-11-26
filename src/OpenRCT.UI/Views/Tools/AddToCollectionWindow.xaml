@@ -19,7 +19,7 @@
     <DataGrid x:Name="CollectionsGrid" Grid.Row="2" Style="{DynamicResource OpenRctDataGrid}" SelectionMode="Single" Margin="0,0,0,10">
       <DataGrid.Columns>
         <DataGridTextColumn Header="Collection ID" Binding="{Binding CollectionId}" Width="105" />
-        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+        <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" MinWidth="135" />
         <DataGridTextColumn Header="Members" Binding="{Binding MemberCount}" Width="80" />
       </DataGrid.Columns>
     </DataGrid>

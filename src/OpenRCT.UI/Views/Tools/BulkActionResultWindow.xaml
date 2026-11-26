@@ -31,7 +31,7 @@
       <DataGrid.Columns>
         <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="165" />
         <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="95" />
-        <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+        <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" MinWidth="200" />
         <DataGridTextColumn Header="Duration (ms)" Binding="{Binding Duration.TotalMilliseconds, StringFormat=0}" Width="95" />
       </DataGrid.Columns>
     </DataGrid>

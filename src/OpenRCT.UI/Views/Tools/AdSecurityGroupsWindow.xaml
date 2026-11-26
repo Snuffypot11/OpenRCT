@@ -25,7 +25,7 @@
         <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="140" />
         <DataGridTextColumn Header="Group Name" Binding="{Binding GroupName}" Width="220" />
         <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="200" />
-        <DataGridTextColumn Header="Distinguished Name" Binding="{Binding DistinguishedName}" Width="*" />
+        <DataGridTextColumn Header="Distinguished Name" Binding="{Binding DistinguishedName}" Width="*" MinWidth="200" />
       </DataGrid.Columns>
     </DataGrid>
     <controls:ErrorDrawerControl x:Name="ErrorDrawer" Grid.Row="2" />

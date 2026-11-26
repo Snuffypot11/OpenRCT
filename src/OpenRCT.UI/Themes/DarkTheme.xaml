@@ -235,6 +235,9 @@
     <Setter Property="RowHeight" Value="28" />
     <Setter Property="CanUserAddRows" Value="False" />
     <Setter Property="CanUserDeleteRows" Value="False" />
+    <Setter Property="CanUserResizeColumns" Value="True" />
+    <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+    <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
     <Setter Property="SelectionMode" Value="Extended" />
   </Style>
 </ResourceDictionary>

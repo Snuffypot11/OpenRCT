@@ -39,7 +39,7 @@
         <DataGridTextColumn Header="Message ID" Binding="{Binding MessageId}" Width="85" />
         <DataGridTextColumn Header="Component" Binding="{Binding Component}" Width="165" />
         <DataGridTextColumn Header="Site" Binding="{Binding SiteCode}" Width="55" />
-        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />
+        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" MinWidth="200" />
       </DataGrid.Columns>
     </DataGrid>
 

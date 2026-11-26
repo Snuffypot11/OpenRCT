@@ -73,7 +73,7 @@
                 <DataGridTextColumn Header="SMS Agent" Binding="{Binding CcmExecStatus}" Width="95" />
                 <DataGridTextColumn Header="Cache Used (MB)" Binding="{Binding CacheUsedMb}" Width="105" />
                 <DataGridTextColumn Header="Cache Max (MB)" Binding="{Binding CacheSizeMb}" Width="105" />
-                <DataGridTextColumn Header="Client GUID" Binding="{Binding ClientGuid}" Width="*" />
+                <DataGridTextColumn Header="Client GUID" Binding="{Binding ClientGuid}" Width="*" MinWidth="200" />
               </DataGrid.Columns>
             </DataGrid>
           </Grid>
@@ -86,7 +86,7 @@
               <DataGrid.Columns>
                 <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="130" />
                 <DataGridTextColumn Header="Component" Binding="{Binding Name}" Width="190" />
-                <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="*" />
+                <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="*" MinWidth="135" />
                 <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="115" />
                 <DataGridTextColumn Header="State" Binding="{Binding State}" Width="90" />
               </DataGrid.Columns>
@@ -116,7 +116,7 @@
                   <DataGridTextColumn Header="Ver" Binding="{Binding ContentVersion}" Width="55" />
                   <DataGridTextColumn Header="Size (MB)" Binding="{Binding SizeMb}" Width="80" />
                   <DataGridTextColumn Header="Last Referenced" Binding="{Binding LastReferenced, StringFormat=yyyy-MM-dd HH:mm}" Width="135" />
-                  <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*" />
+                  <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*" MinWidth="200" />
                 </DataGrid.Columns>
               </DataGrid>
             </Grid>

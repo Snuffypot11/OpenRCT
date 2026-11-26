@@ -19,7 +19,7 @@
           <DataGrid.Columns>
             <DataGridTextColumn Header="Time" Binding="{Binding Timestamp, StringFormat=HH:mm:ss}" Width="75" />
             <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="160" />
-            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" />
+            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*" MinWidth="200" />
           </DataGrid.Columns>
         </DataGrid>
       </DockPanel>

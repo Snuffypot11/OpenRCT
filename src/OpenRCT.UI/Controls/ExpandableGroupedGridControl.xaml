@@ -11,7 +11,8 @@
               BorderBrush="{DynamicResource BorderBrushSubtle}"
               BorderThickness="0,1,0,1"
               Padding="36,8,14,10"
-              HorizontalAlignment="Stretch">
+              HorizontalAlignment="Left"
+              Width="{Binding Data.ChildContainerWidth, Source={StaticResource GridProxy}}">
         <DataGrid ItemsSource="{Binding Children}"
                   Style="{DynamicResource OpenRctDataGrid}"
                   IsReadOnly="False"
@@ -84,6 +85,7 @@
             MinRowHeight="30"
             RowDetailsVisibilityMode="Visible"
             SelectionMode="Extended"
+            SizeChanged="ParentGrid_SizeChanged"
             MouseDoubleClick="ParentGrid_MouseDoubleClick">
     <DataGrid.Columns>
       <!-- Expand / Collapse Chevron Column -->

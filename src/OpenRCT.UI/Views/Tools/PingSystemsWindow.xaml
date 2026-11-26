@@ -28,7 +28,7 @@
         <DataGridTextColumn Header="Status" Binding="{Binding StatusText}" Width="170" />
         <DataGridTextColumn Header="Sent" Binding="{Binding SentCount}" Width="60" />
         <DataGridTextColumn Header="Succeeded" Binding="{Binding SuccessCount}" Width="80" />
-        <DataGridTextColumn Header="Last Checked" Binding="{Binding LastChecked, StringFormat=HH:mm:ss}" Width="*" />
+        <DataGridTextColumn Header="Last Checked" Binding="{Binding LastChecked, StringFormat=HH:mm:ss}" Width="*" MinWidth="135" />
       </DataGrid.Columns>
     </DataGrid>
 

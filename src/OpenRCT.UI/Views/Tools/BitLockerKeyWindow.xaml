@@ -27,7 +27,7 @@
         <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="115" />
         <DataGridTextColumn Header="Recovery Key ID" Binding="{Binding RecoveryKeyId}" Width="210" />
         <DataGridTextColumn Header="Recovery Password" Binding="{Binding RecoveryPassword}" Width="300" />
-        <DataGridTextColumn Header="Created (UTC)" Binding="{Binding CreatedUtc, StringFormat=yyyy-MM-dd HH:mm}" Width="*" />
+        <DataGridTextColumn Header="Created (UTC)" Binding="{Binding CreatedUtc, StringFormat=yyyy-MM-dd HH:mm}" Width="*" MinWidth="135" />
       </DataGrid.Columns>
     </DataGrid>
 

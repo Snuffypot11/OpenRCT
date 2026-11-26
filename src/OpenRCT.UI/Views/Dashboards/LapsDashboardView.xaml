@@ -72,7 +72,7 @@
         <DataGridTextColumn Header="OS Version" Binding="{Binding OsVersion}" Width="110" />
         <DataGridTextColumn Header="LAPS Password Expiration" Binding="{Binding LapsPasswordExpiration, StringFormat=yyyy-MM-dd HH:mm}" Width="155" />
         <DataGridTextColumn Header="Laps Client Install State" Binding="{Binding ClientInstallStateLabel}" Width="175" />
-        <DataGridTextColumn Header="Created" Binding="{Binding Created, StringFormat=yyyy-MM-dd}" Width="*" />
+        <DataGridTextColumn Header="Created" Binding="{Binding Created, StringFormat=yyyy-MM-dd}" Width="*" MinWidth="110" />
       </DataGrid.Columns>
     </DataGrid>
 

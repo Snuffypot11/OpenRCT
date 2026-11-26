@@ -44,6 +44,7 @@ namespace OpenRCT.UI.Controls
         private Visibility _childExtraVisibility = Visibility.Collapsed;
         private Visibility _childTimestampVisibility = Visibility.Visible;
         private Visibility _childErrorVisibility = Visibility.Visible;
+        private double _childContainerWidth = 760;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -53,6 +54,31 @@ namespace OpenRCT.UI.Controls
             if (Resources["GridProxy"] is BindingProxy proxy)
             {
                 proxy.Data = this;
+            }
+            Loaded += (_, __) => UpdateChildContainerWidth();
+        }
+
+        public double ChildContainerWidth
+        {
+            get => _childContainerWidth;
+            private set
+            {
+                if (Math.Abs(_childContainerWidth - value) > 0.5)
+                {
+                    _childContainerWidth = value;
+                    OnPropertyChanged(nameof(ChildContainerWidth));
+                }
+            }
+        }
+
+        private void ParentGrid_SizeChanged(object sender, SizeChangedEventArgs e) => UpdateChildContainerWidth();
+
+        private void UpdateChildContainerWidth()
+        {
+            if (ParentGrid != null && ParentGrid.ActualWidth > 60)
+            {
+                // Reserve ~22px for vertical scrollbar & border so child grid fits cleanly inside viewport
+                ChildContainerWidth = Math.Max(320, ParentGrid.ActualWidth - 22);
             }
         }
 

@@ -121,7 +121,7 @@
               <DataGridTextColumn Header="Arch" Binding="{Binding Architecture}" Width="70" />
               <DataGridTextColumn Header="Install Date" Binding="{Binding InstallDate, StringFormat=yyyy-MM-dd}" Width="100" />
               <DataGridTextColumn Header="Last Boot" Binding="{Binding LastBootUpTime, StringFormat=yyyy-MM-dd HH:mm}" Width="130" />
-              <DataGridTextColumn Header="Logged On User" Binding="{Binding LoggedOnUser}" Width="*" />
+              <DataGridTextColumn Header="Logged On User" Binding="{Binding LoggedOnUser}" Width="*" MinWidth="135" />
             </DataGrid.Columns>
           </DataGrid>
 
@@ -135,7 +135,7 @@
               <DataGridTextColumn Header="BIOS" Binding="{Binding BiosVersion}" Width="120" />
               <DataGridTextColumn Header="CPU" Binding="{Binding ProcessorName}" Width="200" />
               <DataGridTextColumn Header="RAM (GB)" Binding="{Binding TotalMemoryGb}" Width="80" />
-              <DataGridTextColumn Header="TPM" Binding="{Binding TpmVersion}" Width="*" />
+              <DataGridTextColumn Header="TPM" Binding="{Binding TpmVersion}" Width="*" MinWidth="135" />
             </DataGrid.Columns>
           </DataGrid>
 
@@ -149,7 +149,7 @@
               <DataGridTextColumn Header="Type" Binding="{Binding DriveType}" Width="130" />
               <DataGridTextColumn Header="Total (GB)" Binding="{Binding TotalSizeGb}" Width="95" />
               <DataGridTextColumn Header="Free (GB)" Binding="{Binding FreeSpaceGb}" Width="95" />
-              <DataGridTextColumn Header="% Free" Binding="{Binding PercentFree}" Width="*" />
+              <DataGridTextColumn Header="% Free" Binding="{Binding PercentFree}" Width="*" MinWidth="110" />
             </DataGrid.Columns>
           </DataGrid>
 
@@ -166,7 +166,7 @@
               <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" IsReadOnly="True" Width="160" />
               <DataGridTextColumn Header="Installed On" Binding="{Binding InstalledOn}" IsReadOnly="True" Width="90" />
               <DataGridTextColumn Header="Version" Binding="{Binding Version}" IsReadOnly="True" Width="100" />
-              <DataGridTextColumn Header="Uninstall String" Binding="{Binding UninstallString}" IsReadOnly="True" Width="*" />
+              <DataGridTextColumn Header="Uninstall String" Binding="{Binding UninstallString}" IsReadOnly="True" Width="*" MinWidth="200" />
             </DataGrid.Columns>
             <DataGrid.RowDetailsTemplate>
               <DataTemplate>
@@ -189,7 +189,7 @@
               <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="180" />
               <DataGridTextColumn Header="Installed On" Binding="{Binding InstalledOn}" Width="120" />
               <DataGridTextColumn Header="Installed By" Binding="{Binding InstalledBy}" Width="180" />
-              <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+              <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" MinWidth="110" />
             </DataGrid.Columns>
           </DataGrid>
 
@@ -201,7 +201,7 @@
               <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="220" />
               <DataGridTextColumn Header="State" Binding="{Binding State}" Width="90" />
               <DataGridTextColumn Header="Startup Type" Binding="{Binding StartMode}" Width="100" />
-              <DataGridTextColumn Header="Log On As" Binding="{Binding StartName}" Width="*" />
+              <DataGridTextColumn Header="Log On As" Binding="{Binding StartName}" Width="*" MinWidth="135" />
             </DataGrid.Columns>
           </DataGrid>
 
@@ -215,7 +215,7 @@
               <DataGridTextColumn Header="Version" Binding="{Binding DriverVersion}" Width="105" />
               <DataGridTextColumn Header="Date" Binding="{Binding DriverDate, StringFormat=yyyy-MM-dd}" Width="90" />
               <DataGridTextColumn Header="Signed" Binding="{Binding IsSigned}" Width="60" />
-              <DataGridTextColumn Header="INF" Binding="{Binding InfName}" Width="*" />
+              <DataGridTextColumn Header="INF" Binding="{Binding InfName}" Width="*" MinWidth="135" />
             </DataGrid.Columns>
           </DataGrid>
 
@@ -228,7 +228,7 @@
               <DataGridTextColumn Header="Last Used" Binding="{Binding LastUseTime, StringFormat=yyyy-MM-dd HH:mm}" Width="130" />
               <DataGridTextColumn Header="Loaded" Binding="{Binding Loaded}" Width="65" />
               <DataGridTextColumn Header="Special" Binding="{Binding Special}" Width="65" />
-              <DataGridTextColumn Header="SID" Binding="{Binding Sid}" Width="*" />
+              <DataGridTextColumn Header="SID" Binding="{Binding Sid}" Width="*" MinWidth="200" />
             </DataGrid.Columns>
           </DataGrid>
 
@@ -239,7 +239,7 @@
               <DataGridTextColumn Header="Group" Binding="{Binding GroupName}" Width="150" />
               <DataGridTextColumn Header="Member" Binding="{Binding FullName}" Width="240" />
               <DataGridTextColumn Header="Domain" Binding="{Binding Domain}" Width="130" />
-              <DataGridTextColumn Header="Type" Binding="{Binding MemberType}" Width="*" />
+              <DataGridTextColumn Header="Type" Binding="{Binding MemberType}" Width="*" MinWidth="110" />
             </DataGrid.Columns>
           </DataGrid>
 
@@ -252,7 +252,7 @@
               <DataGridTextColumn Header="Charge %" Binding="{Binding EstimatedChargeRemaining}" Width="85" />
               <DataGridTextColumn Header="Design (mWh)" Binding="{Binding DesignCapacityMwh}" Width="105" />
               <DataGridTextColumn Header="Full Charge (mWh)" Binding="{Binding FullChargeCapacityMwh}" Width="125" />
-              <DataGridTextColumn Header="Health %" Binding="{Binding HealthPercent}" Width="*" />
+              <DataGridTextColumn Header="Health %" Binding="{Binding HealthPercent}" Width="*" MinWidth="110" />
             </DataGrid.Columns>
           </DataGrid>
 

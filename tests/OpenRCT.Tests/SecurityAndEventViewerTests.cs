@@ -126,5 +126,33 @@ namespace OpenRCT.Tests
             Assert.Contains("Remote Windows Security", collectionItems);
             Assert.Contains("Client Information", collectionItems);
         }
+
+        [Fact]
+        public void AllStarWidthDataGridColumns_HaveMinWidth_AndThemesEnableAutoScrollbars()
+        {
+            var root = FindRepoRoot();
+            var uiDir = Path.Combine(root, "src", "OpenRCT.UI");
+
+            foreach (var theme in new[] { "LightTheme.xaml", "DarkTheme.xaml" })
+            {
+                var content = File.ReadAllText(Path.Combine(uiDir, "Themes", theme));
+                Assert.Contains("HorizontalScrollBarVisibility", content);
+                Assert.Contains("CanUserResizeColumns", content);
+            }
+
+            foreach (var file in Directory.GetFiles(uiDir, "*.xaml", SearchOption.AllDirectories))
+            {
+                var doc = XDocument.Load(file);
+                var starColsWithoutMin = doc.Descendants()
+                    .Where(e => e.Name.LocalName == "DataGridTextColumn" &&
+                                string.Equals((string?)e.Attribute("Width"), "*", StringComparison.OrdinalIgnoreCase) &&
+                                e.Attribute("MinWidth") == null)
+                    .Select(e => (string?)e.Attribute("Header") ?? "(unnamed)")
+                    .ToList();
+
+                Assert.True(starColsWithoutMin.Count == 0,
+                    $"{Path.GetFileName(file)} has star-width DataGridTextColumn(s) without MinWidth: {string.Join(", ", starColsWithoutMin)}");
+            }
+        }
     }
 }
