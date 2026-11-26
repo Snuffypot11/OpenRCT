@@ -14,7 +14,10 @@ param(
     [ValidateSet("Assembly", "Executable")]
     [string]$Mode = "Assembly",
     [string]$PsExecPath = "",
-    [switch]$SkipBinaryCopy
+    [switch]$SkipBinaryCopy,
+    [ValidateSet("", "Duotone", "Outline")]
+    [string]$IconStyle = "",
+    [switch]$ApplyIconStyleOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -301,6 +304,78 @@ function Copy-FileSafeOverwrite {
     }
 }
 
+function Resolve-PreferredIconStyle {
+    param([string]$RequestedStyle)
+    if ($RequestedStyle -eq "Outline") { return "Outline" }
+    if ($RequestedStyle -eq "Duotone") { return "Duotone" }
+
+    try {
+        if (-not [string]::IsNullOrWhiteSpace($env:APPDATA)) {
+            $settingsPath = Join-Path $env:APPDATA "OpenRCT\settings.json"
+            if (Test-Path $settingsPath) {
+                $rawJson = Get-Content -Path $settingsPath -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+                if (-not [string]::IsNullOrWhiteSpace($rawJson)) {
+                    $parsed = $rawJson | ConvertFrom-Json -ErrorAction SilentlyContinue
+                    if ($null -ne $parsed -and $null -ne $parsed.IconStyle) {
+                        $valStr = $parsed.IconStyle.ToString().Trim()
+                        if ($valStr -eq "1" -or $valStr -ieq "CrispOutline" -or $valStr -ieq "Outline") {
+                            return "Outline"
+                        }
+                    }
+                }
+            }
+        }
+    } catch {
+        Write-Log "Could not read IconStyle preference from settings.json: $($_.Exception.Message)" "WARN"
+    }
+
+    return "Duotone"
+}
+
+function Deploy-ConsoleIconAssembly {
+    param(
+        [string]$ConsoleBin,
+        [string]$SourceInstallDir,
+        [string]$SourcePackageRoot,
+        [string]$PreferredStyle
+    )
+
+    $styleName = if ($PreferredStyle -eq "Outline") { "Outline" } else { "Duotone" }
+    $fileName = if ($styleName -eq "Outline") { "OpenRCT.Icons.Outline.dll" } else { "OpenRCT.Icons.Duotone.dll" }
+
+    $candidates = @(
+        (Join-Path $SourceInstallDir $fileName),
+        (Join-Path $SourcePackageRoot "bin\$fileName"),
+        (Join-Path $SourceInstallDir "OpenRCT.Icons.Duotone.dll"),
+        (Join-Path $SourcePackageRoot "bin\OpenRCT.Icons.Duotone.dll"),
+        (Join-Path $SourceInstallDir "OpenRCT.Icons.dll"),
+        (Join-Path $SourcePackageRoot "bin\OpenRCT.Icons.dll")
+    )
+
+    $iconsDllSrc = $null
+    foreach ($cand in $candidates) {
+        if (-not [string]::IsNullOrWhiteSpace($cand) -and (Test-Path $cand)) {
+            $iconsDllSrc = $cand
+            break
+        }
+    }
+
+    if (-not $iconsDllSrc) {
+        Write-Log "No OpenRCT icon resource DLL found for style '$styleName' in '$SourceInstallDir' or '$SourcePackageRoot\bin'." "WARN"
+        return $false
+    }
+
+    $destPath = Join-Path $ConsoleBin "OpenRCT.Icons.dll"
+    $iconsCopied = Copy-FileSafeOverwrite -Source $iconsDllSrc -Destination $destPath
+    if ($iconsCopied) {
+        Write-Log "Deployed $styleName MECM icon assembly ('$iconsDllSrc') to '$destPath'"
+        return $true
+    } else {
+        Write-Log "Could not overwrite OpenRCT.Icons.dll in $($ConsoleBin); existing icons will be used until console restart." "WARN"
+        return $false
+    }
+}
+
 function Write-TypeDiagnostic {
     param([string]$TypeName, $FoundInfo)
     if (-not $FoundInfo -or -not $FoundInfo.Type) {
@@ -584,7 +659,7 @@ $viewPropLine$tryCfgLine    }
 
 try {
     Write-Log "=== OpenRCT Installer started (User: $([Security.Principal.WindowsIdentity]::GetCurrent().Name)) ==="
-    Write-Log "Parameters: InstallDir='$InstallDir' ConsoleRoot='$ConsoleRoot' Mode='$Mode' SkipBinaryCopy=$SkipBinaryCopy"
+    Write-Log "Parameters: InstallDir='$InstallDir' ConsoleRoot='$ConsoleRoot' Mode='$Mode' SkipBinaryCopy=$SkipBinaryCopy IconStyle='$IconStyle' ApplyIconStyleOnly=$ApplyIconStyleOnly"
 
     if (-not (Test-IsAdministrator)) {
         throw "Install-OpenRCT.ps1 must be run from an elevated (Administrator) PowerShell session."
@@ -592,6 +667,21 @@ try {
 
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
     $packageRoot = Split-Path -Parent $scriptDir
+    $resolvedIconStyle = Resolve-PreferredIconStyle -RequestedStyle $IconStyle
+
+    if ($ApplyIconStyleOnly) {
+        $detectedConsole = Find-MecmConsoleRoot -ExplicitPath $ConsoleRoot
+        if (-not $detectedConsole) {
+            throw "MECM Admin Console was not detected; unable to apply console icon style '$resolvedIconStyle'."
+        }
+        $consoleBin = Join-Path $detectedConsole "bin"
+        $applied = Deploy-ConsoleIconAssembly -ConsoleBin $consoleBin -SourceInstallDir $InstallDir -SourcePackageRoot $packageRoot -PreferredStyle $resolvedIconStyle
+        if (-not $applied) {
+            throw "Failed to deploy OpenRCT.Icons.dll ($resolvedIconStyle) to '$consoleBin'."
+        }
+        Write-Log "=== OpenRCT console icon style updated to '$resolvedIconStyle' ==="
+        exit 0
+    }
 
     New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
 
@@ -657,20 +747,8 @@ try {
             }
         }
 
-        # Deploy native .NET 4.8 MECM icon resource assembly into AdminConsole\bin
-        $iconsDllSrc = Join-Path $InstallDir "OpenRCT.Icons.dll"
-        if (-not (Test-Path $iconsDllSrc)) {
-            $altIcons = Join-Path $packageRoot "bin\OpenRCT.Icons.dll"
-            if (Test-Path $altIcons) { $iconsDllSrc = $altIcons }
-        }
-        if (Test-Path $iconsDllSrc) {
-            $iconsCopied = Copy-FileSafeOverwrite -Source $iconsDllSrc -Destination (Join-Path $consoleBin "OpenRCT.Icons.dll")
-            if ($iconsCopied) {
-                Write-Log "Deployed OpenRCT.Icons.dll to $consoleBin"
-            } else {
-                Write-Log "Could not overwrite OpenRCT.Icons.dll in $($consoleBin); existing icons will be used until console restart." "WARN"
-            }
-        }
+        # Deploy native .NET 4.8 MECM icon resource assembly matching user's IconStyle preference
+        [void](Deploy-ConsoleIconAssembly -ConsoleBin $consoleBin -SourceInstallDir $InstallDir -SourcePackageRoot $packageRoot -PreferredStyle $resolvedIconStyle)
 
         $xmlTemplatesRoot = Join-Path $InstallDir "console-extensions\XmlStorage\Extensions"
         if (-not (Test-Path $xmlTemplatesRoot)) {

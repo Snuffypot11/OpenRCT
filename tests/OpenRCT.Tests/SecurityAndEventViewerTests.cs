@@ -184,8 +184,10 @@ namespace OpenRCT.Tests
             Assert.True(File.Exists(Path.Combine(root, "src", "OpenRCT.App", "Assets", "OpenRCT.ico")),
                 "Primary OpenRCT.ico must exist under src/OpenRCT.App/Assets.");
 
-            var iconsDir = Path.Combine(root, "src", "OpenRCT.Icons", "Icons");
-            Assert.True(Directory.Exists(iconsDir));
+            var duotoneDir = Path.Combine(root, "src", "OpenRCT.Icons", "Icons");
+            var outlineDir = Path.Combine(root, "src", "OpenRCT.Icons", "IconsOutline");
+            Assert.True(Directory.Exists(duotoneDir), "Duotone Icons directory must exist.");
+            Assert.True(Directory.Exists(outlineDir), "Outline IconsOutline directory must exist.");
 
             var xmlPaths = new[]
             {
@@ -203,8 +205,10 @@ namespace OpenRCT.Tests
                 foreach (var name in imgs)
                 {
                     referencedNames.Add(name);
-                    var icoPath = Path.Combine(iconsDir, name + ".ico");
-                    Assert.True(File.Exists(icoPath), $"Referenced MECM icon '{name}' missing at {icoPath}");
+                    var duotoneIco = Path.Combine(duotoneDir, name + ".ico");
+                    var outlineIco = Path.Combine(outlineDir, name + ".ico");
+                    Assert.True(File.Exists(duotoneIco), $"Referenced MECM Duotone icon '{name}' missing at {duotoneIco}");
+                    Assert.True(File.Exists(outlineIco), $"Referenced MECM Outline icon '{name}' missing at {outlineIco}");
                 }
             }
 
@@ -212,19 +216,46 @@ namespace OpenRCT.Tests
             Assert.Contains("DashBitLocker", referencedNames);
             Assert.Contains("ToolWindowsSecurity", referencedNames);
 
+            // Ensure Duotone and Outline sets are visually distinct (non-logo icons differ in bytes)
+            var duotoneBitLocker = File.ReadAllBytes(Path.Combine(duotoneDir, "DashBitLocker.ico"));
+            var outlineBitLocker = File.ReadAllBytes(Path.Combine(outlineDir, "DashBitLocker.ico"));
+            Assert.False(duotoneBitLocker.SequenceEqual(outlineBitLocker),
+                "Duotone and Outline DashBitLocker.ico files must differ.");
+
 #if NET48
-            var builtIconsDll = Path.Combine(root, "src", "OpenRCT.Icons", "bin", "Release", "net48", "OpenRCT.Icons.dll");
-            if (File.Exists(builtIconsDll))
+            var duotoneDll = Path.Combine(root, "src", "OpenRCT.Icons", "bin", "Release", "net48", "OpenRCT.Icons.Duotone.dll");
+            var outlineDll = Path.Combine(root, "src", "OpenRCT.Icons", "bin", "Release", "net48", "OpenRCT.Icons.Outline.dll");
+            if (File.Exists(duotoneDll) && File.Exists(outlineDll))
             {
-                var asm = System.Reflection.Assembly.LoadFrom(builtIconsDll);
-                var rm = new System.Resources.ResourceManager("OpenRCT.Icons.ConsoleIcons", asm);
-                foreach (var name in referencedNames)
+                foreach (var dllPath in new[] { duotoneDll, outlineDll })
                 {
-                    var obj = rm.GetObject(name);
-                    Assert.NotNull(obj);
+                    var asm = System.Reflection.Assembly.LoadFrom(dllPath);
+                    var rm = new System.Resources.ResourceManager("OpenRCT.Icons.ConsoleIcons", asm);
+                    foreach (var name in referencedNames)
+                    {
+                        var obj = rm.GetObject(name);
+                        Assert.NotNull(obj);
+                    }
                 }
+
+                Assert.False(File.ReadAllBytes(duotoneDll).SequenceEqual(File.ReadAllBytes(outlineDll)),
+                    "Built OpenRCT.Icons.Duotone.dll and OpenRCT.Icons.Outline.dll must differ in content.");
             }
 #endif
+        }
+
+        [Fact]
+        public void InstallerScripts_ArePure7BitAscii()
+        {
+            var root = FindRepoRoot();
+            var scriptsDir = Path.Combine(root, "installer", "scripts");
+            foreach (var ps1 in Directory.GetFiles(scriptsDir, "*.ps1", SearchOption.AllDirectories))
+            {
+                var bytes = File.ReadAllBytes(ps1);
+                var nonAsciiIndex = Array.FindIndex(bytes, b => b > 127);
+                Assert.True(nonAsciiIndex < 0,
+                    $"{Path.GetFileName(ps1)} contains non-ASCII byte 0x{ (nonAsciiIndex >= 0 ? bytes[nonAsciiIndex] : 0):X2} at offset {nonAsciiIndex}.");
+            }
         }
     }
 }

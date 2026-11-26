@@ -192,6 +192,7 @@ namespace OpenRCT.UI.Controls
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            ThemeManager.SyncSettingsFromDisk();
             ThemeManager.AppearanceChanged -= OnAppearanceChanged;
             ThemeManager.AppearanceChanged += OnAppearanceChanged;
             Rebuild();

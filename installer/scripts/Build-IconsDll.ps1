@@ -11,7 +11,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$OutputDll,
 
-    [string]$Version = "0.2.4.0"
+    [string]$Version = "0.2.5.0"
 )
 
 $ErrorActionPreference = "Stop"

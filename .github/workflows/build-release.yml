@@ -19,10 +19,11 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Build native .NET 4.8 MECM icon resource assembly (OpenRCT.Icons.dll)
+      - name: Build native .NET 4.8 MECM icon resource assemblies (Duotone & Outline)
         shell: powershell
         run: |
-          & ".\installer\scripts\Build-IconsDll.ps1" -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.dll" -Version "0.2.4.0"
+          & ".\installer\scripts\Build-IconsDll.ps1" -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Duotone.dll" -Version "0.2.5.0"
+          & ".\installer\scripts\Build-IconsDll.ps1" -IconsDir "src\OpenRCT.Icons\IconsOutline" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Outline.dll" -Version "0.2.5.0"
 
       - name: Restore dependencies
         run: dotnet restore OpenRCT.sln
@@ -60,7 +61,8 @@ jobs:
           New-Item -ItemType Directory -Path "$stage/bin", "$stage/scripts", "$stage/console-bridge-src", "$stage/console-extensions" -Force | Out-Null
           Copy-Item "src/OpenRCT.App/bin/Release/net48/*" "$stage/bin/" -Recurse -Force
           Copy-Item "src/OpenRCT.ConsoleExtension/bin/Release/net48/OpenRCT.ConsoleExtension.dll" "$stage/bin/" -Force
-          Copy-Item "src/OpenRCT.Icons/bin/Release/net48/OpenRCT.Icons.dll" "$stage/bin/" -Force
+          Copy-Item "src/OpenRCT.Icons/bin/Release/net48/OpenRCT.Icons.Duotone.dll" "$stage/bin/" -Force
+          Copy-Item "src/OpenRCT.Icons/bin/Release/net48/OpenRCT.Icons.Outline.dll" "$stage/bin/" -Force
           Copy-Item "installer/scripts/*" "$stage/scripts/" -Force
           Copy-Item "src/OpenRCT.ConsoleExtension/*.cs" "$stage/console-bridge-src/" -Force
           Copy-Item "console-extensions/*" "$stage/console-extensions/" -Recurse -Force

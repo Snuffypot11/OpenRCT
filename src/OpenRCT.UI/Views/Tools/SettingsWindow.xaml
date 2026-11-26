@@ -85,10 +85,16 @@
             <ComboBox x:Name="ThemeCombo" />
           </DockPanel>
 
-          <DockPanel Margin="0,0,0,14">
+          <DockPanel Margin="0,0,0,6">
             <TextBlock Text="Icon Style:" Width="160" VerticalAlignment="Center" />
+            <Button Content="Apply to MECM Console" DockPanel.Dock="Right" Margin="8,0,0,0"
+                    Style="{DynamicResource StandardButton}" Click="ApplyConsoleIcons_Click" />
             <ComboBox x:Name="IconStyleCombo" />
           </DockPanel>
+          <TextBlock x:Name="IconStyleStatusText"
+                     Text="Changes apply immediately to OpenRCT windows. MECM Console tree and right-click icons update after restarting the console."
+                     FontSize="12" TextWrapping="Wrap" Margin="160,0,0,14"
+                     Foreground="{DynamicResource SecondaryTextBrush}" />
 
           <CheckBox x:Name="ConfirmDestructiveCheck" Content="Prompt for confirmation before destructive actions (Delete, Uninstall, Restart/Shutdown)" Margin="0,6" />
           <CheckBox x:Name="AutoClearClipboardCheck" Content="Automatically clear clipboard after copying LAPS passwords or BitLocker recovery keys" Margin="0,6" />

@@ -12,6 +12,7 @@ namespace OpenRCT.UI.Themes
     public static class ThemeManager
     {
         private static ImageSource? _cachedWindowIcon;
+        private static DateTime _lastSettingsWriteUtc = DateTime.MinValue;
 
         public static bool CurrentIsDark { get; private set; }
         public static IconStylePreference CurrentIconStyle { get; private set; } = IconStylePreference.FluentDuotone;
@@ -27,6 +28,34 @@ namespace OpenRCT.UI.Themes
             }
         }
 
+        /// <summary>
+        /// Reloads persisted appearance preferences (such as IconStyle) if settings.json changed
+        /// on disk (for example, saved by the standalone app while the MECM Console is open).
+        /// </summary>
+        public static void SyncSettingsFromDisk()
+        {
+            try
+            {
+                var svc = new SettingsService();
+                var path = svc.SettingsFilePath;
+                if (!System.IO.File.Exists(path)) return;
+
+                var writeUtc = System.IO.File.GetLastWriteTimeUtc(path);
+                if (writeUtc == _lastSettingsWriteUtc) return;
+
+                _lastSettingsWriteUtc = writeUtc;
+                var saved = svc.Load();
+                if (CurrentIconStyle != saved.IconStyle)
+                {
+                    CurrentIconStyle = saved.IconStyle;
+                    AppearanceChanged?.Invoke(null, EventArgs.Empty);
+                }
+            }
+            catch
+            {
+            }
+        }
+
         public static void ApplyTheme(FrameworkElement element, AppThemePreference preference)
         {
             if (element == null) return;
@@ -35,7 +64,12 @@ namespace OpenRCT.UI.Themes
 
             try
             {
-                var saved = new SettingsService().Load();
+                var svc = new SettingsService();
+                if (System.IO.File.Exists(svc.SettingsFilePath))
+                {
+                    _lastSettingsWriteUtc = System.IO.File.GetLastWriteTimeUtc(svc.SettingsFilePath);
+                }
+                var saved = svc.Load();
                 CurrentIconStyle = saved.IconStyle;
             }
             catch { }
