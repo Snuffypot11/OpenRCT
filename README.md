@@ -113,7 +113,7 @@ Uninstall via **Settings → Apps → Installed Apps** (MSI) or run:
 
 - **Full Searchable Documentation:** Hosted on GitHub Pages at [snuffypot11.github.io/OpenRCT](https://snuffypot11.github.io/OpenRCT/) (built from `docs/` via MkDocs Material).
 - **Hyper-V MECM Test Lab:** Automated 4-VM Hyper-V lab setup guide (`LAB-DC01`, `LAB-CM01`, `LAB-WS01`, `LAB-WS02`) in [docs/lab-setup/README.md](docs/lab-setup/README.md).
-- **Adding Screenshots:** See [docs/assets/images/README.md](docs/assets/images/README.md) for the drop-in screenshot placeholder inventory.
+- **Updating Screenshots:** See [docs/assets/images/README.md](docs/assets/images/README.md) for the documentation screenshot inventory.
 
 ---
 

@@ -1,11 +1,11 @@
-# Documentation Screenshot Placeholders
+# Documentation Screenshots
 
 All documentation pages and `README.md` reference the PNG files in this folder directly.
-To replace any placeholder with a real screenshot from your MECM environment, simply **overwrite the matching `.png` file** — no Markdown edits are required.
+To refresh any screenshot in the future, simply **overwrite the matching `.png` file** — no Markdown edits are required.
 
-Recommended capture size: `1200×640` to `1600×900` PNG (standard 16:9 or 16:10 window capture; redact any sensitive domain names, usernames, or BitLocker/LAPS secrets before committing).
+Recommended capture size: `1024×600` to `1600×900` PNG (standard 16:9 or 16:10 window capture; redact any sensitive domain names, usernames, or BitLocker/LAPS secrets before committing).
 
-| File | Used In | Suggested Capture |
+| File | Used In | Description |
 |---|---|---|
 | `hero-console-overview.png` | `README.md`, `docs/index.md` | MECM Admin Console showing **Assets & Compliance → Overview → OpenRCT** and all 6 sidebar dashboards |
 | `context-menu-device.png` | `README.md`, `docs/tools/overview.md` | Device right-click menu expanded under **OpenRCT** showing all 6 tool groups and vector icons |
