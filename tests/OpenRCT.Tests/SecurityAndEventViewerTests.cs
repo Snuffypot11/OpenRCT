@@ -125,6 +125,21 @@ namespace OpenRCT.Tests
             Assert.Contains("Remote Software Center", collectionItems);
             Assert.Contains("Remote Windows Security", collectionItems);
             Assert.Contains("Client Information", collectionItems);
+
+            // Ensure literal ampersands in MnemonicDisplayName are escaped as && so Win32 context menus render "&"
+            var actionsDir = Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Actions");
+            foreach (var xmlPath in Directory.GetFiles(actionsDir, "*.xml"))
+            {
+                var doc = XDocument.Load(xmlPath);
+                foreach (var elem in doc.Descendants("ActionDescription"))
+                {
+                    var mnemonic = (string?)elem.Attribute("MnemonicDisplayName");
+                    if (!string.IsNullOrEmpty(mnemonic))
+                    {
+                        Assert.DoesNotContain(" & ", mnemonic);
+                    }
+                }
+            }
         }
 
         [Fact]

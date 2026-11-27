@@ -26,7 +26,6 @@ namespace OpenRCT.App
             public string DisplayName { get; set; } = string.Empty;
             public string ActionKey { get; set; } = string.Empty;
             public string IconKey { get; set; } = "ToolSystemInfo";
-            public bool IsPrimary { get; set; }
             public bool ShowInQuickAccess { get; set; }
         }
 
@@ -54,11 +53,11 @@ namespace OpenRCT.App
         {
             var list = new List<ToolCatalogEntry>();
 
-            void Add(string cat, string name, string key, string iconKey, bool quick = false, bool primary = false) =>
-                list.Add(new ToolCatalogEntry { Category = cat, DisplayName = name, ActionKey = key, IconKey = iconKey, ShowInQuickAccess = quick, IsPrimary = primary });
+            void Add(string cat, string name, string key, string iconKey, bool quick = false) =>
+                list.Add(new ToolCatalogEntry { Category = cat, DisplayName = name, ActionKey = key, IconKey = iconKey, ShowInQuickAccess = quick });
 
             // 1. Remote Tools (10)
-            Add("Remote Tools", "System Information", ToolActionKeys.SystemInformation, "ToolSystemInfo", quick: true, primary: true);
+            Add("Remote Tools", "System Information", ToolActionKeys.SystemInformation, "ToolSystemInfo", quick: true);
             Add("Remote Tools", "Remote Software Center", ToolActionKeys.RemoteSoftwareCenter, "ToolSoftwareCenter", quick: true);
             Add("Remote Tools", "Remote Windows Security", ToolActionKeys.RemoteWindowsSecurity, "ToolWindowsSecurity", quick: true);
             Add("Remote Tools", "Remote Registry Editor", ToolActionKeys.OpenRegedit, "ToolRemoteRegistry", quick: true);
@@ -127,7 +126,7 @@ namespace OpenRCT.App
             SecurityToolsPanel.Children.Clear();
             AdConfigMgrPanel.Children.Clear();
 
-            foreach (var entry in _catalog.Where(c => c.ShowInQuickAccess).OrderByDescending(c => c.IsPrimary))
+            foreach (var entry in _catalog.Where(c => c.ShowInQuickAccess))
             {
                 QuickAccessPanel.Children.Add(CreateToolButton(entry));
             }
@@ -185,7 +184,7 @@ namespace OpenRCT.App
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 ToolTip = $"{entry.Category}: {entry.DisplayName}"
             };
-            btn.SetResourceReference(StyleProperty, entry.IsPrimary ? "PrimaryButton" : "StandardButton");
+            btn.SetResourceReference(StyleProperty, "StandardButton");
             btn.Click += RunTool_Click;
             return btn;
         }
