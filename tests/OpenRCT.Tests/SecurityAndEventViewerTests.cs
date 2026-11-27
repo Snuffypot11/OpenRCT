@@ -99,9 +99,9 @@ namespace OpenRCT.Tests
                 "Remote Tools",
                 "Client Actions",
                 "Client Tools",
-                "Device && Power Tools",
+                "Device and Power Tools",
                 "Security Tools",
-                "Active Directory && ConfigMgr"
+                "Active Directory and ConfigMgr"
             }, deviceGroups);
 
             var deviceItems = deviceXml.Descendants("ActionDescription")
@@ -126,7 +126,9 @@ namespace OpenRCT.Tests
             Assert.Contains("Remote Windows Security", collectionItems);
             Assert.Contains("Client Information", collectionItems);
 
-            // Ensure literal ampersands in DisplayName and MnemonicDisplayName are escaped as && so MECM WinForms context menus render "&"
+            // MECM's console menu adapter naively calls Replace('&', '_') before passing labels to WPF AccessText:
+            // single '&' disappears ("Device  Power Tools") and '&&' becomes literal '_' ("Device _ Power Tools").
+            // Enforce plain "and" (matching MECM's own "Assets and Compliance") across all console extension XMLs.
             var actionsDir = Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Actions");
             foreach (var xmlPath in Directory.GetFiles(actionsDir, "*.xml"))
             {
@@ -138,7 +140,7 @@ namespace OpenRCT.Tests
                         var val = (string?)elem.Attribute(attrName);
                         if (!string.IsNullOrEmpty(val))
                         {
-                            Assert.DoesNotContain(" & ", val);
+                            Assert.DoesNotContain("&", val);
                         }
                     }
                 }
