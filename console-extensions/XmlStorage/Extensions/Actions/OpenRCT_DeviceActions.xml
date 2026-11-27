@@ -687,7 +687,7 @@
           </ActionDescription>
         </ActionGroups>
       </ActionDescription>
-    <ActionDescription Class="Group" DisplayName="Device &amp; Power Tools" MnemonicDisplayName="Device &amp;&amp; Power Tools" Description="Ping, Wake on LAN, Group Policy, notifications, and power actions" SelectionMode="Both">
+    <ActionDescription Class="Group" DisplayName="Device &amp;&amp; Power Tools" MnemonicDisplayName="Device &amp;&amp; Power Tools" Description="Ping, Wake on LAN, Group Policy, notifications, and power actions" SelectionMode="Both">
       <ShowOn>
         <string>ContextMenu</string>
         <string>DefaultHomeTab</string>
@@ -915,7 +915,7 @@
           </ActionDescription>
         </ActionGroups>
       </ActionDescription>
-    <ActionDescription Class="Group" DisplayName="Active Directory &amp; ConfigMgr" MnemonicDisplayName="Active Directory &amp;&amp; ConfigMgr" Description="Active Directory groups and device lifecycle actions" SelectionMode="Both">
+    <ActionDescription Class="Group" DisplayName="Active Directory &amp;&amp; ConfigMgr" MnemonicDisplayName="Active Directory &amp;&amp; ConfigMgr" Description="Active Directory groups and device lifecycle actions" SelectionMode="Both">
       <ShowOn>
         <string>ContextMenu</string>
         <string>DefaultHomeTab</string>

@@ -99,9 +99,9 @@ namespace OpenRCT.Tests
                 "Remote Tools",
                 "Client Actions",
                 "Client Tools",
-                "Device & Power Tools",
+                "Device && Power Tools",
                 "Security Tools",
-                "Active Directory & ConfigMgr"
+                "Active Directory && ConfigMgr"
             }, deviceGroups);
 
             var deviceItems = deviceXml.Descendants("ActionDescription")
@@ -126,17 +126,20 @@ namespace OpenRCT.Tests
             Assert.Contains("Remote Windows Security", collectionItems);
             Assert.Contains("Client Information", collectionItems);
 
-            // Ensure literal ampersands in MnemonicDisplayName are escaped as && so Win32 context menus render "&"
+            // Ensure literal ampersands in DisplayName and MnemonicDisplayName are escaped as && so MECM WinForms context menus render "&"
             var actionsDir = Path.Combine(root, "console-extensions", "XmlStorage", "Extensions", "Actions");
             foreach (var xmlPath in Directory.GetFiles(actionsDir, "*.xml"))
             {
                 var doc = XDocument.Load(xmlPath);
                 foreach (var elem in doc.Descendants("ActionDescription"))
                 {
-                    var mnemonic = (string?)elem.Attribute("MnemonicDisplayName");
-                    if (!string.IsNullOrEmpty(mnemonic))
+                    foreach (var attrName in new[] { "DisplayName", "MnemonicDisplayName" })
                     {
-                        Assert.DoesNotContain(" & ", mnemonic);
+                        var val = (string?)elem.Attribute(attrName);
+                        if (!string.IsNullOrEmpty(val))
+                        {
+                            Assert.DoesNotContain(" & ", val);
+                        }
                     }
                 }
             }

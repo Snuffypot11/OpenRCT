@@ -59,7 +59,7 @@
       </ActionGroups>
     </ActionDescription>
 
-    <ActionDescription Class="Group" DisplayName="Device &amp; Power Tools" MnemonicDisplayName="Device &amp;&amp; Power Tools" Description="Device and Power Tools" SelectionMode="Both">
+    <ActionDescription Class="Group" DisplayName="Device &amp;&amp; Power Tools" MnemonicDisplayName="Device &amp;&amp; Power Tools" Description="Device and Power Tools" SelectionMode="Both">
       <ShowOn><string>ContextMenu</string></ShowOn>
       <ActionGroups>
         <ActionDescription Class="Executable" DisplayName="Ping System(s)" MnemonicDisplayName="Ping System(s)" Description="Ping System(s)" SelectionMode="Both">

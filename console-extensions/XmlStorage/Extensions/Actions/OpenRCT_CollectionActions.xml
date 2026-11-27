@@ -327,7 +327,7 @@
           </ActionDescription>
         </ActionGroups>
       </ActionDescription>
-    <ActionDescription Class="Group" DisplayName="Device &amp; Power Tools" MnemonicDisplayName="Device &amp;&amp; Power Tools" Description="Run Device and Power Tools across this Device Collection">
+    <ActionDescription Class="Group" DisplayName="Device &amp;&amp; Power Tools" MnemonicDisplayName="Device &amp;&amp; Power Tools" Description="Run Device and Power Tools across this Device Collection">
       <ShowOn>
         <string>ContextMenu</string>
         <string>DefaultHomeTab</string>
