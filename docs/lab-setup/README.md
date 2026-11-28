@@ -1,6 +1,6 @@
 # OpenRCT Testing VM Lab — Setup Guide & Automation Scripts
 
-This guide walks you through building the **minimum viable isolated Hyper-V lab** on a **32 GB Windows 10/11 Pro/Enterprise host** to test **every OpenRCT feature** — all 12 Client Actions, 13 Client Tools, 21 Console Tools, 5 Security Tools, Device Status Messages, and embedded MECM Console Dashboards — while keeping your host machine **completely excluded from the lab domain and lab network**.
+This guide walks you through building the **minimum viable isolated Hyper-V lab** on a **32 GB Windows 10/11 Pro/Enterprise host** to test **every OpenRCT feature** — all 10 Remote Tools, 12 Client Actions, 13 Client Tools, 6 Device and Power Tools, 5 Security Tools, 5 Active Directory and ConfigMgr Tools, and all 6 embedded MECM Console Dashboards — while keeping your host machine **completely excluded from the lab domain and lab network**.
 
 ---
 
@@ -44,7 +44,7 @@ Download these free Microsoft Evaluation ISOs and tools to a folder on your host
 7. **Windows ADK** (`adksetup.exe`) **+ Windows PE Add-on** (`adkwinpesetup.exe`) — Microsoft Learn
 8. **Legacy Microsoft LAPS** (`LAPS.x64.msi`) — Microsoft Download Center *(optional, to test both Legacy LAPS and Windows LAPS side-by-side)*
 9. **7-Zip MSI (64-bit x64)** (`7z*-x64.msi`) — 7-zip.org *(sample test application for Remote Software Center & Cache Manager)*
-10. **Sysinternals PsExec** (`PsExec64.exe`) — Microsoft Sysinternals *(optional, for Console Tools → Interactive Command Prompt)*
+10. **Sysinternals PsExec** (`PsExec64.exe`) — Microsoft Sysinternals *(optional, for Remote Tools → Interactive Command Prompt)*
 
 ---
 
@@ -377,30 +377,37 @@ Confirm every check reports **`PASS`** (any `WARN` tells you the exact item stil
 
 Re-open the **Configuration Manager Console** on `LAB-CM01` as `LAB\cmadmin` and validate:
 
+- [ ] **Remote Tools (10):**
+  - *System Information* on `LAB-WS01`: verify all 10 tabs (Hardware shows vTPM 2.0; Applications loads via Remote Registry and silently uninstalls 7-Zip; Services restarts `Spooler`; User Profiles deletes unloaded `LAB\testuser2`; Local Group Members adds/removes `LAB\testuser1`).
+  - *Remote Software Center* on `LAB-WS02`: verify 7-Zip (App), `OpenRCT Test Package` (Package), Windows 11 Updates, and Compliance Baselines; remotely trigger Install on 7-Zip.
+  - *Remote Windows Security* on `LAB-WS01`: verify BitLocker, TPM, Firmware (Secure Boot / 2023 CA), VBS, Defender, Exclusions, Windows Firewall, and Firewall Rules.
+  - *Remote Registry Editor* & *Remote Event Viewer* on `LAB-WS01`.
+  - *Running Processes*: launch `notepad.exe` on `LAB-WS01`, terminate it from OpenRCT.
+  - *Connect to `C$`*, *Interactive PowerShell Prompt* (WinRM), *Interactive Command Prompt* (PsExec64), and *Manage Computer*.
 - [ ] **Client Actions (12):** Multi-select `LAB-WS01` + `LAB-WS02` → `OpenRCT → Client Actions` → test Machine Policy, Hardware Inventory, Software Updates Scan; also right-click `All Lab Workstations` collection and run a collection-wide Client Action.
 - [ ] **Client Tools (13):**
-  - *Client Information* on `LAB-WS01`: verify Details, Components, and Cache Manager (delete cached 7-Zip item).
-  - *Remote Software Center* on `LAB-WS02`: verify 7-Zip (App), `OpenRCT Test Package` (Package), and Windows 11 Updates; remotely trigger Install on 7-Zip.
+  - *Client Information* on `LAB-WS01`: verify Details, Components, and Cache (delete cached 7-Zip item).
   - *Show Collections - Advanced* on `LAB-WS01`: verify `Lab Maintenance Window Test` shows the weekly Maintenance Window.
-  - *Open Client Logs* / *Open Client Install Logs* / *Restart SMS Agent Host* / *Run Client Check* / *Refresh Updates Compliance State*.
+  - *Add Device(s) to Collection* & *Device Status Messages* on `LAB-WS01`.
+  - *Open Client Log File Folder* / *Open Client Installation Log File Folder* / *Restart SMS Agent Host Service* / *Run Client Check* / *Refresh Updates Compliance State* / *Rerun Deployment*.
   - *Stop ConfigMgr Client Activities*, *Repair Client*, and *Uninstall SCCM Client* on `LAB-WS02` → revert `LAB-WS02` to `WS-Baseline` afterward.
-- [ ] **Console Tools (21):**
-  - *System Information* on `LAB-WS01`: verify all 10 tabs (Hardware shows vTPM 2.0; Applications loads via Remote Registry and silently uninstalls 7-Zip; Services restarts `Spooler`; User Profiles deletes unloaded `LAB\testuser2`; Local Group Members adds/removes `LAB\testuser1`).
-  - *Interactive PowerShell Prompt* (WinRM) & *Interactive Command Prompt* (PsExec64).
-  - *Send Notification* to `LAB-WS01` (popup appears on `LAB\testuser1` desktop).
-  - *Running Processes*: launch `notepad.exe` on `LAB-WS01`, terminate it from OpenRCT.
-  - *Ping System(s)*, *Connect to `C$`*, *Group Policy Update*, *Manage Computer*, *Open Event Viewer*, *Open Regedit*.
-  - *AD Security Groups*: add/remove `LAB-WS01` to `SG-Lab-TestGroup1`.
+- [ ] **Device and Power Tools (6):**
+  - *Ping System(s)*, *Group Policy Update*, and *Send Notification* to `LAB-WS01` (popup appears on `LAB\testuser1` desktop).
   - *Wake On LAN*: verify magic packet succeeds using inventoried MAC *(optional: capture UDP 7/9 on `LAB-WS01` with `pktmon`)*.
-  - *Schedule Restart* (60s) → *Cancel Pending Restart*; *Disable/Enable/Delete in AD* & *Delete from ConfigMgr* on `LAB-WS02` → revert `WS-Baseline`.
+  - *Schedule Restart or Shutdown* (60s) → *Cancel Pending Restart or Shutdown*.
 - [ ] **Security Tools (5):**
-  - *View LAPS Password*: `LAB-WS01` returns **Windows LAPS** password; `LAB-WS02` returns **Legacy Microsoft LAPS** password.
+  - *View LAPS Password*: `LAB-WS01` returns **Windows LAPS** password (or **`Windows LAPS (Encrypted)`** / **`Encrypted`** if encryption is enabled); `LAB-WS02` returns **Legacy Microsoft LAPS** password.
   - *View BitLocker Recovery Key*: `LAB-WS01` returns the 48-digit AD recovery key for `D:`.
-  - *Windows Defender*: run Quick Scan and Update Definitions (via outbound WinNAT).
-- [ ] **Device Status Messages:** View & export status messages for `LAB-WS01`.
-- [ ] **Embedded Console Dashboards (*Assets and Compliance → Overview → OpenRCT*):**
+  - *Windows Defender*: run Quick Scan, Full Scan, and Update Definitions (via outbound WinNAT).
+- [ ] **Active Directory and ConfigMgr (5):**
+  - *AD Security Groups*: add/remove `LAB-WS01` to `SG-Lab-TestGroup1`.
+  - *Disable/Enable/Delete Device(s) in Active Directory* & *Delete Device(s) From ConfigMgr* on `LAB-WS02` → revert `WS-Baseline`.
+- [ ] **Embedded Console Dashboards (*Assets and Compliance → Overview → OpenRCT* — 6 Dashboards):**
   - **Active Directory Cleanup Tool:** Select `OU=Workstations` vs `All Lab Workstations` → verify `Both` (`LAB-WS01`, `LAB-WS02`) and `Active Directory` (`LAB-ORPHAN-AD`).
-  - **LAPS Dashboard:** Select `OU=Workstations` → verify pie charts split across `With Password` (2) / `Without Password` (1) and `Windows Built-in` / `x64 Installed` / `Not Installed`.
+  - **BitLocker Compliance:** Select `OU=Workstations` → verify `BitLocker Recovery Key Storage` and `Unified Compliance` charts for `LAB-WS01`.
+  - **Content Distribution Monitor:** Verify `LAB-CM01.lab.local` DP bar chart, properties panel, Content Status dialog, and Redistribute/Validate actions.
+  - **Hardware and Firmware Audit:** Select `All Lab Workstations` → verify `Select Charts` and `Nested Filtering` across `Chassis`, `Manufacturer`, `Model`, `UEFI Status`, `Secure Boot Status`, `TPM Status`, `BIOS Version`, and `OS Version`.
+  - **LAPS Dashboard:** Select `OU=Workstations` → verify pie charts split across `Computers with LAPS Password` (2) / `Computers without LAPS Password` (1) and `Computers with Windows Built-in LAPS` / `No LAPS Client Installed`.
   - **Software Updates Deployment Status:** Select `All Lab Workstations` → verify compliance charts, SUG filter (`Lab-Win11-Updates`), deployed-only toggle, and CSV export.
 
 ---

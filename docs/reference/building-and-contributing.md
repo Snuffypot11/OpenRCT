@@ -18,9 +18,9 @@ OpenRCT was built with substantial **AI-assisted development** under human produ
 
 ### Build Steps
 ```powershell
-# 1. Build both native .NET 4.8 MECM icon resource assemblies (Duotone & Outline)
-.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Duotone.dll" -Version "0.2.5.0"
-.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\IconsOutline" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Outline.dll" -Version "0.2.5.0"
+# 1. Build both native .NET 4.8 MECM icon resource assemblies (Duotone & Outline; version auto-read from Directory.Build.props)
+.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Duotone.dll"
+.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\IconsOutline" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Outline.dll"
 
 # 2. Build full solution
 dotnet build OpenRCT.sln -c Release

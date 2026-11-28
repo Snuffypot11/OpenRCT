@@ -18,6 +18,7 @@ namespace OpenRCT.UI.Views.Tools
             public string LapsType { get; set; } = string.Empty;
             public string AccountName { get; set; } = string.Empty;
             public string RawPassword { get; set; } = string.Empty;
+            public bool IsEncrypted { get; set; }
             public string DisplayPassword { get; set; } = string.Empty;
             public DateTime? ExpirationTime { get; set; }
             public string ErrorMessage { get; set; } = string.Empty;
@@ -56,6 +57,7 @@ namespace OpenRCT.UI.Views.Tools
                         LapsType = res.LapsType,
                         AccountName = res.AccountName,
                         RawPassword = res.Password,
+                        IsEncrypted = res.IsEncrypted,
                         ExpirationTime = res.ExpirationTime,
                         ErrorMessage = res.ErrorMessage ?? string.Empty
                     });
@@ -75,9 +77,16 @@ namespace OpenRCT.UI.Views.Tools
             bool reveal = RevealCheck.IsChecked == true;
             foreach (var r in _rows)
             {
-                r.DisplayPassword = string.IsNullOrEmpty(r.RawPassword)
-                    ? string.Empty
-                    : (reveal ? r.RawPassword : "••••••••••••••••");
+                if (r.IsEncrypted)
+                {
+                    r.DisplayPassword = "Encrypted";
+                }
+                else
+                {
+                    r.DisplayPassword = string.IsNullOrEmpty(r.RawPassword)
+                        ? string.Empty
+                        : (reveal ? r.RawPassword : "••••••••••••••••");
+                }
             }
             LapsGrid.ItemsSource = null;
             LapsGrid.ItemsSource = _rows;

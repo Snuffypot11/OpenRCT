@@ -352,7 +352,29 @@ namespace OpenRCT.Connectors.ActiveDirectory
                     };
                 }
 
-                // 2. Check Legacy Microsoft LAPS (ms-Mcs-AdmPwd)
+                // 2. Check Windows LAPS encrypted password attribute (msLAPS-EncryptedPassword)
+                var winLapsEncryptedVal = compEntry.Properties["msLAPS-EncryptedPassword"].Value;
+                var hasEncryptedBlob =
+                    (winLapsEncryptedVal is byte[] encBytes && encBytes.Length > 0) ||
+                    (winLapsEncryptedVal is string encStr && !string.IsNullOrWhiteSpace(encStr)) ||
+                    (winLapsEncryptedVal != null && !(winLapsEncryptedVal is byte[]) && !(winLapsEncryptedVal is string));
+                if (hasEncryptedBlob)
+                {
+                    var winExp = ParseLargeIntegerFileTime(compEntry.Properties["msLAPS-PasswordExpirationTime"].Value);
+                    return new LapsPasswordResult
+                    {
+                        DeviceName = computerName,
+                        DistinguishedName = dn,
+                        LapsType = "Windows LAPS (Encrypted)",
+                        AccountName = "Encrypted",
+                        Password = string.Empty,
+                        IsEncrypted = true,
+                        ExpirationTime = winExp,
+                        ErrorMessage = "Windows LAPS password is stored encrypted in AD (msLAPS-EncryptedPassword). OpenRCT displays cleartext msLAPS-Password and Legacy LAPS directly; decrypt with Get-LapsADPassword or ADUC."
+                    };
+                }
+
+                // 3. Check Legacy Microsoft LAPS (ms-Mcs-AdmPwd)
                 var legacyPwd = compEntry.Properties["ms-Mcs-AdmPwd"].Value?.ToString();
                 if (!string.IsNullOrWhiteSpace(legacyPwd))
                 {
@@ -373,7 +395,7 @@ namespace OpenRCT.Connectors.ActiveDirectory
                     DeviceName = computerName,
                     DistinguishedName = dn,
                     LapsType = "None",
-                    ErrorMessage = "No LAPS password attribute was found (or current account lacks Read permission on ms-Mcs-AdmPwd / msLAPS-Password)."
+                    ErrorMessage = "No LAPS password attribute was found (or current account lacks Read permission on ms-Mcs-AdmPwd / msLAPS-Password / msLAPS-EncryptedPassword)."
                 };
             }, ct);
         }

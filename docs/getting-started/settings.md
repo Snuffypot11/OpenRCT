@@ -16,7 +16,7 @@ Settings are stored per-user as plain JSON in:
 
 OpenRCT has **zero mandatory external dependencies**. Sysinternals **PsExec** is only needed if you want to use **Remote Tools → Interactive Command Prompt**.
 
-- **Path to PsExec.exe or PsExec64.exe:** Click **Browse...** to select your local copy of Sysinternals PsExec. Live validation confirms the file exists and warns if the filename does not match `PsExec*.exe`.
+- **Path to PsExec.exe or PsExec64.exe:** Click **Browse...** to select your local copy of Sysinternals PsExec. Live validation confirms the file exists and warns if the filename is not `PsExec.exe` or `PsExec64.exe`.
 - **Run Interactive Command Prompt as Local SYSTEM (`-s`):** Passes `-s` to PsExec (enabled by default).
 - **Automatically pass `-accepteula`:** Suppresses the first-run Sysinternals EULA dialog.
 - **Additional PsExec Arguments:** Optional extra CLI flags appended before `cmd.exe`.
@@ -29,12 +29,12 @@ Tune how OpenRCT communicates with remote endpoints and your MECM SMS Provider:
 
 | Setting | Default | Range / Options | Description |
 |---|---|---|---|
-| **Preferred Remote Transport** | `WmiDcomFirst` | `WmiDcomFirst`, `WinRmCimFirst`, `WmiDcomOnly`, `WinRmCimOnly` | Controls whether remote queries prefer classic WMI/DCOM or WinRM/CIM |
+| **Preferred Remote Transport** | `WmiDcomFirst` | `WmiDcomFirst`, `WinRmCimFirst`, `WmiDcomOnly`, `WinRmCimOnly` | Saved transport preference *(currently all remote WMI queries execute over WMI/DCOM; WinRM is used by Interactive PowerShell Prompt)* |
 | **Connection Timeout (seconds)** | `15` | `3` – `300` | Per-device timeout for remote operations |
 | **Max Concurrent Devices** | `16` | `1` – `64` | Maximum number of devices queried in parallel during multi-device and collection operations |
 | **Default SMS Provider Server** | *(auto-detect)* | Hostname / FQDN | Optional override if you manage multiple sites or run standalone without a local MECM Console |
 | **Default Site Code** | *(auto-detect)* | 3-character site code | Optional MECM Site Code override (e.g., `LAB`, `P01`) |
-| **Fast Offline Pre-Check** | Enabled (`true`) | Checkbox | Runs a fast ICMP Ping + RPC (`135`) / SMB (`445`) probe before WMI/Remote Registry queries so powered-off devices fail in ~1.5s instead of hanging on OS DCOM timeouts |
+| **Fast Offline Pre-Check** | Enabled (`true`) | Checkbox | Runs a fast DNS + ICMP Ping + RPC (`135`) / SMB (`445`) probe before WMI and Remote Registry queries so powered-off devices fail in ~1.5s instead of hanging on OS DCOM/RPC timeouts |
 | **Offline Check Timeout (ms)** | `1500` | `300` – `10000` | Per-device timeout for the fast online reachability pre-check |
 
 ---
@@ -55,8 +55,8 @@ OpenRCT includes two complete vector icon sets (while keeping the primary blue O
 - **Crisp Monochrome Outline** — Minimal, high-contrast dark slate outline strokes (auto-inverting to light gray in Dark Mode for WPF windows).
 
 #### How MECM Console Icon Sync Works
-1. Changing **Icon Style** updates all open WPF windows (standalone launcher, tool windows, and embedded dashboards) **immediately**.
-2. Clicking **Save** (or clicking **Apply to MECM Console**) also updates `<AdminConsole>\bin\OpenRCT.Icons.dll` by deploying `OpenRCT.Icons.Duotone.dll` or `OpenRCT.Icons.Outline.dll`:
+1. Selecting an **Icon Style** and clicking **Save** (or **Apply to MECM Console**) updates all open WPF windows (standalone launcher, tool windows, and embedded dashboards) **immediately**.
+2. When **Icon Style** changed and you click **Save** (or anytime you click **Apply to MECM Console**), OpenRCT also updates `<AdminConsole>\bin\OpenRCT.Icons.dll` by deploying `OpenRCT.Icons.Duotone.dll` or `OpenRCT.Icons.Outline.dll`:
    - If you are already running elevated, the swap happens silently (safely rotating `OpenRCT.Icons.dll` if the console currently has it locked).
    - If you are running as a standard user, OpenRCT asks for confirmation and triggers a single **Windows UAC prompt** to run the fast-path `Install-OpenRCT.ps1 -ApplyIconStyleOnly -IconStyle <Duotone|Outline>`.
 3. **Restart the MECM Admin Console** once to see the updated tree, ribbon, and right-click menu icons.
@@ -65,7 +65,7 @@ OpenRCT includes two complete vector icon sets (while keeping the primary blue O
     If `<AdminConsole>\bin\OpenRCT.Icons.dll` does not match your saved `IconStyle` (for example after an MSI upgrade), Settings displays an amber hint under **Icon Style** — click **Apply to MECM Console** at any time to re-sync.
 
 ### Safety Controls
-- **Prompt for confirmation before destructive actions:** Prompts before *Delete*, *Uninstall*, *Clear TPM*, *Restart/Shutdown*, and *Remove Content*.
+- **Prompt for confirmation before destructive actions:** Prompts before *Delete from AD/ConfigMgr*, *Disable in AD*, *Stop ConfigMgr Client Activities*, *Repair Client*, *Uninstall SCCM Client*, *Uninstall Application*, *Terminate Process*, *Restart/Shutdown*, *Suspend/Resume BitLocker*, *Enable/Disable Firewall Rules*, *Remove Content from DP*, *Redistribute Failed Content*, and multi-device *Service Control* / *Software Center* bulk actions. *(High-impact actions like **Clear TPM**, **Delete User Profile**, and **Delete Registry Value** always prompt for confirmation.)*
 - **Automatically clear clipboard after copying secrets:** Clears the Windows clipboard automatically after copying **LAPS passwords** or **BitLocker recovery keys** (default: **30 seconds**, configurable `5`–`300` seconds).
 
 ---

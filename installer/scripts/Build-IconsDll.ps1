@@ -11,11 +11,38 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$OutputDll,
 
-    [string]$Version = "0.2.5.0"
+    [string]$Version = ""
 )
 
 $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.Drawing
+
+if ([string]::IsNullOrWhiteSpace($Version)) {
+    $repoRoot = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
+    $propsPath = Join-Path $repoRoot "Directory.Build.props"
+    if (Test-Path $propsPath) {
+        try {
+            [xml]$propsXml = Get-Content -Path $propsPath -Raw
+            $asmVer = $propsXml.Project.PropertyGroup.AssemblyVersion | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1
+            if (-not [string]::IsNullOrWhiteSpace($asmVer)) {
+                $Version = $asmVer.Trim()
+            }
+            else {
+                $pkgVer = $propsXml.Project.PropertyGroup.Version | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1
+                if (-not [string]::IsNullOrWhiteSpace($pkgVer)) {
+                    $trimmed = $pkgVer.Trim()
+                    $Version = if (($trimmed -split '\.').Count -eq 3) { "$trimmed.0" } else { $trimmed }
+                }
+            }
+        }
+        catch {
+            Write-Warning "Failed to read version from '$propsPath': $_"
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace($Version)) {
+        $Version = "1.0.0.0"
+    }
+}
 
 $resolvedIconsDir = [System.IO.Path]::GetFullPath($IconsDir)
 $resolvedOutputDll = [System.IO.Path]::GetFullPath($OutputDll)

@@ -367,5 +367,53 @@ namespace OpenRCT.Tests
             Assert.Contains("MSFT_NetFirewallRule", rulesMethod);
             Assert.DoesNotContain("ActiveStore", rulesMethod);
         }
+
+        [Fact]
+        public void WindowsLaps_DetectsEncryptedPasswordAttribute_AndDisplaysEncrypted()
+        {
+            var result = new OpenRCT.Core.Models.LapsPasswordResult
+            {
+                DeviceName = "WS01",
+                LapsType = "Windows LAPS (Encrypted)",
+                IsEncrypted = true,
+                Password = string.Empty
+            };
+            Assert.True(result.IsEncrypted);
+            Assert.False(result.HasPassword);
+
+            var root = FindRepoRoot();
+            var adClientText = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.Connectors", "ActiveDirectory", "ActiveDirectoryClient.cs"));
+            Assert.Contains("msLAPS-EncryptedPassword", adClientText);
+            Assert.Contains("Windows LAPS (Encrypted)", adClientText);
+
+            var lapsWindowText = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.UI", "Views", "Tools", "LapsPasswordWindow.xaml.cs"));
+            Assert.Contains("if (r.IsEncrypted)", lapsWindowText);
+            Assert.Contains("r.DisplayPassword = \"Encrypted\";", lapsWindowText);
+        }
+
+        [Fact]
+        public void BuildIconsDllScript_ReadsVersionFromDirectoryBuildProps()
+        {
+            var root = FindRepoRoot();
+            var scriptText = File.ReadAllText(Path.Combine(root, "installer", "scripts", "Build-IconsDll.ps1"));
+            Assert.Contains("Directory.Build.props", scriptText);
+            Assert.Contains("AssemblyVersion", scriptText);
+            Assert.DoesNotContain("0.2.5.0", scriptText);
+        }
+
+        [Fact]
+        public void RemoteRegistryService_UsesFastOfflinePreCheck_AndPowerActionsHonorConfirmation()
+        {
+            var root = FindRepoRoot();
+            var regSvcText = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.Connectors", "Services", "RemoteRegistryService.cs"));
+            Assert.Contains("DeviceReachabilityChecker.EnsureReachableAsync", regSvcText);
+
+            var dispatcherText = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.UI", "ToolDispatcher.cs"));
+            var powerStart = dispatcherText.IndexOf("private static void ShowPowerActionDialog", StringComparison.Ordinal);
+            var powerEnd = dispatcherText.IndexOf("private static void HandleInteractiveCommandPrompt", StringComparison.Ordinal);
+            Assert.True(powerStart > 0 && powerEnd > powerStart);
+            var powerMethod = dispatcherText.Substring(powerStart, powerEnd - powerStart);
+            Assert.Contains("ConfirmIfNeeded", powerMethod);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using OpenRCT.Connectors.Wmi;
 using OpenRCT.Core.Models;
 
 namespace OpenRCT.Connectors.Services
@@ -18,6 +19,9 @@ namespace OpenRCT.Connectors.Services
 
     public sealed class RemoteRegistryService
     {
+        public bool EnableFastReachabilityCheck { get; set; } = true;
+        public int ReachabilityTimeoutMs { get; set; } = 1500;
+
         public static readonly RegistryHive[] SupportedHives = new[]
         {
             RegistryHive.LocalMachine,
@@ -35,9 +39,16 @@ namespace OpenRCT.Connectors.Services
             _ => hive.ToString()
         };
 
-        public Task<IReadOnlyList<string>> GetSubKeyNamesAsync(TargetDevice device, RegistryHive hive, string subKeyPath, CancellationToken ct = default)
+        private Task EnsureDeviceReachableAsync(TargetDevice device, CancellationToken ct)
         {
-            return Task.Run<IReadOnlyList<string>>(() =>
+            if (!EnableFastReachabilityCheck) return Task.CompletedTask;
+            return DeviceReachabilityChecker.EnsureReachableAsync(device.ConnectAddress, ReachabilityTimeoutMs, ct);
+        }
+
+        public async Task<IReadOnlyList<string>> GetSubKeyNamesAsync(TargetDevice device, RegistryHive hive, string subKeyPath, CancellationToken ct = default)
+        {
+            await EnsureDeviceReachableAsync(device, ct).ConfigureAwait(false);
+            return await Task.Run<IReadOnlyList<string>>(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 using var root = RegistryKey.OpenRemoteBaseKey(hive, device.ConnectAddress, RegistryView.Registry64);
@@ -49,12 +60,13 @@ namespace OpenRCT.Connectors.Services
                 using var key = root.OpenSubKey(subKeyPath, writable: false);
                 if (key == null) return Array.Empty<string>();
                 return key.GetSubKeyNames().OrderBy(n => n, StringComparer.OrdinalIgnoreCase).ToList();
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
 
-        public Task<IReadOnlyList<RemoteRegistryValueItem>> GetValuesAsync(TargetDevice device, RegistryHive hive, string subKeyPath, CancellationToken ct = default)
+        public async Task<IReadOnlyList<RemoteRegistryValueItem>> GetValuesAsync(TargetDevice device, RegistryHive hive, string subKeyPath, CancellationToken ct = default)
         {
-            return Task.Run<IReadOnlyList<RemoteRegistryValueItem>>(() =>
+            await EnsureDeviceReachableAsync(device, ct).ConfigureAwait(false);
+            return await Task.Run<IReadOnlyList<RemoteRegistryValueItem>>(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 using var root = RegistryKey.OpenRemoteBaseKey(hive, device.ConnectAddress, RegistryView.Registry64);
@@ -75,12 +87,13 @@ namespace OpenRCT.Connectors.Services
                     });
                 }
                 return results;
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
 
-        public Task SetValueAsync(TargetDevice device, RegistryHive hive, string subKeyPath, string valueName, RegistryValueKind kind, string data, CancellationToken ct = default)
+        public async Task SetValueAsync(TargetDevice device, RegistryHive hive, string subKeyPath, string valueName, RegistryValueKind kind, string data, CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await EnsureDeviceReachableAsync(device, ct).ConfigureAwait(false);
+            await Task.Run(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 using var root = RegistryKey.OpenRemoteBaseKey(hive, device.ConnectAddress, RegistryView.Registry64);
@@ -96,12 +109,13 @@ namespace OpenRCT.Connectors.Services
                     _ => data
                 };
                 key.SetValue(actualName, parsed, kind);
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
 
-        public Task DeleteValueAsync(TargetDevice device, RegistryHive hive, string subKeyPath, string valueName, CancellationToken ct = default)
+        public async Task DeleteValueAsync(TargetDevice device, RegistryHive hive, string subKeyPath, string valueName, CancellationToken ct = default)
         {
-            return Task.Run(() =>
+            await EnsureDeviceReachableAsync(device, ct).ConfigureAwait(false);
+            await Task.Run(() =>
             {
                 ct.ThrowIfCancellationRequested();
                 using var root = RegistryKey.OpenRemoteBaseKey(hive, device.ConnectAddress, RegistryView.Registry64);
@@ -109,7 +123,7 @@ namespace OpenRCT.Connectors.Services
                     ?? throw new InvalidOperationException($"Cannot open '{subKeyPath}' for writing on {device.DisplayName}.");
                 var actualName = valueName == "(Default)" ? string.Empty : valueName;
                 key.DeleteValue(actualName, throwOnMissingValue: true);
-            }, ct);
+            }, ct).ConfigureAwait(false);
         }
 
         private static string FormatValueData(object? raw, RegistryValueKind kind)

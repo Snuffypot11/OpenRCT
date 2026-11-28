@@ -24,7 +24,7 @@
 
 - **100% Open Source & Ad-Free** — No paid tiers, trial prompts, telemetry, or licensing gates.
 - **Zero Extra Runtime Prerequisites** — Pure **C# / WPF on .NET Framework 4.8**, the exact runtime already required by the MECM Admin Console.
-- **Zero Mandatory External Dependencies** — Uses native Windows and ConfigMgr interfaces (WMI/DCOM, WinRM/CIM, SMB, LDAP/ADSI, SMS Provider, Remote Registry, EventLogSession, Wake-on-LAN). No proprietary Microsoft SDK DLLs are committed.
+- **Zero Mandatory External Dependencies** — Uses native Windows and ConfigMgr interfaces (WMI/DCOM, WinRM for Interactive PowerShell, SMB, LDAP/ADSI, SMS Provider, Remote Registry, EventLogSession, Wake-on-LAN). No proprietary Microsoft SDK DLLs are committed.
 - **Optional PsExec Support** — Only *Remote Tools → Interactive Command Prompt* optionally uses user-supplied Sysinternals **PsExec** (configured in **OpenRCT Settings**).
 - **Multi-Device Expandable UI** — Concurrent execution across 1..N devices or collections with item-first expandable grouping, synced checkboxes, resizable scrollable grids, collapsible Error Drawer, and CSV export.
 - **Themes & Dual Vector Icon Sets** — **Light / Dark / System** themes plus switchable **Fluent Duotone** *(default)* and **Crisp Monochrome Outline** icons across both WPF windows and the MECM Admin Console tree/context menus.
@@ -38,19 +38,19 @@
 
 ![Device Right-Click Context Menu](docs/assets/images/context-menu-device.png)
 
-1. **Remote Tools**
+1. **Remote Tools (10)**
    - **System Information** *(Multi-Device & Collection)* — 10 tabs (Operating Systems, Hardware, Disks, Applications with safe Remote Registry enumeration & uninstall, Windows Updates, Services control, Drivers, User Profiles with delete, Local Group Members, Batteries).
    - **Remote Software Center** *(Multi-Device & Collection)* — Applications, Software Updates, Task Sequences, and **Compliance Baselines** (`root\ccm\dcm`) with bulk Install/Uninstall/Repair/Run/Evaluate.
    - **Remote Windows Security** *(Multi-Device & Collection)* — 8 tabs: **BitLocker** (Suspend/Resume/Keys), **TPM** (status & Clear TPM), **Firmware** (UEFI, Secure Boot & **2023 CA Certificate** readiness + Update Task), **Virtualization-Based Security** (VBS, Credential Guard, HVCI), **Defender** (status + Quick/Full Scan & Update Definitions), **Defender Exclusions**, **Windows Firewall**, and **Firewall Rules** (Enable/Disable).
-   - **Remote Event Viewer** — Split-pane viewer matching Remote Registry style with hierarchical Windows + Applications & Services log tree, auto-applying server-side XPath filters, pagination, General/XML detail pane, and CSV export.
-   - **Remote Registry Editor** — Native remote registry browser with search and value inspection.
-   - **Running Processes** *(Multi-Device & Collection)*, **Open `C$` Share**, **Interactive PowerShell Prompt (WinRM)**, **Interactive Command Prompt *(optional PsExec)***, and **Manage Computer**.
-2. **Client Actions (12)** — Application Deployment Evaluation, Discovery Data Collection, File Collection, Hardware Inventory, Machine Policy Retrieval & Evaluation, Send Unsent State Messages, Software Inventory, Software Metering Usage Report, Software Updates Deployment Evaluation, Software Updates Scan, State Message Cache Cleanup, and Windows Installer Source List Update.
-3. **Client Tools** — **Client Information** *(Multi-Device & Collection: Details, Components, Cache Manager)*, Show Collections - Advanced *(with Maintenance Windows)*, Rerun Deployment, Refresh Updates Compliance State, Restart SMS Agent Host Service, Run Client Check, Stop Client Activities, Repair Client, Uninstall SCCM Client, Open Client Log Folder, and Open Client Installation Log Folder.
-4. **Device & Power Tools** — Ping Systems, Wake on LAN, Send Notification, Schedule Restart or Shutdown *(immediate or scheduled with custom notice)*, Cancel Pending Restart/Shutdown, and Group Policy Update.
-5. **Security Tools** — View LAPS Password *(Legacy & Windows LAPS)*, View BitLocker Recovery Key *(AD & ConfigMgr)*, Windows Defender Quick Scan, Full Scan, and Update Definitions.
-6. **Active Directory & ConfigMgr** — AD Security Groups, Enable/Disable/Delete Device(s) in AD, Add Device(s) to Collection, Delete Device(s) from ConfigMgr, and Device Status Messages.
-- **OpenRCT Settings** — PsExec path browser & validator, transport/concurrency/timeout settings, Light/Dark/System theme, **Icon Style** (`Fluent Duotone` / `Crisp Monochrome Outline` with MECM Console sync), safety controls, and manual GitHub Releases update check.
+   - **Remote Event Viewer** — Split-pane viewer matching Remote Registry style with hierarchical Windows + Applications & Services log tree, auto-applying XPath + client-side filters, pagination, General/XML detail pane, and CSV export.
+   - **Remote Registry Editor** — Native remote registry explorer (`HKLM`, `HKU`, `HKCR`, `HKCC`) with path jump bar, value inspection, Set/Delete Value, and one-click `RemoteRegistry` service start.
+   - **Running Processes** *(Multi-Device & Collection)*, **Connect to `C$`** *(single device)*, **Interactive PowerShell Prompt (WinRM)** *(single device)*, **Interactive Command Prompt *(optional PsExec, single device)***, and **Manage Computer** *(single device)*.
+2. **Client Actions (12)** — Application Deployment Evaluation Cycle, Discovery Data Collection Cycle, File Collection Cycle, Hardware Inventory Cycle, Machine Policy Retrieval and Evaluation Cycle, Send Unsent State Messages, Software Inventory Cycle, Software Metering Usage Report Cycle, Software Updates Deployment Evaluation Cycle, Software Updates Scan Cycle, State Message Cache Cleanup, and Windows Installer Source List Update Cycle.
+3. **Client Tools (13)** — **Client Information** *(Multi-Device & Collection: Details, Components, Cache)*, Show Collections - Advanced *(with Maintenance Windows)*, Add Device(s) to Collection, Device Status Messages, Open Client Log File Folder, Open Client Installation Log File Folder, Refresh Updates Compliance State, Rerun Deployment, Restart SMS Agent Host Service, Run Client Check, Stop ConfigMgr Client Activities, Repair Client, and Uninstall SCCM Client.
+4. **Device and Power Tools (6)** — Ping System(s), Wake On LAN, Group Policy Update, Send Notification, Schedule Restart or Shutdown *(immediate or scheduled with custom notice)*, and Cancel Pending Restart or Shutdown.
+5. **Security Tools (5)** — View LAPS Password *(Legacy & Windows LAPS)*, View BitLocker Recovery Key *(AD & ConfigMgr)*, Windows Defender - Quick Scan, Full Scan, and Update Definitions.
+6. **Active Directory and ConfigMgr (5)** — AD Security Groups, Enable/Disable/Delete Device(s) in Active Directory, and Delete Device(s) From ConfigMgr.
+- **OpenRCT Settings** — PsExec path browser & validator, concurrency/timeout/fast-offline settings, Light/Dark/System theme, **Icon Style** (`Fluent Duotone` / `Crisp Monochrome Outline` with MECM Console sync), safety controls, and manual GitHub Releases update check.
 
 ### Embedded Console Dashboards (*Assets and Compliance → Overview → OpenRCT*)
 All 6 dashboards live directly under **OpenRCT** in the MECM Console (and in the standalone app):
@@ -66,7 +66,7 @@ All 6 dashboards live directly under **OpenRCT** in the MECM Console (and in the
 
 ![OpenRCT Standalone Launcher](docs/assets/images/standalone-launcher.png)
 
-Target manual devices or MECM Device Collections, search all tools and dashboards, check for updates manually, and configure settings directly outside the MECM Admin Console.
+Target manual devices or MECM Device Collections, search all 51 endpoint tools, launch any of the 6 dashboards, check for updates manually, and configure settings directly outside the MECM Admin Console.
 
 ---
 
@@ -123,8 +123,8 @@ Uninstall via **Settings → Apps → Installed Apps** (MSI) or run:
 Requires .NET 8 SDK (or Visual Studio 2022 with the *.NET desktop development* workload):
 
 ```powershell
-.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Duotone.dll" -Version "0.2.5.0"
-.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\IconsOutline" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Outline.dll" -Version "0.2.5.0"
+.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Duotone.dll"
+.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\IconsOutline" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Outline.dll"
 dotnet build OpenRCT.sln -c Release
 dotnet test tests/OpenRCT.Tests/OpenRCT.Tests.csproj -c Release
 dotnet build installer/OpenRCT.Installer/OpenRCT.Installer.wixproj -c Release

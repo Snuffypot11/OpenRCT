@@ -8,7 +8,7 @@
    - Close and relaunch the MECM Console.
 2. **Inspect the Install Log:**
    - Open `C:\ProgramData\OpenRCT\install.log`.
-   - Confirm the MECM Admin Console path was detected and `OpenRCT.ConsoleExtension.dll` bound cleanly (`ActionsBound = True`, `DashboardsBound = True`).
+   - Confirm the MECM Admin Console path was detected and `OpenRCT.ConsoleExtension.dll` bound cleanly (`Successfully bound OpenRCT.ConsoleExtension.dll (...)` and `EffectiveMode=Assembly, DashboardsBound=True`).
    - If your console is installed in a non-standard path, re-run:
      ```powershell
      & "C:\Program Files\OpenRCT\scripts\Install-OpenRCT.ps1" -ConsoleRoot "D:\Path\To\AdminConsole" -SkipBinaryCopy
@@ -20,7 +20,7 @@
 
 ## 2. MECM Console Icons Didn't Change After Switching Icon Style
 
-- Changing **Icon Style** (`Fluent Duotone` vs `Crisp Monochrome Outline`) updates WPF windows immediately, while MECM Console tree and right-click menu icons are loaded from `<AdminConsole>\bin\OpenRCT.Icons.dll` at console startup.
+- Changing **Icon Style** (`Fluent Duotone` vs `Crisp Monochrome Outline`) updates WPF windows immediately when saved, while MECM Console tree and right-click menu icons are loaded from `<AdminConsole>\bin\OpenRCT.Icons.dll` at console startup.
 - Open **OpenRCT Settings → Appearance & Security**, click **Apply to MECM Console** (approve the UAC prompt if non-elevated), and **restart the MECM Admin Console**.
 - If the swap still fails, verify both `OpenRCT.Icons.Duotone.dll` and `OpenRCT.Icons.Outline.dll` exist in `C:\Program Files\OpenRCT\` and check `C:\ProgramData\OpenRCT\install.log`.
 
@@ -33,7 +33,7 @@
   - **Windows Management Instrumentation (WMI-In)** (TCP `135` + Dynamic RPC)
   - **Remote Event Log Management** (for Remote Event Viewer)
   - **File and Printer Sharing (SMB-In)** (TCP `445`, for `C$`, logs, and Remote Registry)
-  - **Windows Remote Management (HTTP-In)** (TCP `5985`, for Interactive PowerShell or WinRM transport)
+  - **Windows Remote Management (HTTP-In)** (TCP `5985`, for Interactive PowerShell Prompt)
 - Increase **Connection Timeout** in **Settings → Connections & Performance** for slow VPN/WAN links.
 
 ---
@@ -47,9 +47,9 @@
 
 ## 5. View LAPS Password Shows "None" or "Encrypted"
 
-- Confirm your admin account has delegated **Read** rights on `msLAPS-Password` (Windows LAPS) or `ms-Mcs-AdmPwd` (Legacy LAPS) in Active Directory.
+- Confirm your admin account has delegated **Read** rights on `msLAPS-Password` / `msLAPS-EncryptedPassword` (Windows LAPS) or `ms-Mcs-AdmPwd` (Legacy LAPS) in Active Directory.
 - On Windows LAPS endpoints, confirm the GPO `Configure password backup directory` is set to **Active Directory** and check Event Viewer → `Microsoft-Windows-LAPS/Operational`.
-- If `ADPasswordEncryptionEnabled` is enabled (`1`), Windows LAPS stores an encrypted blob in `msLAPS-EncryptedPassword` instead of cleartext `msLAPS-Password`; OpenRCT detects this and reports that an encrypted Windows LAPS password is present.
+- If `ADPasswordEncryptionEnabled` is enabled (`1`), Windows LAPS stores an encrypted blob in `msLAPS-EncryptedPassword` instead of cleartext `msLAPS-Password`; OpenRCT detects `msLAPS-EncryptedPassword` and displays **`Windows LAPS (Encrypted)`** / **`Encrypted`** (with expiration timestamp) rather than `None`. Decrypt encrypted passwords using `Get-LapsADPassword` or Active Directory Users and Computers (ADUC).
 
 ---
 

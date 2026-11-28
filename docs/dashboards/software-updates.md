@@ -14,19 +14,20 @@ Analyze patch compliance across any **ConfigMgr Device Collection** with flexibl
 - **Device Collection:** Target any ConfigMgr collection.
 - **Limit to Deployed Updates *(Checked by default)*:** Pushes `IsDeployed = 1` filtering down to MECM SQL Server for fast production scans; uncheck and click **Start** to query the full non-expired catalog.
 - **Software Update Group (SUG) Filter:** Filter compliance calculations to one or more specific SUGs.
-- **Age Slider:** Filter out brand-new updates (e.g., show missing updates older than 7, 14, or 30 days).
-- **6 Update Classification Checkboxes:** `Security Updates`, `Critical Updates`, `Update Rollups`, `Updates`, `Feature Packs`, `Service Packs`.
+- **Age Slider (`0`–`180` days, default `0`):** Filters update records by `DatePosted` to exclude brand-new releases (e.g., evaluate updates older than 7, 14, or 30 days).
+- **6 Update Classification Checkboxes:** `Critical Updates`, `Definition Updates`, `Other Classifications`, `Security Updates`, `Update Rollups`, `Updates`.
 
 ---
 
-## Interactive Charts & Remediation
+## Interactive Charts, Remediation & Export
 
-- **Device Compliance Status:** `Compliant`, `Non-Compliant`, `Unknown`.
-- **Missing Updates by Category:** Visual breakdown of missing updates by classification.
+- **Device Compliance Status:** `Compliant`, `NonCompliant`, `Unknown`.
+- **Missing Updates By Category:** Visual breakdown of missing updates by category (`Security`, `Critical`, `Update Rollups`, `Definition`, `Other`).
 
 Click any chart slice to filter the device grid, then right-click rows to:
 
-- Open **Remote Software Center** to inspect and install missing updates immediately
-- Trigger **Software Updates Scan Cycle**, **Software Updates Deployment Evaluation Cycle**, or **Refresh Updates Compliance State**
-- **Schedule Restart** for devices pending reboot
-- **Export CSV** for compliance reporting.
+- **Trigger Software Updates Scan Cycle**
+- **Trigger Software Updates Deployment Evaluation**
+- **Open Remote Software Center** to inspect and install missing updates immediately
+
+Click **Export to CSV** in the bottom bar for compliance reporting.

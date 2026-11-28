@@ -356,6 +356,12 @@ namespace OpenRCT.UI
             if (schedWin.ShowDialog() == true)
             {
                 var opts = schedWin.Options;
+                var verb = opts.IsShutdown ? "shut down" : "restart";
+                var timing = opts.DelaySeconds <= 0 ? "immediately" : $"in {opts.DelaySeconds} second(s)";
+                if (!ConfirmIfNeeded(settings, $"Confirm {verb} {devices.Count} device(s) {timing}?"))
+                {
+                    return;
+                }
                 var label = opts.IsShutdown ? "Shutdown System(s)" : "Restart System(s)";
                 new BulkActionResultWindow(label, devices, (d, ct) => endpointService.SchedulePowerActionAsync(d, opts, ct), settings).Show();
             }

@@ -9,26 +9,27 @@ Audit on-premises **BitLocker** recovery key escrow and volume compliance across
 ## How to Use
 
 1. Choose your scope mode:
-   - **Active Directory OU** *(with optional Sub-OU recursion)*, or
-   - **ConfigMgr Device Collection**
-2. Click **Scan** to query `msFVE-RecoveryInformation` objects in Active Directory and ConfigMgr BitLocker inventory (`SMS_G_System_ENCRYPTABLE_VOLUME` / `SMS_BitLockerRecoveryKey`).
+   - **Search By AD OU** *(multi-select; sub-OUs are included automatically; leave blank for the entire domain)*, or
+   - **Search By Collection** *(multi-select; leave blank for all devices)*
+2. Click **Scan** to query `msFVE-RecoveryInformation` objects in Active Directory and ConfigMgr BitLocker inventory (`SMS_G_System_ENCRYPTABLE_VOLUME`, `SMS_BitLockerRecoveryKey`, and `SMS_G_System_BITLOCKER_DETAILS`).
 
 ---
 
 ## Interactive Charts
 
-- **BitLocker Recovery Key Storage:** Breaks down devices by where recovery keys are backed up (`AD & ConfigMgr`, `Active Directory Only`, `ConfigMgr Only`, `No Key Found`).
-- **Unified Compliance:** Breaks down encryption/protection compliance (`Compliant`, `Non-Compliant`, `Unknown`).
+- **BitLocker Recovery Key Storage:** Breaks down devices by where recovery keys are backed up (`Computers without stored keys`, `Computers with keys stored in AD`, `Computers with keys stored in ConfigMgr`, `Computers with keys stored in multiple locations`; grid column values: `None`, `AD`, `CM`, `AD, CM`).
+- **Unified Compliance:** Breaks down encryption/protection compliance (`CM Compliant`, `Encrypted (Unmanaged)`, `Non-Compliant`, `Unknown`).
 
-Click any slice on either chart to filter the device grid.
+Click any slice on either chart to filter the device grid (click again to reset).
 
 ---
 
-## Row Actions
+## Row Actions & Export
 
 Right-click any device row to:
 
 - **View BitLocker Recovery Key** (with copy + auto-clear clipboard)
-- **Open Remote Windows Security** (suspend/resume BitLocker, inspect TPM & Secure Boot)
-- **Trigger Hardware Inventory Cycle** or **Machine Policy Retrieval & Evaluation Cycle**
-- **Export CSV** for audit reporting.
+- **System Information** or **Client Information**
+- **Machine Policy Retrieval & Evaluation** or **Ping System(s)**
+
+Click **Export to CSV** in the bottom bar for audit reporting.

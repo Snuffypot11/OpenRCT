@@ -145,6 +145,7 @@ namespace OpenRCT.Core.Models
         public string AccountName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public DateTime? ExpirationTime { get; set; }
+        public bool IsEncrypted { get; set; }
         public bool HasPassword => !string.IsNullOrEmpty(Password);
         public string? ErrorMessage { get; set; }
     }

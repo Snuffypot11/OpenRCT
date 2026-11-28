@@ -29,6 +29,8 @@ namespace OpenRCT.UI.Views.Tools
         public RemoteRegistryWindow(IReadOnlyList<TargetDevice> devices, ISystemInfoCollector sysInfo, OpenRctSettings settings)
         {
             _sysInfo = sysInfo;
+            _regService.EnableFastReachabilityCheck = settings.EnableFastOfflineCheck;
+            _regService.ReachabilityTimeoutMs = settings.OfflineCheckTimeoutMs;
             ThemeManager.ApplyTheme(this, settings.Theme);
             InitializeComponent();
             ErrorDrawer.Errors = _errors;

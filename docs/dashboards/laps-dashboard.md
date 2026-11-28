@@ -8,18 +8,19 @@ Track local administrator password management coverage across **both Legacy Micr
 
 ## How to Use
 
-1. Select an **Active Directory OU** (with optional **Include Sub-OUs**) or a **ConfigMgr Device Collection** and click **Scan**.
+1. Select one or more **Active Directory OUs** (sub-OUs are included automatically; leave blank for the entire domain) and click **Scan**.
 2. Inspect the two interactive pie charts:
-   - **LAPS Password Coverage:** `Has LAPS Password` vs `No Password` (plus expired password visibility).
-   - **LAPS Client / Type Breakdown:** `Windows Built-in LAPS`, `Legacy LAPS Installed`, `Not Installed`.
-3. Click any pie slice to filter the 8-column results table (`Device Name`, `AD OU`, `LAPS Type`, `Has Password`, `Password Expiration`, `Client Installed`, `OS`, `Last Logon`).
+   - **LAPS Password in AD:** `Computers with LAPS Password` vs `Computers without LAPS Password`.
+   - **LAPS Client Install State:** `Computers with x64 LAPS Client Installed`, `Computers with x86 LAPS Client Installed`, `Computers with Windows Built-in LAPS` *(shown when present)*, and `No LAPS Client Installed`.
+3. Click any pie slice to filter the 8-column results table (`Name`, `Distinguished Name`, `Password Last Set`, `OS`, `OS Version`, `LAPS Password Expiration`, `Laps Client Install State`, `Created`).
 
 ---
 
-## Row Actions
+## Row Actions & Export
 
 Right-click any device row to:
 
-- **View LAPS Password** (masked reveal + copy with automatic clipboard clear)
-- Trigger **Group Policy Update** (`gpupdate /force`) or **Hardware Inventory Cycle**
-- Open **System Information** or **Export CSV**.
+- **View LAPS Password** (masked reveal + copy with automatic clipboard clear; detects encrypted Windows LAPS)
+- **Open System Information**
+
+Click **Export to CSV** in the bottom bar to save the report.

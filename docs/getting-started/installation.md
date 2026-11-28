@@ -53,7 +53,7 @@ msiexec /i OpenRCT.msi /qn CONSOLEROOT="D:\Program Files\Microsoft Configuration
 
 | Property | Default | Description |
 |---|---|---|
-| `PSEXECPATH` | *(blank)* | Optional path to `PsExec.exe` or `PsExec64.exe` written into `%AppData%\OpenRCT\settings.json` on first install |
+| `PSEXECPATH` | *(blank)* | Optional path to `PsExec.exe` or `PsExec64.exe` passed to `Install-OpenRCT.ps1`. *(Note: the per-machine MSI custom action runs as `LocalSystem`, so `PSEXECPATH` writes under the SYSTEM profile's AppData; interactive users can also set PsExec directly in **OpenRCT Settings** or via `Install-OpenRCT.ps1 -PsExecPath`.)* |
 | `CONSOLEROOT` | *(auto-detected)* | Explicit path to the MECM `AdminConsole` folder if installed in a non-standard location |
 | `INSTALLMODE` | `Assembly` | `Assembly` (native in-process MECM integration + embedded dashboards) or `Executable` (external CLI + Named-Pipe multi-select fallback) |
 
@@ -83,8 +83,8 @@ msiexec /i OpenRCT.msi /qn CONSOLEROOT="D:\Program Files\Microsoft Configuration
 | `-InstallDir` | `C:\Program Files\OpenRCT` | Target installation folder |
 | `-ConsoleRoot` | *(auto-detected)* | Explicit path to `...\AdminConsole` |
 | `-Mode` | `Assembly` | `Assembly` (recommended) or `Executable` |
-| `-PsExecPath` | *(blank)* | Optional pre-configured PsExec executable path |
-| `-IconStyle` | *(auto-detect from `settings.json`, default `Duotone`)* | `Duotone` or `Outline` — selects which MECM Console icon assembly is deployed to `<AdminConsole>\bin\OpenRCT.Icons.dll` |
+| `-PsExecPath` | *(blank)* | Optional pre-configured PsExec executable path (written to `%AppData%\OpenRCT\settings.json` on first run if no settings file exists yet) |
+| `-IconStyle` | *(auto-detect from `settings.json`, default `Duotone`)* | `Duotone` or `Outline` — selects which MECM Console icon assembly is deployed to `<AdminConsole>\bin\OpenRCT.Icons.dll` *(MSI per-machine installs run as `LocalSystem` and default to `Duotone`; re-sync anytime from Settings → Apply to MECM Console)* |
 | `-ApplyIconStyleOnly` | `$false` | Fast-path switch that only swaps `<AdminConsole>\bin\OpenRCT.Icons.dll` without recompiling `OpenRCT.ConsoleExtension.dll` or rewriting XML manifests |
 | `-SkipBinaryCopy` | `$false` | Used internally by the MSI custom action after WiX copies files |
 
@@ -97,7 +97,7 @@ msiexec /i OpenRCT.msi /qn CONSOLEROOT="D:\Program Files\Microsoft Configuration
 3. Auto-detects the local MECM Admin Console (`SMS_ADMIN_UI_PATH`, ConfigMgr registry keys, and standard `Program Files` paths).
 4. Compiles `OpenRCT.ConsoleExtension.dll` directly against your workstation's exact installed MECM Console assemblies using `.NET Framework 4.8` `csc.exe` (no proprietary Microsoft SDK DLLs are bundled in OpenRCT).
 5. Deploys `OpenRCT.ConsoleExtension.dll`, `OpenRCT.installdir.txt`, and the selected `OpenRCT.Icons.dll` into `<AdminConsole>\bin\`, rotating locked files cleanly if the console is still open.
-6. Deploys console extension XML manifests for **All Devices**, **Devices in Collection**, **Device Collections**, and **Assets and Compliance → Overview → OpenRCT**.
+6. Deploys console extension XML manifests for **All Devices** and **Devices in Collection** (and, in `Assembly` mode when bound cleanly, **Device Collections** and **Assets and Compliance → Overview → OpenRCT**; `Executable` fallback mode deploys a reduced 11-tool device menu plus OpenRCT Settings).
 7. Writes a full diagnostic log to **`C:\ProgramData\OpenRCT\install.log`**.
 
 ---

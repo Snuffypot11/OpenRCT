@@ -8,12 +8,12 @@ Reconcile **Active Directory** Organizational Units against **Configuration Mana
 
 ## How to Use
 
-1. Select an **Active Directory OU** (optionally check **Include Sub-OUs**) and a **ConfigMgr Device Collection** (e.g., `All Systems`).
+1. Select one or more **Active Directory OUs** (sub-OUs are included automatically; leave blank for the entire domain) and one or more **ConfigMgr Device Collections** (leave blank for all devices).
 2. Click **Scan** to reconcile computer accounts from both sources.
 3. Click any slice of the interactive pie chart to filter the 15-column results table:
    - **Both:** Device exists in both Active Directory and Configuration Manager.
-   - **Active Directory Only:** Computer object exists in AD but has no ConfigMgr record (often stale or missing the MECM client).
-   - **ConfigMgr Only:** Resource exists in ConfigMgr but has no matching AD computer object in the selected OU.
+   - **Active Directory:** Computer object exists in AD but has no ConfigMgr record (often stale or missing the MECM client).
+   - **ConfigMgr:** Resource exists in ConfigMgr but has no matching AD computer object in the selected OU(s).
 
 ---
 
@@ -21,8 +21,8 @@ Reconcile **Active Directory** Organizational Units against **Configuration Mana
 
 Right-click one or more rows in the grid to:
 
-- **Disable in Active Directory** / **Enable in Active Directory**
-- **Delete from Active Directory** *(with confirmation)*
-- **Delete from ConfigMgr** *(with confirmation)*
-- **Add to Collection**, **Ping Systems**, or open **System Information**
-- Click **Export CSV** to save the reconciliation report for change-control review.
+- **Delete Selected from Active Directory** *(with confirmation)*
+- **Delete Selected from ConfigMgr** *(with confirmation)*
+- **Ping System(s)** or **Open System Information**
+
+Click **Export to CSV** in the bottom bar to save the reconciliation report for change-control review.

@@ -17,7 +17,7 @@
       <TabItem Header="External Tools (PsExec)">
         <StackPanel Margin="16">
           <TextBlock Text="Optional External Tool — Sysinternals PsExec" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
-          <TextBlock Text="OpenRCT has zero mandatory external dependencies. PsExec is only required if you want to use Console Tools → Interactive Command Prompt."
+          <TextBlock Text="OpenRCT has zero mandatory external dependencies. PsExec is only required if you want to use Remote Tools → Interactive Command Prompt."
                      TextWrapping="Wrap" Margin="0,6,0,14" Foreground="{DynamicResource SecondaryTextBrush}" />
 
           <TextBlock Text="Path to PsExec.exe or PsExec64.exe:" Margin="0,0,0,4" />

@@ -25,12 +25,12 @@ Manage **single devices, multiple selected devices simultaneously, or entire Dev
 |---|---|
 | **[Installation & Upgrading](getting-started/installation.md)** | MECM 2103+ prerequisite, MSI silent install, Portable ZIP, and uninstall instructions |
 | **[Standalone App](getting-started/standalone-app.md)** | Running OpenRCT outside the MECM Console against devices or collections |
-| **[Settings & Customization](getting-started/settings.md)** | PsExec setup, transport/concurrency tuning, Light/Dark themes, Icon Styles, and Updates |
+| **[Settings & Customization](getting-started/settings.md)** | PsExec setup, concurrency/timeout & offline pre-check tuning, Light/Dark themes, Icon Styles, and Updates |
 | **[Right-Click Tools](tools/overview.md)** | All 6 tool groups across Devices and Device Collections, including Remote Windows Security & Remote Event Viewer |
 | **[Console Dashboards](dashboards/index.md)** | All 6 interactive dashboards under *Assets and Compliance → Overview → OpenRCT* |
 | **[Architecture & Ports](reference/architecture.md)** | Solution layout, runtime console binding, required firewall ports, and RBAC permissions |
 | **[Troubleshooting](reference/troubleshooting.md)** | Solutions for console extension visibility, WMI/WinRM/Remote Registry, LAPS, and icon sync |
-| **[Hyper-V Test Lab](lab-setup/README.md)** | Automated 4-VM Hyper-V MECM lab (`DC01`, `CM01`, `WS01`, `WS02`) for safe testing |
+| **[Hyper-V Test Lab](lab-setup/README.md)** | Automated 4-VM Hyper-V MECM lab (`LAB-DC01`, `LAB-CM01`, `LAB-WS01`, `LAB-WS02`) for safe testing |
 
 ---
 
