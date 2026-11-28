@@ -25,8 +25,8 @@ jobs:
       - name: Build native .NET 4.8 MECM icon resource assemblies (Duotone & Outline)
         shell: powershell
         run: |
-          & ".\installer\scripts\Build-IconsDll.ps1" -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Duotone.dll" -Version "0.2.7.0"
-          & ".\installer\scripts\Build-IconsDll.ps1" -IconsDir "src\OpenRCT.Icons\IconsOutline" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Outline.dll" -Version "0.2.7.0"
+          & ".\installer\scripts\Build-IconsDll.ps1" -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Duotone.dll" -Version "0.2.9.0"
+          & ".\installer\scripts\Build-IconsDll.ps1" -IconsDir "src\OpenRCT.Icons\IconsOutline" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Outline.dll" -Version "0.2.9.0"
 
       - name: Restore dependencies
         run: dotnet restore OpenRCT.sln

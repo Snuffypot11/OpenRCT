@@ -534,11 +534,14 @@ namespace OpenRCT.Connectors.Services
         // =====================================================================
         public async Task<IReadOnlyList<FirewallProfileInfo>> GetFirewallProfilesAsync(TargetDevice device, CancellationToken ct = default)
         {
+            // Query ActiveStore (merged local + GPO/MDM effective policy) rather than the
+            // provider's default PersistentStore, which ignores Group Policy / MDM overrides.
             var rows = await _wmi.QueryAsync(
                 device.ConnectAddress,
                 @"root\StandardCimv2",
                 "SELECT Name, Enabled, DefaultInboundAction, DefaultOutboundAction, LogFileName FROM MSFT_NetFirewallProfile",
-                ct: ct).ConfigureAwait(false);
+                ct: ct,
+                context: new Dictionary<string, object?> { ["PolicyStore"] = "ActiveStore" }).ConfigureAwait(false);
 
             return rows.Select(r => new FirewallProfileInfo
             {

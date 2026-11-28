@@ -343,5 +343,29 @@ namespace OpenRCT.Tests
                 if (File.Exists(tempFile)) File.Delete(tempFile);
             }
         }
+
+        [Fact]
+        public void FirewallProfilesQuery_UsesActiveStorePolicyContext()
+        {
+            var root = FindRepoRoot();
+            var wmiClientText = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.Connectors", "Wmi", "WmiClient.cs"));
+            Assert.Contains("ManagementNamedValueCollection", wmiClientText);
+            Assert.Contains("enumOptions.Context", wmiClientText);
+
+            var securityServiceText = File.ReadAllText(Path.Combine(root, "src", "OpenRCT.Connectors", "Services", "RemoteWindowsSecurityService.cs"));
+            var profilesStart = securityServiceText.IndexOf("GetFirewallProfilesAsync", StringComparison.Ordinal);
+            var rulesStart = securityServiceText.IndexOf("GetFirewallRulesAsync", StringComparison.Ordinal);
+            var setRuleStart = securityServiceText.IndexOf("SetFirewallRuleEnabledAsync", StringComparison.Ordinal);
+
+            Assert.True(profilesStart > 0 && rulesStart > profilesStart && setRuleStart > rulesStart);
+
+            var profilesMethod = securityServiceText.Substring(profilesStart, rulesStart - profilesStart);
+            Assert.Contains("MSFT_NetFirewallProfile", profilesMethod);
+            Assert.Contains("[\"PolicyStore\"] = \"ActiveStore\"", profilesMethod);
+
+            var rulesMethod = securityServiceText.Substring(rulesStart, setRuleStart - rulesStart);
+            Assert.Contains("MSFT_NetFirewallRule", rulesMethod);
+            Assert.DoesNotContain("ActiveStore", rulesMethod);
+        }
     }
 }

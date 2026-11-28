@@ -1,7 +1,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package Name="OpenRCT — Open Source Right Click Tools for MECM"
            Manufacturer="OpenRCT Contributors"
-           Version="0.2.8.0"
+           Version="0.2.9.0"
            UpgradeCode="9f41d2e8-5c3a-4b11-9a10-7e4b6c112201"
            Scope="perMachine">
 

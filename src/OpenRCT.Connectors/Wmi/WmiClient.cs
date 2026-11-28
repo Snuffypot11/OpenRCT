@@ -45,7 +45,8 @@ namespace OpenRCT.Connectors.Wmi
             string wmiNamespace,
             string wql,
             TimeSpan? timeout = null,
-            CancellationToken ct = default)
+            CancellationToken ct = default,
+            IDictionary<string, object?>? context = null)
         {
             await EnsureReachableIfEnabledAsync(host, ct).ConfigureAwait(false);
             var effectiveTimeout = timeout ?? DefaultTimeout;
@@ -62,6 +63,19 @@ namespace OpenRCT.Connectors.Wmi
                     Rewindable = false,
                     Timeout = effectiveTimeout
                 };
+
+                if (context != null && context.Count > 0)
+                {
+                    var wmiContext = new ManagementNamedValueCollection();
+                    foreach (var kvp in context)
+                    {
+                        if (!string.IsNullOrWhiteSpace(kvp.Key) && kvp.Value != null)
+                        {
+                            wmiContext.Add(kvp.Key, kvp.Value);
+                        }
+                    }
+                    enumOptions.Context = wmiContext;
+                }
 
                 using var searcher = new ManagementObjectSearcher(scope, query, enumOptions);
                 using var collection = searcher.Get();
