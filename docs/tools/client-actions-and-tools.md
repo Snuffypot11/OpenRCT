@@ -1,6 +1,6 @@
 # Client Actions & Client Tools
 
-OpenRCT provides one-click access to all **12 ConfigMgr Client Actions** and **13 Client Tools** on Devices (with a curated subset of **6 Client Actions** and **5 Client Tools** exposed on the Device Collection menu, and all tools runnable against collections via the [Standalone App](../getting-started/standalone-app.md)).
+OpenCMTools provides one-click access to all **12 ConfigMgr Client Actions** and **13 Client Tools** on Devices (with a curated subset of **6 Client Actions** and **5 Client Tools** exposed on the Device Collection menu, and all tools runnable against collections via the [Standalone App](../getting-started/standalone-app.md)).
 
 ---
 

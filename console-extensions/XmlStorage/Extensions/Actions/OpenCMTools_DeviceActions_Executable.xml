@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  OpenCMTools Fallback Executable Mode Device Actions
+  Used when installing with -Mode Executable (no in-process DLL loaded into MECM Console).
+  OpenCMTools.App.exe aggregates multi-selected assets over a 350ms local named pipe into a single window.
+-->
+<ActionDescription Class="Group" DisplayName="OpenCMTools" MnemonicDisplayName="OpenCMTools" Description="Open Source Endpoint &amp; Console Tools for MECM (Executable Mode)" SqmDataPoint="53" SelectionMode="Both">
+  <ShowOn><string>ContextMenu</string></ShowOn>
+  <ActionGroups>
+    <ActionDescription Class="Group" DisplayName="Remote Tools" MnemonicDisplayName="Remote Tools" Description="Interactive Remote Tools" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string></ShowOn>
+      <ActionGroups>
+        <ActionDescription Class="Executable" DisplayName="System Information" MnemonicDisplayName="System Information" Description="Open System Information" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ConsoleTool.SystemInformation --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Remote Software Center" MnemonicDisplayName="Remote Software Center" Description="Open Remote Software Center" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ClientTool.RemoteSoftwareCenter --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Remote Windows Security" MnemonicDisplayName="Remote Windows Security" Description="Open Remote Windows Security" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action RemoteTool.RemoteWindowsSecurity --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Remote Registry Editor" MnemonicDisplayName="Remote Registry Editor" Description="Open Remote Registry Editor" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ConsoleTool.OpenRegedit --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Remote Event Viewer" MnemonicDisplayName="Remote Event Viewer" Description="Open Remote Event Viewer" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action RemoteTool.RemoteEventViewer --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Interactive Command Prompt" MnemonicDisplayName="Interactive Command Prompt" Description="Open Interactive Command Prompt (PsExec)" SelectionMode="Single">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ConsoleTool.InteractiveCommandPrompt --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+      </ActionGroups>
+    </ActionDescription>
+
+    <ActionDescription Class="Group" DisplayName="Client Actions" MnemonicDisplayName="Client Actions" Description="Trigger ConfigMgr Client Actions" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string></ShowOn>
+      <ActionGroups>
+        <ActionDescription Class="Executable" DisplayName="Application Deployment Evaluation Cycle" MnemonicDisplayName="Application Deployment Evaluation Cycle" Description="Trigger Application Deployment Evaluation Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ClientAction.AppDeploymentEval --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Hardware Inventory Cycle" MnemonicDisplayName="Hardware Inventory Cycle" Description="Trigger Hardware Inventory Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ClientAction.HardwareInventory --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Machine Policy Retrieval and Evaluation Cycle" MnemonicDisplayName="Machine Policy Retrieval and Evaluation Cycle" Description="Trigger Machine Policy Retrieval and Evaluation Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ClientAction.MachinePolicyRetrievalAndEval --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+        <ActionDescription Class="Executable" DisplayName="Software Updates Scan Cycle" MnemonicDisplayName="Software Updates Scan Cycle" Description="Trigger Software Updates Scan Cycle" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ClientAction.SoftwareUpdatesScan --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+      </ActionGroups>
+    </ActionDescription>
+
+    <ActionDescription Class="Group" DisplayName="Device and Power Tools" MnemonicDisplayName="Device and Power Tools" Description="Device and Power Tools" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string></ShowOn>
+      <ActionGroups>
+        <ActionDescription Class="Executable" DisplayName="Ping System(s)" MnemonicDisplayName="Ping System(s)" Description="Ping System(s)" SelectionMode="Both">
+          <ShowOn><string>ContextMenu</string></ShowOn>
+          <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--action ConsoleTool.PingSystems --device "##SUB:Name##" --resource-id "##SUB:ResourceID##" --server "##SUB:__Server##" --namespace "##SUB:__Namespace##"</Parameters></Executable>
+        </ActionDescription>
+      </ActionGroups>
+    </ActionDescription>
+
+    <ActionDescription Class="Executable" DisplayName="OpenCMTools Settings" MnemonicDisplayName="OpenCMTools Settings" Description="Configure OpenCMTools Settings" SelectionMode="Both">
+      <ShowOn><string>ContextMenu</string></ShowOn>
+      <Executable><FilePath>{{OPENCMTOOLS_INSTALL_DIR}}\OpenCMTools.App.exe</FilePath><Parameters>--settings</Parameters></Executable>
+    </ActionDescription>
+  </ActionGroups>
+</ActionDescription>

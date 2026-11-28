@@ -1,0 +1,312 @@
+<Window x:Class="OpenCMTools.UI.Views.SystemInfoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:OpenCMTools.UI.Controls"
+        Title="System Information"
+        Width="1160" Height="690"
+        MinWidth="880" MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource AppBackgroundBrush}">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="215" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Left Navigation Rail -->
+      <Border Grid.Column="0"
+              Background="{DynamicResource SidebarBrush}"
+              BorderBrush="{DynamicResource BorderBrushSubtle}"
+              BorderThickness="0,0,1,0">
+        <DockPanel>
+          <Border DockPanel.Dock="Top" Padding="12,10" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="0,0,0,1">
+            <StackPanel>
+              <TextBlock x:Name="ScopeHeaderText" Text="Device Filter" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" />
+              <ComboBox x:Name="DeviceFilterCombo"
+                        Margin="0,4,0,0"
+                        DisplayMemberPath="DisplayName"
+                        SelectionChanged="DeviceFilterCombo_SelectionChanged" />
+            </StackPanel>
+          </Border>
+
+          <ListBox x:Name="NavList"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   SelectedIndex="0"
+                   SelectionChanged="NavList_SelectionChanged">
+            <ListBox.ItemContainerStyle>
+              <Style TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="14,10" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="FontSize" Value="13" />
+                <Style.Triggers>
+                  <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource SelectionFillBrush}" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SelectionBorderBrush}" />
+                    <Setter Property="BorderThickness" Value="3,0,0,0" />
+                  </Trigger>
+                </Style.Triggers>
+              </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBoxItem Tag="OS">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolSystemInfo" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Operating Systems" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Hardware">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashHardwareAudit" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Hardware" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Disks">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SysDisks" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Disks" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Applications">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolSoftwareCenter" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Applications" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="WindowsUpdates">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashSoftwareUpdates" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Windows Updates" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Services">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolManageComputer" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Services" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Drivers">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SysDrivers" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Drivers" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="UserProfiles">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="ToolAdGroups" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="User Profiles" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="LocalGroups">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="DashAdCleanup" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Local Group Members" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+            <ListBoxItem Tag="Batteries">
+              <StackPanel Orientation="Horizontal"><controls:VectorIcon IconKey="SysBattery" Width="17" Height="17" Margin="0,0,10,0" VerticalAlignment="Center" /><TextBlock Text="Batteries" VerticalAlignment="Center" /></StackPanel>
+            </ListBoxItem>
+          </ListBox>
+        </DockPanel>
+      </Border>
+
+      <!-- Main Content Pane -->
+      <Grid Grid.Column="1" Margin="12">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Contextual Toolbar -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+          <StackPanel x:Name="ContextualActionsPanel" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+            <CheckBox x:Name="GroupByItemCheckBox"
+                      Content="Group by Item"
+                      VerticalAlignment="Center"
+                      Margin="10,0,4,0"
+                      Visibility="Collapsed"
+                      ToolTip="Group items across computers and expand each item to see applicable devices"
+                      Checked="GroupByItemCheckBox_Changed"
+                      Unchecked="GroupByItemCheckBox_Changed" />
+            <Button x:Name="RefreshButton" Content="Refresh" Style="{DynamicResource StandardButton}" Margin="8,0,0,0" Click="Refresh_Click" />
+            <Button x:Name="UninstallAppButton" Content="Uninstall" Style="{DynamicResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="UninstallApp_Click" />
+            <Button x:Name="StartServiceButton" Content="Start" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="StartService_Click" />
+            <Button x:Name="StopServiceButton" Content="Stop" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="StopService_Click" />
+            <Button x:Name="RestartServiceButton" Content="Restart" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="RestartService_Click" />
+            <Button x:Name="DeleteProfileButton" Content="Delete Profile" Style="{DynamicResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="DeleteProfile_Click" />
+            <ComboBox x:Name="LocalGroupCombo" Width="165" Margin="6,0,0,0" Visibility="Collapsed" SelectionChanged="LocalGroupCombo_SelectionChanged" />
+            <Button x:Name="AddLocalMemberButton" Content="Add Member" Style="{DynamicResource StandardButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="AddLocalMember_Click" />
+            <Button x:Name="RemoveLocalMemberButton" Content="Remove" Style="{DynamicResource DangerButton}" Margin="6,0,0,0" Visibility="Collapsed" Click="RemoveLocalMember_Click" />
+          </StackPanel>
+
+          <TextBox x:Name="SearchBox"
+                   Padding="8,5"
+                   VerticalContentAlignment="Center"
+                   ToolTip="Filter by item name, status, version, or device name"
+                   TextChanged="SearchBox_TextChanged" />
+        </DockPanel>
+
+        <!-- DataGrids + Expandable Grouped Grid + Loading Overlay -->
+        <Grid Grid.Row="1">
+          <!-- Shared Expandable Item-First Grouped View for Multi-Device Tabs -->
+          <controls:ExpandableGroupedGridControl x:Name="GroupedGrid" Visibility="Collapsed" />
+
+          <!-- Tab 1: Operating Systems -->
+          <DataGrid x:Name="OsGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Visible">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Caption" Binding="{Binding Caption}" Width="240" />
+              <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="100" />
+              <DataGridTextColumn Header="Build" Binding="{Binding BuildNumber}" Width="80" />
+              <DataGridTextColumn Header="Arch" Binding="{Binding Architecture}" Width="70" />
+              <DataGridTextColumn Header="Install Date" Binding="{Binding InstallDate, StringFormat=yyyy-MM-dd}" Width="100" />
+              <DataGridTextColumn Header="Last Boot" Binding="{Binding LastBootUpTime, StringFormat=yyyy-MM-dd HH:mm}" Width="130" />
+              <DataGridTextColumn Header="Logged On User" Binding="{Binding LoggedOnUser}" Width="*" MinWidth="135" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <!-- Tab 2: Hardware -->
+          <DataGrid x:Name="HardwareGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="130" />
+              <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="160" />
+              <DataGridTextColumn Header="Serial Number" Binding="{Binding SerialNumber}" Width="130" />
+              <DataGridTextColumn Header="BIOS" Binding="{Binding BiosVersion}" Width="120" />
+              <DataGridTextColumn Header="CPU" Binding="{Binding ProcessorName}" Width="200" />
+              <DataGridTextColumn Header="RAM (GB)" Binding="{Binding TotalMemoryGb}" Width="80" />
+              <DataGridTextColumn Header="TPM" Binding="{Binding TpmVersion}" Width="*" MinWidth="135" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <!-- Tab 3: Disks -->
+          <DataGrid x:Name="DisksGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Drive" Binding="{Binding DriveLetter}" Width="70" />
+              <DataGridTextColumn Header="Volume Name" Binding="{Binding VolumeName}" Width="150" />
+              <DataGridTextColumn Header="File System" Binding="{Binding FileSystem}" Width="90" />
+              <DataGridTextColumn Header="Type" Binding="{Binding DriveType}" Width="130" />
+              <DataGridTextColumn Header="Total (GB)" Binding="{Binding TotalSizeGb}" Width="95" />
+              <DataGridTextColumn Header="Free (GB)" Binding="{Binding FreeSpaceGb}" Width="95" />
+              <DataGridTextColumn Header="% Free" Binding="{Binding PercentFree}" Width="*" MinWidth="110" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <!-- Tab 4: Applications (Flat view) -->
+          <DataGrid x:Name="ApplicationsGrid"
+                    Style="{DynamicResource OpenCMToolsDataGrid}"
+                    IsReadOnly="False"
+                    Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridCheckBoxColumn Header="" Binding="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Width="36" />
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" IsReadOnly="True" Width="125" />
+              <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True" Width="240" />
+              <DataGridTextColumn Header="Architecture" Binding="{Binding Architecture}" IsReadOnly="True" Width="80" />
+              <DataGridTextColumn Header="Publisher" Binding="{Binding Publisher}" IsReadOnly="True" Width="160" />
+              <DataGridTextColumn Header="Installed On" Binding="{Binding InstalledOn}" IsReadOnly="True" Width="90" />
+              <DataGridTextColumn Header="Version" Binding="{Binding Version}" IsReadOnly="True" Width="100" />
+              <DataGridTextColumn Header="Uninstall String" Binding="{Binding UninstallString}" IsReadOnly="True" Width="*" MinWidth="200" />
+            </DataGrid.Columns>
+            <DataGrid.RowDetailsTemplate>
+              <DataTemplate>
+                <Border Padding="12,6" Background="{DynamicResource AppBackgroundBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="0,1,0,1">
+                  <StackPanel>
+                    <TextBlock Text="{Binding InstallLocation, StringFormat='Install Location: {0}'}" FontSize="12" />
+                    <TextBlock Text="{Binding RegistryKeyPath, StringFormat='Registry Key: {0}'}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" />
+                    <TextBlock Text="{Binding QuietUninstallString, StringFormat='Quiet Uninstall: {0}'}" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+          </DataGrid>
+
+          <!-- Tab 5: Windows Updates (Flat view) -->
+          <DataGrid x:Name="UpdatesGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="KB / HotFix ID" Binding="{Binding HotFixId}" Width="120" />
+              <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="180" />
+              <DataGridTextColumn Header="Installed On" Binding="{Binding InstalledOn}" Width="120" />
+              <DataGridTextColumn Header="Installed By" Binding="{Binding InstalledBy}" Width="180" />
+              <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" MinWidth="110" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <!-- Tab 6: Services (Flat view) -->
+          <DataGrid x:Name="ServicesGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150" />
+              <DataGridTextColumn Header="Display Name" Binding="{Binding DisplayName}" Width="220" />
+              <DataGridTextColumn Header="State" Binding="{Binding State}" Width="90" />
+              <DataGridTextColumn Header="Startup Type" Binding="{Binding StartMode}" Width="100" />
+              <DataGridTextColumn Header="Log On As" Binding="{Binding StartName}" Width="*" MinWidth="135" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <!-- Tab 7: Drivers (Flat view) -->
+          <DataGrid x:Name="DriversGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Driver / Hardware" Binding="{Binding FriendlyName}" Width="220" />
+              <DataGridTextColumn Header="Class" Binding="{Binding DeviceClass}" Width="105" />
+              <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="145" />
+              <DataGridTextColumn Header="Version" Binding="{Binding DriverVersion}" Width="105" />
+              <DataGridTextColumn Header="Date" Binding="{Binding DriverDate, StringFormat=yyyy-MM-dd}" Width="90" />
+              <DataGridTextColumn Header="Signed" Binding="{Binding IsSigned}" Width="60" />
+              <DataGridTextColumn Header="INF" Binding="{Binding InfName}" Width="*" MinWidth="135" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <!-- Tab 8: User Profiles (Flat view) -->
+          <DataGrid x:Name="ProfilesGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Account" Binding="{Binding AccountName}" Width="170" />
+              <DataGridTextColumn Header="Local Path" Binding="{Binding LocalPath}" Width="220" />
+              <DataGridTextColumn Header="Last Used" Binding="{Binding LastUseTime, StringFormat=yyyy-MM-dd HH:mm}" Width="130" />
+              <DataGridTextColumn Header="Loaded" Binding="{Binding Loaded}" Width="65" />
+              <DataGridTextColumn Header="Special" Binding="{Binding Special}" Width="65" />
+              <DataGridTextColumn Header="SID" Binding="{Binding Sid}" Width="*" MinWidth="200" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <!-- Tab 9: Local Group Members (Flat view) -->
+          <DataGrid x:Name="LocalGroupsGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Group" Binding="{Binding GroupName}" Width="150" />
+              <DataGridTextColumn Header="Member" Binding="{Binding FullName}" Width="240" />
+              <DataGridTextColumn Header="Domain" Binding="{Binding Domain}" Width="130" />
+              <DataGridTextColumn Header="Type" Binding="{Binding MemberType}" Width="*" MinWidth="110" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <!-- Tab 10: Batteries -->
+          <DataGrid x:Name="BatteriesGrid" Style="{DynamicResource OpenCMToolsDataGrid}" Visibility="Collapsed">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="125" />
+              <DataGridTextColumn Header="Battery Name" Binding="{Binding Name}" Width="180" />
+              <DataGridTextColumn Header="Status" Binding="{Binding BatteryStatusDescription}" Width="130" />
+              <DataGridTextColumn Header="Charge %" Binding="{Binding EstimatedChargeRemaining}" Width="85" />
+              <DataGridTextColumn Header="Design (mWh)" Binding="{Binding DesignCapacityMwh}" Width="105" />
+              <DataGridTextColumn Header="Full Charge (mWh)" Binding="{Binding FullChargeCapacityMwh}" Width="125" />
+              <DataGridTextColumn Header="Health %" Binding="{Binding HealthPercent}" Width="*" MinWidth="110" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <Border x:Name="LoadingOverlay"
+                  Background="{DynamicResource AppBackgroundBrush}"
+                  Opacity="0.90"
+                  Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+              <ProgressBar IsIndeterminate="True" Width="240" Height="6" />
+              <TextBlock x:Name="LoadingText" Text="Querying endpoints..." Margin="0,8,0,0" HorizontalAlignment="Center" FontWeight="SemiBold" />
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Grid>
+    </Grid>
+
+    <!-- Bottom Status Bar with Errors Drawer + Export to CSV -->
+    <Border Grid.Row="1"
+            Background="{DynamicResource SidebarBrush}"
+            BorderBrush="{DynamicResource BorderBrushSubtle}"
+            BorderThickness="0,1,0,0"
+            Padding="12,6">
+      <DockPanel>
+        <Button Content="Export to CSV"
+                DockPanel.Dock="Right"
+                Style="{DynamicResource StandardButton}"
+                Click="ExportCsv_Click" />
+        <TextBlock x:Name="StatusSummaryText"
+                   DockPanel.Dock="Right"
+                   Margin="0,0,14,0"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource SecondaryTextBrush}" />
+        <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
+      </DockPanel>
+    </Border>
+  </Grid>
+</Window>

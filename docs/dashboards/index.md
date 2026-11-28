@@ -1,6 +1,6 @@
 # Console Dashboards Overview
 
-All 6 OpenRCT dashboards are available directly under **Assets and Compliance → Overview → OpenRCT** inside the MECM Admin Console (with zero extra nesting folders), and can also be popped out into a dedicated window via **Right-Click → Open in New Window** or launched from the [Standalone App](../getting-started/standalone-app.md).
+All 6 OpenCMTools dashboards are available directly under **Assets and Compliance → Overview → OpenCMTools** inside the MECM Admin Console (with zero extra nesting folders), and can also be popped out into a dedicated window via **Right-Click → Open in New Window** or launched from the [Standalone App](../getting-started/standalone-app.md).
 
 ---
 
@@ -20,7 +20,7 @@ All 6 OpenRCT dashboards are available directly under **Assets and Compliance �
 ## Shared Dashboard Capabilities
 
 - **Interactive Native Vector Charts:** Click any pie slice or Distribution Point bar to filter the data grid immediately; click the selected slice again to reset (or use **Clear Filters** on Hardware & Firmware Audit / **Show All DPs** on Content Distribution Monitor).
-- **Right-Click Row Actions:** Right-click any device or content row directly inside the dashboard grid to launch OpenRCT remediation tools (e.g., *System Information*, *Client Information*, *Hardware Inventory Cycle*, *Delete from AD/ConfigMgr*, *Redistribute Content*, *Validate Content*).
+- **Right-Click Row Actions:** Right-click any device or content row directly inside the dashboard grid to launch OpenCMTools remediation tools (e.g., *System Information*, *Client Information*, *Hardware Inventory Cycle*, *Delete from AD/ConfigMgr*, *Redistribute Content*, *Validate Content*).
 - **Resizable Columns & Auto Scrollbars:** All columns can be resized and scrolled horizontally without clipping.
 - **Collapsible Error Drawer:** Any failed WMI/AD/SMS Provider queries are logged cleanly in the bottom Error Drawer (`Time`, `Source`, `Message`, plus full details via **Copy All**) without interrupting the rest of the scan.
 - **CSV Export:** Every dashboard includes a bottom-bar **Export to CSV** button exporting its current filtered (or full) view to standards-compliant RFC 4180 CSV.

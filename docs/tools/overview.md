@@ -1,6 +1,6 @@
-# Right-Click Tools Overview & Multi-Device UI
+# Endpoint Tools Overview & Multi-Device UI
 
-Right-click any **single Device**, **multiple selected Devices**, or **Device Collection** inside the Configuration Manager Admin Console and expand the **OpenRCT** menu (also mirrored on the MECM Home Ribbon).
+Right-click any **single Device**, **multiple selected Devices**, or **Device Collection** inside the Configuration Manager Admin Console and expand the **OpenCMTools** menu (also mirrored on the MECM Home Ribbon).
 
 ![Device Right-Click Context Menu](../assets/images/context-menu-device.png)
 
@@ -8,7 +8,7 @@ Right-click any **single Device**, **multiple selected Devices**, or **Device Co
 
 ## Reorganized 6-Group Menu Layout
 
-OpenRCT groups tools logically by workflow rather than scattering remote utilities across unrelated menus:
+OpenCMTools groups tools logically by workflow rather than scattering remote utilities across unrelated menus:
 
 | Menu Group | Device Menu | Device Collection Menu |
 |---|---|---|
@@ -18,9 +18,9 @@ OpenRCT groups tools logically by workflow rather than scattering remote utiliti
 | **4. Device and Power Tools** | Ping System(s), Wake On LAN, Group Policy Update, Send Notification, Schedule Restart or Shutdown, Cancel Pending Restart or Shutdown | Ping System(s), Wake On LAN, Group Policy Update, Send Notification, Schedule Restart or Shutdown, Cancel Pending Restart or Shutdown |
 | **5. Security Tools** | View LAPS Password, View BitLocker Recovery Key, Windows Defender - Quick Scan, Windows Defender - Full Scan, Windows Defender - Update Definitions | 2 Tools: Windows Defender - Quick Scan, Windows Defender - Update Definitions |
 | **6. Active Directory and ConfigMgr** | AD Security Groups, Enable Device(s) in Active Directory, Disable Device(s) in Active Directory, Delete Device(s) from Active Directory, Delete Device(s) From ConfigMgr | *(Device menu only)* |
-| **OpenRCT Settings** | Available at the root of the OpenRCT menu | *(Device menu only)* |
+| **OpenCMTools Settings** | Available at the root of the OpenCMTools menu | *(Device menu only)* |
 
-*(Items marked **single device** use `SelectionMode="Single"` and are hidden when multiple devices are selected. In `Executable` fallback mode, only a reduced 11-tool device menu plus OpenRCT Settings is shown on the context menu.)*
+*(Items marked **single device** use `SelectionMode="Single"` and are hidden when multiple devices are selected. In `Executable` fallback mode, only a reduced 11-tool device menu plus OpenCMTools Settings is shown on the context menu.)*
 
 ---
 

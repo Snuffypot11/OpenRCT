@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <RootNamespace>OpenCMTools.ConfigMgrSdk.Stubs</RootNamespace>
+    <AssemblyName>OpenCMTools.ConfigMgrSdk.Stubs</AssemblyName>
+  </PropertyGroup>
+</Project>

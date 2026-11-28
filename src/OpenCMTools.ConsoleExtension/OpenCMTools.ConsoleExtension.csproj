@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>disable</Nullable>
+    <RootNamespace>OpenCMTools.ConsoleExtension</RootNamespace>
+    <AssemblyName>OpenCMTools.ConsoleExtension</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenCMTools.Core\OpenCMTools.Core.csproj" />
+    <ProjectReference Include="..\OpenCMTools.UI\OpenCMTools.UI.csproj" />
+  </ItemGroup>
+
+  <!-- When building on a machine with MECM Admin Console installed, pass -p:ConfigMgrConsolePath="C:\Program Files (x86)\Microsoft Endpoint Manager\AdminConsole\bin" -->
+  <ItemGroup Condition="'$(ConfigMgrConsolePath)' != '' AND Exists('$(ConfigMgrConsolePath)\Microsoft.ConfigurationManagement.exe')">
+    <Reference Include="Microsoft.ConfigurationManagement">
+      <HintPath>$(ConfigMgrConsolePath)\Microsoft.ConfigurationManagement.exe</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.ConfigurationManagement.ManagementProvider">
+      <HintPath>$(ConfigMgrConsolePath)\Microsoft.ConfigurationManagement.ManagementProvider.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AdminUI.WqlQueryEngine" Condition="Exists('$(ConfigMgrConsolePath)\AdminUI.WqlQueryEngine.dll')">
+      <HintPath>$(ConfigMgrConsolePath)\AdminUI.WqlQueryEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Otherwise compile cleanly against compile-time stubs (never shipped at runtime) -->
+  <ItemGroup Condition="'$(ConfigMgrConsolePath)' == '' OR !Exists('$(ConfigMgrConsolePath)\Microsoft.ConfigurationManagement.exe')">
+    <ProjectReference Include="..\OpenCMTools.ConfigMgrSdk.Stubs\OpenCMTools.ConfigMgrSdk.Stubs.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

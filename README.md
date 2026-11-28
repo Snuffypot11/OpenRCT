@@ -1,20 +1,20 @@
-# OpenRCT — Open Source Right Click Tools for Microsoft Configuration Manager (MECM)
+# OpenCMTools — Open Source Endpoint & Console Tools for Microsoft Configuration Manager (MECM)
 
-[![Build & Release OpenRCT](https://github.com/Snuffypot11/OpenRCT/actions/workflows/build-release.yml/badge.svg)](https://github.com/Snuffypot11/OpenRCT/actions/workflows/build-release.yml)
-[![Build & Deploy Documentation](https://github.com/Snuffypot11/OpenRCT/actions/workflows/docs.yml/badge.svg)](https://github.com/Snuffypot11/OpenRCT/actions/workflows/docs.yml)
+[![Build & Release OpenCMTools](https://github.com/Snuffypot11/OpenCMTools/actions/workflows/build-release.yml/badge.svg)](https://github.com/Snuffypot11/OpenCMTools/actions/workflows/build-release.yml)
+[![Build & Deploy Documentation](https://github.com/Snuffypot11/OpenCMTools/actions/workflows/docs.yml/badge.svg)](https://github.com/Snuffypot11/OpenCMTools/actions/workflows/docs.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-0078D4.svg)](LICENSE)
 
-**OpenRCT** is a free, MIT-licensed, ad-free suite of **Right Click Tools** and **embedded console dashboards** for **Microsoft Configuration Manager (MECM / SCCM)**. Manage **single devices, multiple selected devices simultaneously, or entire Device Collections** directly inside the MECM Admin Console or via the standalone launcher.
+**OpenCMTools** is a free, MIT-licensed, ad-free suite of **endpoint management tools** and **embedded console dashboards** for **Microsoft Configuration Manager (MECM / SCCM)**. Manage **single devices, multiple selected devices simultaneously, or entire Device Collections** directly inside the MECM Admin Console or via the standalone launcher.
 
-**[Read the Full Searchable Documentation](https://snuffypot11.github.io/OpenRCT/)** · **[Download Latest Release](https://github.com/Snuffypot11/OpenRCT/releases/latest)** · **[Hyper-V MECM Lab Setup Guide](docs/lab-setup/README.md)**
+**[Read the Full Searchable Documentation](https://snuffypot11.github.io/OpenCMTools/)** · **[Download Latest Release](https://github.com/Snuffypot11/OpenCMTools/releases/latest)** · **[Hyper-V MECM Lab Setup Guide](docs/lab-setup/README.md)**
 
-![MECM Admin Console — OpenRCT Overview & Sidebar](docs/assets/images/hero-console-overview.png)
+![MECM Admin Console — OpenCMTools Overview & Sidebar](docs/assets/images/hero-console-overview.png)
 
 ---
 
 ## Transparency: AI-Assisted Development
 
-> **OpenRCT was developed with substantial AI coding assistance** under human product direction, architectural guidance, and hands-on testing in a live Microsoft Configuration Manager test lab.
+> **OpenCMTools was developed with substantial AI coding assistance** under human product direction, architectural guidance, and hands-on testing in a live Microsoft Configuration Manager test lab.
 >
 > All source code is 100% open under the [MIT License](LICENSE) for full inspection, auditing, and community contributions. As with any systems management tool, please review the code and validate in a test lab or pilot collection before deploying to production.
 
@@ -25,7 +25,7 @@
 - **100% Open Source & Ad-Free** — No paid tiers, trial prompts, telemetry, or licensing gates.
 - **Zero Extra Runtime Prerequisites** — Pure **C# / WPF on .NET Framework 4.8**, the exact runtime already required by the MECM Admin Console.
 - **Zero Mandatory External Dependencies** — Uses native Windows and ConfigMgr interfaces (WMI/DCOM, WinRM for Interactive PowerShell, SMB, LDAP/ADSI, SMS Provider, Remote Registry, EventLogSession, Wake-on-LAN). No proprietary Microsoft SDK DLLs are committed.
-- **Optional PsExec Support** — Only *Remote Tools → Interactive Command Prompt* optionally uses user-supplied Sysinternals **PsExec** (configured in **OpenRCT Settings**).
+- **Optional PsExec Support** — Only *Remote Tools → Interactive Command Prompt* optionally uses user-supplied Sysinternals **PsExec** (configured in **OpenCMTools Settings**).
 - **Multi-Device Expandable UI** — Concurrent execution across 1..N devices or collections with item-first expandable grouping, synced checkboxes, resizable scrollable grids, collapsible Error Drawer, and CSV export.
 - **Themes & Dual Vector Icon Sets** — **Light / Dark / System** themes plus switchable **Fluent Duotone** *(default)* and **Crisp Monochrome Outline** icons across both WPF windows and the MECM Admin Console tree/context menus.
 - **Fork-Friendly Manual Updates** — Optional, manual-only GitHub Releases update check automatically bound to the CI repository (`GITHUB_REPOSITORY`) or user override — never phones home automatically and never hardcodes a personal repo.
@@ -34,7 +34,7 @@
 
 ## Included Tools & Dashboards
 
-### Right-Click Context Menu (`OpenRCT` — 6 Organized Groups)
+### Endpoint Tools Context Menu (`OpenCMTools` — 6 Organized Groups)
 
 ![Device Right-Click Context Menu](docs/assets/images/context-menu-device.png)
 
@@ -50,10 +50,10 @@
 4. **Device and Power Tools (6)** — Ping System(s), Wake On LAN, Group Policy Update, Send Notification, Schedule Restart or Shutdown *(immediate or scheduled with custom notice)*, and Cancel Pending Restart or Shutdown.
 5. **Security Tools (5)** — View LAPS Password *(Legacy & Windows LAPS)*, View BitLocker Recovery Key *(AD & ConfigMgr)*, Windows Defender - Quick Scan, Full Scan, and Update Definitions.
 6. **Active Directory and ConfigMgr (5)** — AD Security Groups, Enable/Disable/Delete Device(s) in Active Directory, and Delete Device(s) From ConfigMgr.
-- **OpenRCT Settings** — PsExec path browser & validator, concurrency/timeout/fast-offline settings, Light/Dark/System theme, **Icon Style** (`Fluent Duotone` / `Crisp Monochrome Outline` with MECM Console sync), safety controls, and manual GitHub Releases update check.
+- **OpenCMTools Settings** — PsExec path browser & validator, concurrency/timeout/fast-offline settings, Light/Dark/System theme, **Icon Style** (`Fluent Duotone` / `Crisp Monochrome Outline` with MECM Console sync), safety controls, and manual GitHub Releases update check.
 
-### Embedded Console Dashboards (*Assets and Compliance → Overview → OpenRCT*)
-All 6 dashboards live directly under **OpenRCT** in the MECM Console (and in the standalone app):
+### Embedded Console Dashboards (*Assets and Compliance → Overview → OpenCMTools*)
+All 6 dashboards live directly under **OpenCMTools** in the MECM Console (and in the standalone app):
 
 1. **Active Directory Cleanup Tool** — Compares AD OUs against ConfigMgr Collections with interactive pie chart (`ConfigMgr`, `Both`, `Active Directory`), 15-column grid, cleanup actions, error drawer, and CSV export.
 2. **BitLocker Compliance** — Audits on-premises BitLocker recovery key storage in AD & ConfigMgr alongside encryption and compliance status with two interactive pie charts, OU/Collection toggle, error drawer, and CSV export.
@@ -62,9 +62,9 @@ All 6 dashboards live directly under **OpenRCT** in the MECM Console (and in the
 5. **LAPS Dashboard** — Audits both Legacy Microsoft LAPS and Windows LAPS passwords & client install state with two interactive pie charts, 8-column grid, error drawer, and CSV export.
 6. **Software Updates Deployment Status** — Analyzes collection update compliance with deployed-only toggle, Software Update Group filter, age slider, 6 classification checkboxes, `Device Compliance Status` & `Missing Updates By Category` pie charts, remediation actions, and CSV export.
 
-### Standalone Launcher (`OpenRCT.App.exe`)
+### Standalone Launcher (`OpenCMTools.App.exe`)
 
-![OpenRCT Standalone Launcher](docs/assets/images/standalone-launcher.png)
+![OpenCMTools Standalone Launcher](docs/assets/images/standalone-launcher.png)
 
 Target manual devices or MECM Device Collections, search all 51 endpoint tools, launch any of the 6 dashboards, check for updates manually, and configure settings directly outside the MECM Admin Console.
 
@@ -73,45 +73,45 @@ Target manual devices or MECM Device Collections, search all 51 endpoint tools, 
 ## Installation
 
 ### Prerequisite (Required for MECM 2103 and newer)
-Before installing or launching OpenRCT inside the MECM Admin Console:
+Before installing or launching OpenCMTools inside the MECM Admin Console:
 
 1. Open the Configuration Manager Console and go to **Administration → Site Configuration → Sites**.
 2. Click **Hierarchy Settings** in the top ribbon.
 3. On the **General** tab, **uncheck** **`Only allow console extensions that are approved for the hierarchy`**.
-4. Click **OK**, install OpenRCT, and **restart the Configuration Manager Console**.
+4. Click **OK**, install OpenCMTools, and **restart the Configuration Manager Console**.
 
 ### Option 1: MSI Installer (Recommended)
-Download `OpenRCT.msi` from [GitHub Releases](https://github.com/Snuffypot11/OpenRCT/releases) and run interactively, or silently:
+Download `OpenCMTools.msi` from [GitHub Releases](https://github.com/Snuffypot11/OpenCMTools/releases) and run interactively, or silently:
 
 ```powershell
-msiexec /i OpenRCT.msi /qn
+msiexec /i OpenCMTools.msi /qn
 # Optional: pre-configure Sysinternals PsExec path
-msiexec /i OpenRCT.msi /qn PSEXECPATH="C:\Tools\PsExec64.exe"
+msiexec /i OpenCMTools.msi /qn PSEXECPATH="C:\Tools\PsExec64.exe"
 ```
 
 ### Option 2: Portable ZIP + PowerShell Script
-Extract `OpenRCT-portable.zip` and run from an elevated PowerShell prompt:
+Extract `OpenCMTools-portable.zip` and run from an elevated PowerShell prompt:
 
 ```powershell
-.\scripts\Install-OpenRCT.ps1
+.\scripts\Install-OpenCMTools.ps1
 # Optional: specify PsExec path or Crisp Monochrome Outline console icons
-.\scripts\Install-OpenRCT.ps1 -PsExecPath "C:\Tools\PsExec64.exe" -IconStyle Outline
+.\scripts\Install-OpenCMTools.ps1 -PsExecPath "C:\Tools\PsExec64.exe" -IconStyle Outline
 ```
 
-Restart the Configuration Manager Console to load the right-click menus and dashboard nodes under **Assets and Compliance → Overview → OpenRCT**. Full installer diagnostics are written to `C:\ProgramData\OpenRCT\install.log`.
+Restart the Configuration Manager Console to load the right-click menus and dashboard nodes under **Assets and Compliance → Overview → OpenCMTools**. Full installer diagnostics are written to `C:\ProgramData\OpenCMTools\install.log`.
 
 ### Uninstalling
 Uninstall via **Settings → Apps → Installed Apps** (MSI) or run:
 
 ```powershell
-& "C:\Program Files\OpenRCT\scripts\Uninstall-OpenRCT.ps1"
+& "C:\Program Files\OpenCMTools\scripts\Uninstall-OpenCMTools.ps1"
 ```
 
 ---
 
 ## Documentation & Lab Setup
 
-- **Full Searchable Documentation:** Hosted on GitHub Pages at [snuffypot11.github.io/OpenRCT](https://snuffypot11.github.io/OpenRCT/) (built from `docs/` via MkDocs Material).
+- **Full Searchable Documentation:** Hosted on GitHub Pages at [snuffypot11.github.io/OpenCMTools](https://snuffypot11.github.io/OpenCMTools/) (built from `docs/` via MkDocs Material).
 - **Hyper-V MECM Test Lab:** Automated 4-VM Hyper-V lab setup guide (`LAB-DC01`, `LAB-CM01`, `LAB-WS01`, `LAB-WS02`) in [docs/lab-setup/README.md](docs/lab-setup/README.md).
 - **Updating Screenshots:** See [docs/assets/images/README.md](docs/assets/images/README.md) for the documentation screenshot inventory.
 
@@ -123,18 +123,18 @@ Uninstall via **Settings → Apps → Installed Apps** (MSI) or run:
 Requires .NET 8 SDK (or Visual Studio 2022 with the *.NET desktop development* workload):
 
 ```powershell
-.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\Icons" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Duotone.dll"
-.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenRCT.Icons\IconsOutline" -OutputDll "src\OpenRCT.Icons\bin\Release\net48\OpenRCT.Icons.Outline.dll"
-dotnet build OpenRCT.sln -c Release
-dotnet test tests/OpenRCT.Tests/OpenRCT.Tests.csproj -c Release
-dotnet build installer/OpenRCT.Installer/OpenRCT.Installer.wixproj -c Release
+.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenCMTools.Icons\Icons" -OutputDll "src\OpenCMTools.Icons\bin\Release\net48\OpenCMTools.Icons.Duotone.dll"
+.\installer\scripts\Build-IconsDll.ps1 -IconsDir "src\OpenCMTools.Icons\IconsOutline" -OutputDll "src\OpenCMTools.Icons\bin\Release\net48\OpenCMTools.Icons.Outline.dll"
+dotnet build OpenCMTools.sln -c Release
+dotnet test tests/OpenCMTools.Tests/OpenCMTools.Tests.csproj -c Release
+dotnet build installer/OpenCMTools.Installer/OpenCMTools.Installer.wixproj -c Release
 ```
 
 ### On Linux / macOS (Core, Connectors & Automated Tests)
 ```bash
-dotnet build src/OpenRCT.Core/OpenRCT.Core.csproj -c Release
-dotnet build src/OpenRCT.Connectors/OpenRCT.Connectors.csproj -c Release
-dotnet test tests/OpenRCT.Tests/OpenRCT.Tests.csproj --framework net8.0 -c Release
+dotnet build src/OpenCMTools.Core/OpenCMTools.Core.csproj -c Release
+dotnet build src/OpenCMTools.Connectors/OpenCMTools.Connectors.csproj -c Release
+dotnet test tests/OpenCMTools.Tests/OpenCMTools.Tests.csproj --framework net8.0 -c Release
 ```
 
 ---

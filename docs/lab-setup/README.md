@@ -1,6 +1,6 @@
-# OpenRCT Testing VM Lab — Setup Guide & Automation Scripts
+# OpenCMTools Testing VM Lab — Setup Guide & Automation Scripts
 
-This guide walks you through building the **minimum viable isolated Hyper-V lab** on a **32 GB Windows 10/11 Pro/Enterprise host** to test **every OpenRCT feature** — all 10 Remote Tools, 12 Client Actions, 13 Client Tools, 6 Device and Power Tools, 5 Security Tools, 5 Active Directory and ConfigMgr Tools, and all 6 embedded MECM Console Dashboards — while keeping your host machine **completely excluded from the lab domain and lab network**.
+This guide walks you through building the **minimum viable isolated Hyper-V lab** on a **32 GB Windows 10/11 Pro/Enterprise host** to test **every OpenCMTools feature** — all 10 Remote Tools, 12 Client Actions, 13 Client Tools, 6 Device and Power Tools, 5 Security Tools, 5 Active Directory and ConfigMgr Tools, and all 6 embedded MECM Console Dashboards — while keeping your host machine **completely excluded from the lab domain and lab network**.
 
 ---
 
@@ -9,13 +9,13 @@ This guide walks you through building the **minimum viable isolated Hyper-V lab*
 | VM Name | Role | Static / DHCP IP | vCPU | RAM (Min / Startup / Max) | Disks (Thin VHDX) |
 | :--- | :--- | :--- | :---: | :--- | :--- |
 | **`LAB-DC01`** | Active Directory (`lab.local`), DNS, DHCP, GPOs, LAPS Schema | `10.20.30.10` (Static) | 2 | 1 GB / 2 GB / 2 GB | `C:` 40 GB |
-| **`LAB-CM01`** | MECM Primary Site (`LAB`), SQL Server, SMS Provider, MP, DP, SUP/WSUS, MECM Console, **OpenRCT** | `10.20.30.20` (Static) | 4 | 6 GB / 8 GB / 10 GB *(SQL capped at 4 GB)* | `C:` 80 GB<br>`E:` 120 GB (`MECM-Data`) |
+| **`LAB-CM01`** | MECM Primary Site (`LAB`), SQL Server, SMS Provider, MP, DP, SUP/WSUS, MECM Console, **OpenCMTools** | `10.20.30.20` (Static) | 4 | 6 GB / 8 GB / 10 GB *(SQL capped at 4 GB)* | `C:` 80 GB<br>`E:` 120 GB (`MECM-Data`) |
 | **`LAB-WS01`** | Win 11 Enterprise (vTPM), MECM Client, **Windows LAPS**, **BitLocker (`D:`)**, 7-Zip, 2 User Profiles | `10.20.30.100–150` (DHCP) | 2 | 2 GB / 4 GB / 4 GB | `C:` 60 GB<br>`D:` 2 GB (`BitLockerTest`) |
 | **`LAB-WS02`** | Win 11 Enterprise (vTPM), MECM Client, **Legacy LAPS x64**, Multi-Select & Destructive Test Target | `10.20.30.100–150` (DHCP) | 2 | 2 GB / 3 GB / 4 GB | `C:` 60 GB |
 
 - **Lab Domain:** `lab.local` (NetBIOS: `LAB`)
-- **Isolated Subnet:** `10.20.30.0/24` on Hyper-V Internal vSwitch `OpenRCT-LabNet` with outbound-only WinNAT (`10.20.30.1`)
-- **Host Isolation:** Your host OS has **no DNS** on `vEthernet (OpenRCT-LabNet)`, SMB/Client bindings disabled, Public network profile, and an inbound firewall block rule against `10.20.30.0/24`. Files are copied into VMs via **Hyper-V Guest Services** (`Copy-VMFile`) with zero host network shares.
+- **Isolated Subnet:** `10.20.30.0/24` on Hyper-V Internal vSwitch `OpenCMTools-LabNet` with outbound-only WinNAT (`10.20.30.1`)
+- **Host Isolation:** Your host OS has **no DNS** on `vEthernet (OpenCMTools-LabNet)`, SMB/Client bindings disabled, Public network profile, and an inbound firewall block rule against `10.20.30.0/24`. Files are copied into VMs via **Hyper-V Guest Services** (`Copy-VMFile`) with zero host network shares.
 
 ### Included Automation Scripts (`scripts/`)
 
@@ -27,7 +27,7 @@ This guide walks you through building the **minimum viable isolated Hyper-V lab*
 | [`03-DC01-Configure-Domain-GPO-LAPS.ps1`](scripts/03-DC01-Configure-Domain-GPO-LAPS.ps1) | `LAB-DC01` | Configures DNS forwarders, DHCP scope, OUs, test users/groups, `LAB-ORPHAN-AD`, `System Management` ACL, LAPS schema, and all 4 GPOs |
 | [`04-CM01-Prepare-Prereqs.ps1`](scripts/04-CM01-Prepare-Prereqs.ps1) | `LAB-CM01` | Joins domain, formats `E:\`, creates `C:\NO_SMS_ON_DRIVE.SMS`, installs IIS/BITS/RDC/WSUS/RSAT, opens firewall ports, and creates starter MECM objects |
 | [`05-WS-Configure-Workstation.ps1`](scripts/05-WS-Configure-Workstation.ps1) | `LAB-WS01` / `LAB-WS02` | Joins `OU=Workstations`, configures WinRM/RemoteRegistry/`AllowRemoteRPC`, encrypts `D:` with BitLocker AD backup + Windows LAPS (`LAB-WS01`), or installs Legacy LAPS (`LAB-WS02`) |
-| [`06-CM01-Verify-LabHealth.ps1`](scripts/06-CM01-Verify-LabHealth.ps1) | `LAB-CM01` | Automated PASS/WARN/FAIL verifier checking every OpenRCT protocol, AD attribute, and SMS Provider WMI query |
+| [`06-CM01-Verify-LabHealth.ps1`](scripts/06-CM01-Verify-LabHealth.ps1) | `LAB-CM01` | Automated PASS/WARN/FAIL verifier checking every OpenCMTools protocol, AD attribute, and SMS Provider WMI query |
 
 ---
 
@@ -61,17 +61,17 @@ Reboot your host if prompted.
 From an **elevated PowerShell** on your host (replace paths with your actual SSD and ISO paths):
 
 ```powershell
-cd path\to\OpenRCT\docs\lab-setup\scripts
+cd path\to\OpenCMTools\docs\lab-setup\scripts
 
 .\01-Host-Setup-HyperVLab.ps1 `
-    -LabRoot "D:\HyperV\OpenRCT-Lab" `
+    -LabRoot "D:\HyperV\OpenCMTools-Lab" `
     -ServerIsoPath "D:\LabMedia\WinServer2022_Eval.iso" `
     -WorkstationIsoPath "D:\LabMedia\Win11_Enterprise_Eval.iso" `
     -BlockHostLanSubnets @("192.168.0.0/16", "172.16.0.0/12")
 ```
 
 > **What this isolates:**
-> - Your host receives `10.20.30.1` strictly as a NAT gateway on `vEthernet (OpenRCT-LabNet)` with **no DNS**, **Public** profile, SMB/Client bindings disabled, and an **Inbound Block** rule against `10.20.30.0/24`.
+> - Your host receives `10.20.30.1` strictly as a NAT gateway on `vEthernet (OpenCMTools-LabNet)` with **no DNS**, **Public** profile, SMB/Client bindings disabled, and an **Inbound Block** rule against `10.20.30.0/24`.
 > - `-BlockHostLanSubnets` also prevents lab VMs from reaching your home/office LAN while still letting them reach the internet for WSUS metadata, Defender updates, and MECM prerequisites.
 
 ---
@@ -126,7 +126,7 @@ C:\LabScripts\03-DC01-Configure-Domain-GPO-LAPS.ps1
 Enter a lab password when prompted (assigned to `LAB\cmadmin`, `LAB\cm_push`, `LAB\testuser1`, and `LAB\testuser2`).
 
 > **Why Windows LAPS password encryption is disabled in `GPO-Windows-LAPS`:**
-> `OpenRCT`'s `ActiveDirectoryClient.GetLapsPasswordAsync` currently reads the cleartext `msLAPS-Password` attribute. The script automatically configures `ADPasswordEncryptionEnabled = 0` so Windows LAPS password retrieval works out of the box.
+> `OpenCMTools`'s `ActiveDirectoryClient.GetLapsPasswordAsync` currently reads the cleartext `msLAPS-Password` attribute. The script automatically configures `ADPasswordEncryptionEnabled = 0` so Windows LAPS password retrieval works out of the box.
 
 ### 1.5 Take Checkpoint #1 (Manual — Host)
 In Hyper-V Manager, right-click **`LAB-DC01` → Checkpoint** and rename it **`DC-Ready`**.
@@ -227,7 +227,7 @@ Run `splash.hta` (or `SMSSETUP\BIN\X64\setup.exe`) as `LAB\cmadmin` and click **
 | **Getting Started** | Install a Configuration Manager primary site *(uncheck "Use typical installation options")* |
 | **Product Key** | Install the evaluation edition of this product |
 | **Prerequisite Downloads** | Download required files → Path: `E:\CMPrereqs` |
-| **Site and Installation Settings** | Site Code: **`LAB`**<br>Site Name: **`OpenRCT Lab Primary`**<br>Installation folder: **`E:\Program Files\Microsoft Configuration Manager`** |
+| **Site and Installation Settings** | Site Code: **`LAB`**<br>Site Name: **`OpenCMTools Lab Primary`**<br>Installation folder: **`E:\Program Files\Microsoft Configuration Manager`** |
 | **Primary Site Installation** | Install the primary site as a stand-alone site |
 | **Database Information** | Server name: **`LAB-CM01.lab.local`**<br>Database name: **`CM_LAB`**<br>Service Broker Port: `4022` |
 | **Database Information (Paths)** | Data file: `E:\SQLData`<br>Log file: `E:\SQLLogs` |
@@ -262,13 +262,13 @@ Open the **Configuration Manager Console** on `LAB-CM01`:
    - Go to **Administration → Hierarchy Configuration → Discovery Methods → Active Directory System Discovery → Properties**:
      - Check **Enable Active Directory System Discovery**.
      - Click the starburst icon and add `LDAP://OU=Workstations,DC=lab,DC=local` (check *Recursive*).
-     - On the **Options** tab, check **Only discover computers that have logged on to a domain in a given period of time** (90 days). *(Tip: This keeps `LAB-ORPHAN-AD` out of ConfigMgr so it cleanly tests the "Active Directory Only" slice in OpenRCT's AD Cleanup Tool!)*
+     - On the **Options** tab, check **Only discover computers that have logged on to a domain in a given period of time** (90 days). *(Tip: This keeps `LAB-ORPHAN-AD` out of ConfigMgr so it cleanly tests the "Active Directory Only" slice in OpenCMTools's AD Cleanup Tool!)*
      - Click **OK** and choose **Yes** to run discovery now.
 3. **Configure Client Push Installation:**
    - Go to **Administration → Site Configuration → Sites → `LAB` → Client Installation Settings → Client Push Installation**:
      - **General** tab: Check **Enable automatic site-wide client push installation** (Workstations).
      - **Accounts** tab: Add **`LAB\cm_push`** with its lab password → Click **OK**.
-4. **Add Software Update Point (SUP) Role (for OpenRCT Software Updates Dashboard):**
+4. **Add Software Update Point (SUP) Role (for OpenCMTools Software Updates Dashboard):**
    - Go to **Administration → Site Configuration → Servers and Site System Roles → `LAB-CM01.lab.local` → Add Site System Roles**:
      - Select **Software update point**.
      - **WSUS Port Settings:** HTTP `8530`, HTTPS `8531`.
@@ -288,7 +288,7 @@ Open the **Configuration Manager Console** on `LAB-CM01`:
      - Right-click **7-Zip → Deploy** → Collection: **`All Lab Workstations`**, Purpose: **Available**.
 
 ### 2.11 Take Checkpoint #2 (Manual — Host)
-In Hyper-V Manager, right-click **`LAB-CM01` → Checkpoint** and rename it **`CM-Clean-Before-OpenRCT`**.
+In Hyper-V Manager, right-click **`LAB-CM01` → Checkpoint** and rename it **`CM-Clean-Before-OpenCMTools`**.
 
 ---
 
@@ -350,22 +350,22 @@ Sign into each workstation as **`LAB\cmadmin`**:
    - Sign in **once** as **`LAB\testuser2`**, then **Sign out** *(leaves an unloaded profile to test System Info → User Profiles → Delete)*.
    - Sign in as **`LAB\testuser1`** and leave the desktop open *(tests `msg.exe` Send Notification and `SkipIfUserLoggedOn`)*.
 3. **Take Checkpoint #3 (Manual — Host):**
-   - In Hyper-V Manager, take a checkpoint named **`WS-Baseline`** on both **`LAB-WS01`** and **`LAB-WS02`**. *(Whenever you test destructive OpenRCT actions like Uninstall SCCM Client, Delete from AD, or Shutdown, revert `LAB-WS02` to `WS-Baseline` in seconds!)*
+   - In Hyper-V Manager, take a checkpoint named **`WS-Baseline`** on both **`LAB-WS01`** and **`LAB-WS02`**. *(Whenever you test destructive OpenCMTools actions like Uninstall SCCM Client, Delete from AD, or Shutdown, revert `LAB-WS02` to `WS-Baseline` in seconds!)*
 
 ---
 
-## Phase 4: Install OpenRCT & Verify Everything
+## Phase 4: Install OpenCMTools & Verify Everything
 
-### 4.1 Copy & Install OpenRCT on `LAB-CM01`
-From your **host**, copy your built `OpenRCT.msi` (or portable ZIP) into `LAB-CM01`:
+### 4.1 Copy & Install OpenCMTools on `LAB-CM01`
+From your **host**, copy your built `OpenCMTools.msi` (or portable ZIP) into `LAB-CM01`:
 ```powershell
-.\00-Host-Copy-FilesToVM.ps1 -VMName LAB-CM01 -SourcePath "path\to\OpenRCT.msi" -DestinationPath "C:\Install\OpenRCT.msi"
+.\00-Host-Copy-FilesToVM.ps1 -VMName LAB-CM01 -SourcePath "path\to\OpenCMTools.msi" -DestinationPath "C:\Install\OpenCMTools.msi"
 ```
 Inside **`LAB-CM01`** (as `LAB\cmadmin`, close the MECM Console first):
 ```powershell
-msiexec /i C:\Install\OpenRCT.msi PSEXECPATH="C:\Tools\PsExec64.exe"
+msiexec /i C:\Install\OpenCMTools.msi PSEXECPATH="C:\Tools\PsExec64.exe"
 ```
-*(Or if using the portable ZIP, extract it and run `.\scripts\Install-OpenRCT.ps1 -PsExecPath "C:\Tools\PsExec64.exe" -Mode Assembly`.)*
+*(Or if using the portable ZIP, extract it and run `.\scripts\Install-OpenCMTools.ps1 -PsExecPath "C:\Tools\PsExec64.exe" -Mode Assembly`.)*
 
 ### 4.2 Run the Automated Lab Health Check (on `LAB-CM01`)
 ```powershell
@@ -373,18 +373,18 @@ C:\LabScripts\06-CM01-Verify-LabHealth.ps1 -SiteCode LAB
 ```
 Confirm every check reports **`PASS`** (any `WARN` tells you the exact item still pending, such as Hardware Inventory or WSUS sync).
 
-### 4.3 Full OpenRCT Feature Test Checklist
+### 4.3 Full OpenCMTools Feature Test Checklist
 
 Re-open the **Configuration Manager Console** on `LAB-CM01` as `LAB\cmadmin` and validate:
 
 - [ ] **Remote Tools (10):**
   - *System Information* on `LAB-WS01`: verify all 10 tabs (Hardware shows vTPM 2.0; Applications loads via Remote Registry and silently uninstalls 7-Zip; Services restarts `Spooler`; User Profiles deletes unloaded `LAB\testuser2`; Local Group Members adds/removes `LAB\testuser1`).
-  - *Remote Software Center* on `LAB-WS02`: verify 7-Zip (App), `OpenRCT Test Package` (Package), Windows 11 Updates, and Compliance Baselines; remotely trigger Install on 7-Zip.
+  - *Remote Software Center* on `LAB-WS02`: verify 7-Zip (App), `OpenCMTools Test Package` (Package), Windows 11 Updates, and Compliance Baselines; remotely trigger Install on 7-Zip.
   - *Remote Windows Security* on `LAB-WS01`: verify BitLocker, TPM, Firmware (Secure Boot / 2023 CA), VBS, Defender, Exclusions, Windows Firewall, and Firewall Rules.
   - *Remote Registry Editor* & *Remote Event Viewer* on `LAB-WS01`.
-  - *Running Processes*: launch `notepad.exe` on `LAB-WS01`, terminate it from OpenRCT.
+  - *Running Processes*: launch `notepad.exe` on `LAB-WS01`, terminate it from OpenCMTools.
   - *Connect to `C$`*, *Interactive PowerShell Prompt* (WinRM), *Interactive Command Prompt* (PsExec64), and *Manage Computer*.
-- [ ] **Client Actions (12):** Multi-select `LAB-WS01` + `LAB-WS02` → `OpenRCT → Client Actions` → test Machine Policy, Hardware Inventory, Software Updates Scan; also right-click `All Lab Workstations` collection and run a collection-wide Client Action.
+- [ ] **Client Actions (12):** Multi-select `LAB-WS01` + `LAB-WS02` → `OpenCMTools → Client Actions` → test Machine Policy, Hardware Inventory, Software Updates Scan; also right-click `All Lab Workstations` collection and run a collection-wide Client Action.
 - [ ] **Client Tools (13):**
   - *Client Information* on `LAB-WS01`: verify Details, Components, and Cache (delete cached 7-Zip item).
   - *Show Collections - Advanced* on `LAB-WS01`: verify `Lab Maintenance Window Test` shows the weekly Maintenance Window.
@@ -402,7 +402,7 @@ Re-open the **Configuration Manager Console** on `LAB-CM01` as `LAB\cmadmin` and
 - [ ] **Active Directory and ConfigMgr (5):**
   - *AD Security Groups*: add/remove `LAB-WS01` to `SG-Lab-TestGroup1`.
   - *Disable/Enable/Delete Device(s) in Active Directory* & *Delete Device(s) From ConfigMgr* on `LAB-WS02` → revert `WS-Baseline`.
-- [ ] **Embedded Console Dashboards (*Assets and Compliance → Overview → OpenRCT* — 6 Dashboards):**
+- [ ] **Embedded Console Dashboards (*Assets and Compliance → Overview → OpenCMTools* — 6 Dashboards):**
   - **Active Directory Cleanup Tool:** Select `OU=Workstations` vs `All Lab Workstations` → verify `Both` (`LAB-WS01`, `LAB-WS02`) and `Active Directory` (`LAB-ORPHAN-AD`).
   - **BitLocker Compliance:** Select `OU=Workstations` → verify `BitLocker Recovery Key Storage` and `Unified Compliance` charts for `LAB-WS01`.
   - **Content Distribution Monitor:** Verify `LAB-CM01.lab.local` DP bar chart, properties panel, Content Status dialog, and Redistribute/Validate actions.
@@ -421,5 +421,5 @@ Re-open the **Configuration Manager Console** on `LAB-CM01` as `LAB\cmadmin` and
 - **WSUS Application Pool crashes (503 Service Unavailable):** In IIS Manager on `LAB-CM01` → Application Pools → `WsusPool` → Advanced Settings → set **Private Memory Limit (KB)** to `0` (unlimited) or `4194304` and recycle the pool.
 - **Complete Lab Teardown (Host):**
   ```powershell
-  .\01-Host-Setup-HyperVLab.ps1 -LabRoot "D:\HyperV\OpenRCT-Lab" -RemoveLab
+  .\01-Host-Setup-HyperVLab.ps1 -LabRoot "D:\HyperV\OpenCMTools-Lab" -RemoveLab
   ```

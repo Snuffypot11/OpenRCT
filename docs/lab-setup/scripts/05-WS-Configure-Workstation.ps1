@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Configures LAB-WS01 (Primary) or LAB-WS02 (Secondary) for end-to-end OpenRCT testing.
+    Configures LAB-WS01 (Primary) or LAB-WS02 (Secondary) for end-to-end OpenCMTools testing.
 .DESCRIPTION
     Run inside LAB-WS01 or LAB-WS02 after installing Windows 11 Enterprise.
       - Phase JoinDomain       : Renames VM to LAB-WS01 or LAB-WS02, joins lab.local into OU=Workstations, and reboots.
@@ -97,16 +97,16 @@ if ($Phase -eq "ConfigureEndpoint") {
         }
     }
 
-    # 3. Enable PowerShell Remoting (WinRM HTTP 5985) for OpenRCT Interactive PowerShell Prompt
+    # 3. Enable PowerShell Remoting (WinRM HTTP 5985) for OpenCMTools Interactive PowerShell Prompt
     Enable-PSRemoting -Force -SkipNetworkProfileCheck | Out-Null
     Write-Host "  Enabled WinRM / PSRemoting." -ForegroundColor Gray
 
-    # 4. Ensure RemoteRegistry service is Automatic & Running (for OpenRCT System Info -> Applications)
+    # 4. Ensure RemoteRegistry service is Automatic & Running (for OpenCMTools System Info -> Applications)
     Set-Service -Name "RemoteRegistry" -StartupType Automatic
     Start-Service -Name "RemoteRegistry"
     Write-Host "  Started RemoteRegistry service." -ForegroundColor Gray
 
-    # 5. Ensure AllowRemoteRPC = 1 (for OpenRCT Send Notification / msg.exe)
+    # 5. Ensure AllowRemoteRPC = 1 (for OpenCMTools Send Notification / msg.exe)
     $tsKey = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
     Set-ItemProperty -Path $tsKey -Name "AllowRemoteRPC" -Type DWord -Value 1
     Write-Host "  Verified AllowRemoteRPC = 1." -ForegroundColor Gray

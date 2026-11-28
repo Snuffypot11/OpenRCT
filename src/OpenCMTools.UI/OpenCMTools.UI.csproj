@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>OpenCMTools.UI</RootNamespace>
+    <AssemblyName>OpenCMTools.UI</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenCMTools.Core\OpenCMTools.Core.csproj" />
+    <ProjectReference Include="..\OpenCMTools.Connectors\OpenCMTools.Connectors.csproj" />
+  </ItemGroup>
+</Project>

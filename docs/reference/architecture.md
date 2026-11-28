@@ -2,30 +2,30 @@
 
 ## Solution Structure
 
-OpenRCT is a clean multi-project C# / WPF solution targeting **.NET Framework 4.8** (with `OpenRCT.Core` and `OpenRCT.Tests` multi-targeting `net48;net8.0` for cross-platform unit testing):
+OpenCMTools is a clean multi-project C# / WPF solution targeting **.NET Framework 4.8** (with `OpenCMTools.Core` and `OpenCMTools.Tests` multi-targeting `net48;net8.0` for cross-platform unit testing):
 
 | Project | Target | Responsibility |
 |---|---|---|
-| `OpenRCT.Core` | `net48;net8.0` | Domain models, `ClientActionRegistry`, `BulkActionRunner`, `MultiDeviceGrouper`, dashboard analytics, `SettingsService`, `CsvExporter`, `GitHubUpdateChecker`, Named-Pipe IPC |
-| `OpenRCT.Connectors` | `net48` | Native Windows/MECM connectors: `WmiClient`, `DeviceReachabilityChecker`, `SmsProviderClient`, `ActiveDirectoryClient`, `SystemInfoCollector`, `EndpointActionService`, `RemoteWindowsSecurityService`, `RemoteEventViewerService`, `RemoteRegistryService` |
-| `OpenRCT.UI` | `net48` (WPF) | All tool windows, 6 dashboards, reusable controls (`ExpandableGroupedGridControl`, `InteractivePieChart`, `VectorIcon`, `ErrorDrawerControl`), Light/Dark themes, `ThemeManager`, `ConsoleIconSyncService`, `ToolDispatcher` |
-| `OpenRCT.App` | `net48` (WPF EXE) | Standalone launcher (`MainLauncherWindow`), CLI dispatcher, Named-Pipe multi-select aggregator, embedded Option B `OpenRCT.ico` |
-| `OpenRCT.ConsoleExtension` | `net48` | In-process MECM Console bridge (`OpenRctActionHandler.cs` + `DashboardConsoleViews.cs`, pure C# 5.0) |
-| `OpenRCT.ConfigMgrSdk.Stubs` | `net48` | Minimal compile-time stub interfaces for CI builds — **zero Microsoft proprietary SDK DLLs are committed** |
-| `OpenRCT.Icons` *(assets folder)* | `net48` (Resource DLLs) | Dual native `.NET 4.8` icon resource assemblies (`OpenRCT.Icons.Duotone.dll` & `OpenRCT.Icons.Outline.dll`) compiled from `.ico` assets by `Build-IconsDll.ps1` (version auto-read from `Directory.Build.props`) |
-| `OpenRCT.Installer` *(standalone `.wixproj`)* | WiX v4 | `OpenRCT.msi` per-machine installer with silent deployment properties and automatic console registration (built outside `OpenRCT.sln`) |
-| `OpenRCT.Tests` | `net48;net8.0` | Automated xUnit test suite covering analytics, grouping, IPC, XML/XAML integrity, ASCII safety, and `.NET 4.8` icon resource loading |
+| `OpenCMTools.Core` | `net48;net8.0` | Domain models, `ClientActionRegistry`, `BulkActionRunner`, `MultiDeviceGrouper`, dashboard analytics, `SettingsService`, `CsvExporter`, `GitHubUpdateChecker`, Named-Pipe IPC |
+| `OpenCMTools.Connectors` | `net48` | Native Windows/MECM connectors: `WmiClient`, `DeviceReachabilityChecker`, `SmsProviderClient`, `ActiveDirectoryClient`, `SystemInfoCollector`, `EndpointActionService`, `RemoteWindowsSecurityService`, `RemoteEventViewerService`, `RemoteRegistryService` |
+| `OpenCMTools.UI` | `net48` (WPF) | All tool windows, 6 dashboards, reusable controls (`ExpandableGroupedGridControl`, `InteractivePieChart`, `VectorIcon`, `ErrorDrawerControl`), Light/Dark themes, `ThemeManager`, `ConsoleIconSyncService`, `ToolDispatcher` |
+| `OpenCMTools.App` | `net48` (WPF EXE) | Standalone launcher (`MainLauncherWindow`), CLI dispatcher, Named-Pipe multi-select aggregator, embedded Option B `OpenCMTools.ico` |
+| `OpenCMTools.ConsoleExtension` | `net48` | In-process MECM Console bridge (`OpenCMToolsActionHandler.cs` + `DashboardConsoleViews.cs`, pure C# 5.0) |
+| `OpenCMTools.ConfigMgrSdk.Stubs` | `net48` | Minimal compile-time stub interfaces for CI builds — **zero Microsoft proprietary SDK DLLs are committed** |
+| `OpenCMTools.Icons` *(assets folder)* | `net48` (Resource DLLs) | Dual native `.NET 4.8` icon resource assemblies (`OpenCMTools.Icons.Duotone.dll` & `OpenCMTools.Icons.Outline.dll`) compiled from `.ico` assets by `Build-IconsDll.ps1` (version auto-read from `Directory.Build.props`) |
+| `OpenCMTools.Installer` *(standalone `.wixproj`)* | WiX v4 | `OpenCMTools.msi` per-machine installer with silent deployment properties and automatic console registration (built outside `OpenCMTools.sln`) |
+| `OpenCMTools.Tests` | `net48;net8.0` | Automated xUnit test suite covering analytics, grouping, IPC, XML/XAML integrity, ASCII safety, and `.NET 4.8` icon resource loading |
 
 ---
 
 ## How Zero-SDK MECM Console Integration Works
 
-Because Microsoft's Configuration Manager Console SDK DLLs are proprietary and version-specific, OpenRCT **never bundles Microsoft SDK binaries**:
+Because Microsoft's Configuration Manager Console SDK DLLs are proprietary and version-specific, OpenCMTools **never bundles Microsoft SDK binaries**:
 
-1. During installation (`Install-OpenRCT.ps1`), OpenRCT inspects your workstation's local `<AdminConsole>\bin\` assemblies via .NET Reflection to discover the exact `OverviewControllerBase`, `Overview`, and `IConsoleView2` types for your installed MECM version.
-2. It compiles `OpenRctActionHandler.cs` and `DashboardConsoleViews.cs` directly against your local MECM Console binaries using the built-in `.NET Framework 4.8` `csc.exe`, producing a strongly matched `OpenRCT.ConsoleExtension.dll`.
-3. `OpenRCT.ConsoleExtension.dll` registers a custom `AppDomain.AssemblyResolve` handler (`OpenRctAssemblyResolver`) reading `OpenRCT.installdir.txt` / `HKLM\SOFTWARE\OpenRCT\InstallDir` so all OpenRCT WPF assemblies load cleanly from `C:\Program Files\OpenRCT` without polluting `<AdminConsole>\bin\`.
-4. Both `OpenRCT.Icons.Duotone.dll` and `OpenRCT.Icons.Outline.dll` embed identical `OpenRCT.Icons.ConsoleIcons.resources` stream names and 39 icon keys; switching Icon Style simply deploys the chosen DLL to `<AdminConsole>\bin\OpenRCT.Icons.dll` with zero XML changes.
+1. During installation (`Install-OpenCMTools.ps1`), OpenCMTools inspects your workstation's local `<AdminConsole>\bin\` assemblies via .NET Reflection to discover the exact `OverviewControllerBase`, `Overview`, and `IConsoleView2` types for your installed MECM version.
+2. It compiles `OpenCMToolsActionHandler.cs` and `DashboardConsoleViews.cs` directly against your local MECM Console binaries using the built-in `.NET Framework 4.8` `csc.exe`, producing a strongly matched `OpenCMTools.ConsoleExtension.dll`.
+3. `OpenCMTools.ConsoleExtension.dll` registers a custom `AppDomain.AssemblyResolve` handler (`OpenCMToolsAssemblyResolver`) reading `OpenCMTools.installdir.txt` / `HKLM\SOFTWARE\OpenCMTools\InstallDir` so all OpenCMTools WPF assemblies load cleanly from `C:\Program Files\OpenCMTools` without polluting `<AdminConsole>\bin\`.
+4. Both `OpenCMTools.Icons.Duotone.dll` and `OpenCMTools.Icons.Outline.dll` embed identical `OpenCMTools.Icons.ConsoleIcons.resources` stream names and 39 icon keys; switching Icon Style simply deploys the chosen DLL to `<AdminConsole>\bin\OpenCMTools.Icons.dll` with zero XML changes.
 
 ---
 

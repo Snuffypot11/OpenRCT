@@ -30,7 +30,7 @@ Write-Host "=== Step 1: Configuring Static IP ($IpAddress/$PrefixLength) ===" -F
 
 $adapter = Get-NetAdapter | Where-Object { $_.Status -eq "Up" } | Select-Object -First 1
 if (-not $adapter) {
-    throw "No active network adapter found. Ensure LAB-DC01 is connected to the 'OpenRCT-LabNet' vSwitch."
+    throw "No active network adapter found. Ensure LAB-DC01 is connected to the 'OpenCMTools-LabNet' vSwitch."
 }
 
 $currentIp = Get-NetIPAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue |

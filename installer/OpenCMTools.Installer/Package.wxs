@@ -1,0 +1,127 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="OpenCMTools — Open Source Endpoint &amp; Console Tools for MECM"
+           Manufacturer="OpenCMTools Contributors"
+           Version="0.3.0.0"
+           UpgradeCode="9f41d2e8-5c3a-4b11-9a10-7e4b6c112201"
+           Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of OpenCMTools is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Primary OpenCMTools Application Icon (Option B) for Add/Remove Programs and Shortcuts -->
+    <Icon Id="OpenCMToolsAppIcon" SourceFile="..\..\src\OpenCMTools.App\Assets\OpenCMTools.ico" />
+    <Property Id="ARPPRODUCTICON" Value="OpenCMToolsAppIcon" />
+
+    <!-- Optional silent install properties: msiexec /i OpenCMTools.msi /qn PSEXECPATH="C:\Tools\PsExec64.exe" -->
+    <Property Id="PSEXECPATH" Secure="yes" />
+    <Property Id="CONSOLEROOT" Secure="yes" />
+    <Property Id="INSTALLMODE" Value="Assembly" Secure="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="OpenCMTools">
+        <Directory Id="ScriptsFolder" Name="scripts" />
+        <Directory Id="BridgeSrcFolder" Name="console-bridge-src" />
+        <Directory Id="ConsoleExtRootFolder" Name="console-extensions">
+          <Directory Id="XmlStorageFolder" Name="XmlStorage">
+            <Directory Id="XmlExtensionsFolder" Name="Extensions">
+              <Directory Id="XmlActionsFolder" Name="Actions" />
+              <Directory Id="XmlNodesFolder" Name="Nodes" />
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="OpenCMToolsMenuFolder" Name="OpenCMTools" />
+    </StandardDirectory>
+
+    <Feature Id="MainFeature" Title="OpenCMTools Core &amp; MECM Console Extensions" Level="1">
+      <ComponentGroupRef Id="AppBinaries" />
+      <ComponentGroupRef Id="InstallerAssets" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+
+    <ComponentGroup Id="AppBinaries" Directory="INSTALLFOLDER">
+      <Component Id="OpenCMToolsCoreDll" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112211">
+        <File Source="$(var.OpenCMTools.App.TargetDir)OpenCMTools.Core.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="OpenCMToolsConnectorsDll" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112212">
+        <File Source="$(var.OpenCMTools.App.TargetDir)OpenCMTools.Connectors.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="OpenCMToolsUiDll" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112213">
+        <File Source="$(var.OpenCMTools.App.TargetDir)OpenCMTools.UI.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="OpenCMToolsAppExe" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112214">
+        <File Id="OpenCMToolsAppExeFile" Source="$(var.OpenCMTools.App.TargetDir)OpenCMTools.App.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="OpenCMToolsConsoleExtDll" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112215">
+        <File Source="$(var.OpenCMTools.ConsoleExtension.TargetDir)OpenCMTools.ConsoleExtension.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="OpenCMToolsIconsDuotoneDll" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112216">
+        <File Source="..\..\src\OpenCMTools.Icons\bin\Release\net48\OpenCMTools.Icons.Duotone.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="OpenCMToolsIconsOutlineDll" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112217">
+        <File Source="..\..\src\OpenCMTools.Icons\bin\Release\net48\OpenCMTools.Icons.Outline.dll" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="InstallerAssets">
+      <Component Id="InstallScript" Directory="ScriptsFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112221">
+        <File Source="..\scripts\Install-OpenCMTools.ps1" KeyPath="yes" />
+      </Component>
+      <Component Id="UninstallScript" Directory="ScriptsFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112222">
+        <File Source="..\scripts\Uninstall-OpenCMTools.ps1" KeyPath="yes" />
+      </Component>
+      <Component Id="BridgeHandlerCs" Directory="BridgeSrcFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112223">
+        <File Source="..\..\src\OpenCMTools.ConsoleExtension\OpenCMToolsActionHandler.cs" KeyPath="yes" />
+      </Component>
+      <Component Id="BridgeViewsCs" Directory="BridgeSrcFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112224">
+        <File Source="..\..\src\OpenCMTools.ConsoleExtension\DashboardConsoleViews.cs" KeyPath="yes" />
+      </Component>
+      <Component Id="DeviceActionsXml" Directory="XmlActionsFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112225">
+        <File Source="..\..\console-extensions\XmlStorage\Extensions\Actions\OpenCMTools_DeviceActions.xml" KeyPath="yes" />
+      </Component>
+      <Component Id="CollectionActionsXml" Directory="XmlActionsFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112226">
+        <File Source="..\..\console-extensions\XmlStorage\Extensions\Actions\OpenCMTools_CollectionActions.xml" KeyPath="yes" />
+      </Component>
+      <Component Id="ExecutableActionsXml" Directory="XmlActionsFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112227">
+        <File Source="..\..\console-extensions\XmlStorage\Extensions\Actions\OpenCMTools_DeviceActions_Executable.xml" KeyPath="yes" />
+      </Component>
+      <Component Id="ConsoleNodesXml" Directory="XmlNodesFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112228">
+        <File Source="..\..\console-extensions\XmlStorage\Extensions\Nodes\OpenCMTools_Nodes.xml" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <Component Id="StartMenuShortcut" Directory="OpenCMToolsMenuFolder" Guid="9f41d2e8-5c3a-4b11-9a10-7e4b6c112230">
+      <Shortcut Id="OpenCMToolsShortcut"
+                Name="OpenCMTools"
+                Description="Open Source Endpoint &amp; Console Tools for Microsoft Configuration Manager"
+                Target="[#OpenCMToolsAppExeFile]"
+                Icon="OpenCMToolsAppIcon"
+                WorkingDirectory="INSTALLFOLDER" />
+      <RemoveFolder Id="RemoveOpenCMToolsMenuFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" Key="Software\OpenCMTools" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
+    <!-- Register & unregister MECM Console XML extensions cleanly (trailing '.' prevents \" quote-escaping in powershell.exe) -->
+    <CustomAction Id="RegisterConsoleExtensions"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;[ScriptsFolder]Install-OpenCMTools.ps1&quot; -InstallDir &quot;[INSTALLFOLDER].&quot; -Mode &quot;[INSTALLMODE]&quot; -ConsoleRoot &quot;[CONSOLEROOT]&quot; -PsExecPath &quot;[PSEXECPATH]&quot; -SkipBinaryCopy"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
+    <CustomAction Id="UnregisterConsoleExtensions"
+                  Directory="INSTALLFOLDER"
+                  ExeCommand="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;[ScriptsFolder]Uninstall-OpenCMTools.ps1&quot; -InstallDir &quot;[INSTALLFOLDER].&quot; -ConsoleRoot &quot;[CONSOLEROOT]&quot; -SkipBinaryRemove"
+                  Execute="deferred"
+                  Impersonate="no"
+                  Return="ignore" />
+
+    <InstallExecuteSequence>
+      <Custom Action="RegisterConsoleExtensions" After="InstallFiles" Condition="NOT Installed OR REINSTALL" />
+      <Custom Action="UnregisterConsoleExtensions" Before="RemoveFiles" Condition="REMOVE=&quot;ALL&quot;" />
+    </InstallExecuteSequence>
+  </Package>
+</Wix>

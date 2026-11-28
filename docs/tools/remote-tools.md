@@ -1,6 +1,6 @@
 # Remote Tools
 
-All interactive remote inspection, troubleshooting, and session tools are consolidated under **OpenRCT → Remote Tools**.
+All interactive remote inspection, troubleshooting, and session tools are consolidated under **OpenCMTools → Remote Tools**.
 
 ---
 

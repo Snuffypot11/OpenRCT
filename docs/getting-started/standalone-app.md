@@ -1,6 +1,6 @@
-# Standalone App (`OpenRCT.App.exe`)
+# Standalone App (`OpenCMTools.App.exe`)
 
-In addition to running directly inside the Configuration Manager Admin Console, OpenRCT ships with a full **Standalone Launcher** (`OpenRCT.App.exe`) available from the **Start Menu → OpenRCT**.
+In addition to running directly inside the Configuration Manager Admin Console, OpenCMTools ships with a full **Standalone Launcher** (`OpenCMTools.App.exe`) available from the **Start Menu → OpenCMTools**.
 
 This is ideal when:
 
@@ -8,7 +8,7 @@ This is ideal when:
 - You are working from an admin jump box where the MECM Console is not installed (or only querying AD/WMI/WinRM directly).
 - You want to search across all 51 endpoint tools and launch dashboards from a single workspace.
 
-![OpenRCT Standalone Launcher](../assets/images/standalone-launcher.png)
+![OpenCMTools Standalone Launcher](../assets/images/standalone-launcher.png)
 
 ---
 
@@ -16,12 +16,12 @@ This is ideal when:
 
 - **Header Bar:**
   - **Check for Updates** — Manual, on-demand GitHub Releases check (visible when enabled in Settings; never phones home in the background).
-  - **Settings (Cog Icon)** — Opens [OpenRCT Settings](settings.md) to configure PsExec, concurrency/timeouts, theme, icon style, and updates.
+  - **Settings (Cog Icon)** — Opens [OpenCMTools Settings](settings.md) to configure PsExec, concurrency/timeouts, theme, icon style, and updates.
 - **Target Picker:** Switch between:
   - **Target Device(s):** Enter one or more computer names, FQDNs, or IP addresses (comma-, semicolon-, or newline-separated), with live target count and a **Clear** button.
   - **ConfigMgr Device Collection:** Connect to your SMS Provider (auto-discovered or configured in Settings) and pick any **Device Collection** (with a **Refresh** button) to target all its members at once.
 - **Tool Filter (`Filter:`):** Real-time search across all 51 endpoint tools and categories inside the **Endpoint & Management Tools** pane.
-- **Footer Utilities:** Displays the current OpenRCT version and detected SMS Provider / Site Code, plus one-click **View Install Log** (`C:\ProgramData\OpenRCT\install.log`) and **Repair MECM Console Extension** buttons.
+- **Footer Utilities:** Displays the current OpenCMTools version and detected SMS Provider / Site Code, plus one-click **View Install Log** (`C:\ProgramData\OpenCMTools\install.log`) and **Repair MECM Console Extension** buttons.
 
 ---
 
@@ -48,15 +48,15 @@ The standalone launcher mirrors the same clean organization as the MECM Admin Co
 
 ## Command-Line Invocation (Advanced / Scripting)
 
-`OpenRCT.App.exe` also supports CLI arguments (used by `Executable` mode XML extensions and available for custom scripts):
+`OpenCMTools.App.exe` also supports CLI arguments (used by `Executable` mode XML extensions and available for custom scripts):
 
 ```powershell
 # Open System Information for multiple devices
-OpenRCT.App.exe --action "ConsoleTool.SystemInformation" --device "PC-01,PC-02,PC-03"
+OpenCMTools.App.exe --action "ConsoleTool.SystemInformation" --device "PC-01,PC-02,PC-03"
 
 # Open Remote Windows Security for a collection
-OpenRCT.App.exe --action "RemoteTool.RemoteWindowsSecurity" --collection-id "SMS00001" --collection-name "All Systems"
+OpenCMTools.App.exe --action "RemoteTool.RemoteWindowsSecurity" --collection-id "SMS00001" --collection-name "All Systems"
 
 # Open a dashboard directly
-OpenRCT.App.exe --action "Dashboard.BitLockerCompliance"
+OpenCMTools.App.exe --action "Dashboard.BitLockerCompliance"
 ```

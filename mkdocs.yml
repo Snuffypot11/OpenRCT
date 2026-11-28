@@ -1,5 +1,5 @@
-site_name: OpenRCT Documentation
-site_description: Free, MIT-licensed, open-source Right Click Tools and embedded console dashboards for Microsoft Configuration Manager (MECM / SCCM).
+site_name: OpenCMTools Documentation
+site_description: Free, MIT-licensed, open-source endpoint management tools and embedded console dashboards for Microsoft Configuration Manager (MECM / SCCM).
 docs_dir: docs
 exclude_docs: |
   assets/images/README.md
@@ -61,7 +61,7 @@ nav:
       - Installation & Upgrading: getting-started/installation.md
       - Standalone App: getting-started/standalone-app.md
       - Settings & Customization: getting-started/settings.md
-  - Right-Click Tools:
+  - Endpoint Tools:
       - Menu Layout & Multi-Device UI: tools/overview.md
       - Remote Tools: tools/remote-tools.md
       - Client Actions & Client Tools: tools/client-actions-and-tools.md

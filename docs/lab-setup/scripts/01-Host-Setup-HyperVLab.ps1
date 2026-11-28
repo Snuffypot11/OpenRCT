@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
-    Provisions the isolated Hyper-V virtual network, hardened WinNAT, and 4-VM OpenRCT testing lab.
+    Provisions the isolated Hyper-V virtual network, hardened WinNAT, and 4-VM OpenCMTools testing lab.
 .DESCRIPTION
     Run this script on your Windows 10/11 Pro/Enterprise Hyper-V host (32 GB RAM recommended).
     It creates:
-      - Hyper-V Internal vSwitch 'OpenRCT-LabNet' (10.20.30.1/24 gateway, NO DNS configured)
-      - Outbound-only WinNAT 'OpenRCT-LabNAT' (10.20.30.0/24)
+      - Hyper-V Internal vSwitch 'OpenCMTools-LabNet' (10.20.30.1/24 gateway, NO DNS configured)
+      - Outbound-only WinNAT 'OpenCMTools-LabNAT' (10.20.30.0/24)
       - Host isolation rules (Public profile, SMB/MS-Client disabled on lab vNIC, inbound VM->Host blocked)
       - Optional RFC1918 block rules preventing lab VMs from reaching your home/corporate LAN
       - 4 Generation 2 VMs with Dynamic Memory, thin VHDXs, Secure Boot, vTPM (workstations), and Guest Services:
@@ -22,9 +22,9 @@
 .PARAMETER BlockHostLanSubnets
     Optional array of your home/corporate LAN CIDR ranges to block from lab VMs (e.g., @("192.168.0.0/16", "172.16.0.0/12")).
 .PARAMETER RemoveLab
-    Tears down all 4 lab VMs, VHDX files under LabRoot, firewall rules, WinNAT, and the OpenRCT-LabNet switch.
+    Tears down all 4 lab VMs, VHDX files under LabRoot, firewall rules, WinNAT, and the OpenCMTools-LabNet switch.
 .EXAMPLE
-    .\01-Host-Setup-HyperVLab.ps1 -LabRoot "D:\HyperV\OpenRCT-Lab" `
+    .\01-Host-Setup-HyperVLab.ps1 -LabRoot "D:\HyperV\OpenCMTools-Lab" `
         -ServerIsoPath "D:\ISOs\WinServer2022_Eval.iso" `
         -WorkstationIsoPath "D:\ISOs\Win11_Enterprise_Eval.iso" `
         -BlockHostLanSubnets @("192.168.0.0/16")
@@ -32,7 +32,7 @@
 #Requires -RunAsAdministrator
 [CmdletBinding()]
 param(
-    [string]$LabRoot = "C:\HyperV\OpenRCT-Lab",
+    [string]$LabRoot = "C:\HyperV\OpenCMTools-Lab",
     [string]$ServerIsoPath = "",
     [string]$WorkstationIsoPath = "",
     [string[]]$BlockHostLanSubnets = @(),
@@ -41,12 +41,12 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$SwitchName = "OpenRCT-LabNet"
-$NatName = "OpenRCT-LabNAT"
+$SwitchName = "OpenCMTools-LabNet"
+$NatName = "OpenCMTools-LabNAT"
 $GatewayIp = "10.20.30.1"
 $SubnetPrefix = "10.20.30.0/24"
-$FwRuleHostBlock = "OpenRCT Lab - Block VM to Host Inbound"
-$FwRuleLanBlock = "OpenRCT Lab - Block Lab to Host LAN"
+$FwRuleHostBlock = "OpenCMTools Lab - Block VM to Host Inbound"
+$FwRuleLanBlock = "OpenCMTools Lab - Block Lab to Host LAN"
 
 $VmDefinitions = @(
     @{
@@ -101,7 +101,7 @@ if (-not (Get-Module -ListAvailable -Name Hyper-V)) {
 Import-Module Hyper-V
 
 if ($RemoveLab) {
-    Write-Warning "Removing OpenRCT Lab VMs, virtual switch, WinNAT, and firewall rules..."
+    Write-Warning "Removing OpenCMTools Lab VMs, virtual switch, WinNAT, and firewall rules..."
     foreach ($spec in $VmDefinitions) {
         $existing = Get-VM -Name $spec.Name -ErrorAction SilentlyContinue
         if ($existing) {
@@ -133,7 +133,7 @@ if ($RemoveLab) {
         Remove-Item -Path $LabRoot -Recurse -Force
     }
 
-    Write-Host "OpenRCT Lab cleanup complete." -ForegroundColor Green
+    Write-Host "OpenCMTools Lab cleanup complete." -ForegroundColor Green
     return
 }
 

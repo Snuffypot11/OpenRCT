@@ -1,0 +1,140 @@
+<UserControl x:Class="OpenCMTools.UI.Views.Dashboards.SoftwareUpdatesDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:OpenCMTools.UI.Controls"
+             Background="{DynamicResource AppBackgroundBrush}">
+  <Grid Margin="16">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="265" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+      <TextBlock Text="Software Updates Deployment Status"
+                 FontSize="24"
+                 FontWeight="SemiBold"
+                 Foreground="{DynamicResource PrimaryTextBrush}"
+                 VerticalAlignment="Center" />
+      <Button x:Name="PopOutButton"
+              Content="↗"
+              ToolTip="Open in separate window"
+              Margin="10,0,0,0"
+              Padding="7,2"
+              Style="{DynamicResource StandardButton}"
+              Click="PopOut_Click" />
+    </StackPanel>
+
+    <!-- Collection + Deployed Filter + SUG Multi-Select + Start Button (matches image_3.png) -->
+    <Grid Grid.Row="1" Margin="0,0,0,10">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="8" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <TextBlock Grid.Row="0" Grid.Column="0" Text="Collection:" Margin="0,0,10,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
+      <ComboBox x:Name="CollectionCombo" Grid.Row="0" Grid.Column="1" DisplayMemberPath="Name" MinHeight="28" />
+      <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+        <Button x:Name="StartButton" Content="Start" Width="85" Margin="10,0,0,0" Style="{DynamicResource PrimaryButton}" Click="Start_Click" />
+        <Button x:Name="CancelButton" Content="Cancel" Width="75" Margin="6,0,0,0" Style="{DynamicResource StandardButton}" Click="Cancel_Click" Visibility="Collapsed" />
+      </StackPanel>
+
+      <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+        <CheckBox x:Name="LimitDeployedCheck"
+                  Content="Limit to deployed updates"
+                  IsChecked="True"
+                  VerticalAlignment="Center"
+                  Margin="0,0,18,0"
+                  Checked="FilterControlChanged"
+                  Unchecked="FilterControlChanged" />
+        <TextBlock Text="Limit to Software Update Group(s):"
+                   VerticalAlignment="Center"
+                   Margin="0,0,8,0"
+                   Foreground="{DynamicResource SecondaryTextBrush}" />
+        <controls:MultiSelectDropdown x:Name="SugDropdown" />
+      </DockPanel>
+    </Grid>
+
+    <!-- Two Side-by-Side Panels matching image_3.png -->
+    <Grid Grid.Row="2" Margin="0,0,0,10">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1.15*" />
+        <ColumnDefinition Width="12" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Left Panel: Device Compliance Status + Age Slider + 6 Classification Checkboxes -->
+      <Border Grid.Column="0" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="1" Padding="10">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <TextBlock Grid.Row="0" Text="Device Compliance Status" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryTextBrush}" />
+
+          <DockPanel Grid.Row="1" Margin="0,6,0,6">
+            <TextBlock x:Name="AgeLabel" Text="Updates older than 0 days:" Width="155" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" />
+            <Slider x:Name="AgeSlider" Minimum="0" Maximum="180" TickFrequency="15" IsSnapToTickEnabled="False" ValueChanged="AgeSlider_ValueChanged" VerticalAlignment="Center" />
+          </DockPanel>
+
+          <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="145" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+              <CheckBox x:Name="ChkCritical" Content="Critical Updates" IsChecked="True" Margin="0,2" Checked="FilterControlChanged" Unchecked="FilterControlChanged" />
+              <CheckBox x:Name="ChkDefinition" Content="Definition Updates" IsChecked="True" Margin="0,2" Checked="FilterControlChanged" Unchecked="FilterControlChanged" />
+              <CheckBox x:Name="ChkOther" Content="Other Classifications" IsChecked="True" Margin="0,2" Checked="FilterControlChanged" Unchecked="FilterControlChanged" />
+              <CheckBox x:Name="ChkSecurity" Content="Security Updates" IsChecked="True" Margin="0,2" Checked="FilterControlChanged" Unchecked="FilterControlChanged" />
+              <CheckBox x:Name="ChkRollups" Content="Update Rollups" IsChecked="True" Margin="0,2" Checked="FilterControlChanged" Unchecked="FilterControlChanged" />
+              <CheckBox x:Name="ChkUpdates" Content="Updates" IsChecked="True" Margin="0,2" Checked="FilterControlChanged" Unchecked="FilterControlChanged" />
+            </StackPanel>
+
+            <controls:InteractivePieChart x:Name="CompliancePieChart" Grid.Column="1" SliceClicked="CompliancePieChart_SliceClicked" />
+          </Grid>
+        </Grid>
+      </Border>
+
+      <!-- Right Panel: Missing Updates By Category -->
+      <Border Grid.Column="2" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="1" Padding="10">
+        <controls:InteractivePieChart x:Name="CategoryPieChart" ChartTitle="Missing Updates By Category" SliceClicked="CategoryPieChart_SliceClicked" />
+      </Border>
+    </Grid>
+
+    <!-- Filtered Devices Grid -->
+    <DataGrid x:Name="ResultsGrid" Grid.Row="3" Style="{DynamicResource OpenCMToolsDataGrid}" Margin="0,0,0,8">
+      <DataGrid.ContextMenu>
+        <ContextMenu>
+          <MenuItem Header="Trigger Software Updates Scan Cycle" Click="TriggerScan_Click" />
+          <MenuItem Header="Trigger Software Updates Deployment Evaluation" Click="TriggerEval_Click" />
+          <MenuItem Header="Open Remote Software Center" Click="OpenSoftwareCenter_Click" />
+        </ContextMenu>
+      </DataGrid.ContextMenu>
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Device Name" Binding="{Binding DeviceName}" Width="180" />
+        <DataGridTextColumn Header="Compliance Status" Binding="{Binding ComplianceLabel}" Width="140" />
+        <DataGridTextColumn Header="Missing Updates" Binding="{Binding MissingCount}" Width="120" />
+        <DataGridTextColumn Header="Installed Updates" Binding="{Binding InstalledCount}" Width="125" />
+        <DataGridTextColumn Header="Unknown" Binding="{Binding UnknownCount}" Width="90" />
+        <DataGridTextColumn Header="Missing Categories" Binding="{Binding MissingCategories}" Width="*" MinWidth="200" />
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <DockPanel Grid.Row="4">
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
+      <TextBlock x:Name="FilterStatusText" DockPanel.Dock="Right" Margin="0,0,14,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" />
+      <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
+    </DockPanel>
+  </Grid>
+</UserControl>

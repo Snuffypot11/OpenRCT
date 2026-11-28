@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Runs an end-to-end readiness health check from LAB-CM01 validating every protocol, AD attribute,
-    and MECM WMI dependency required to test all OpenRCT features.
+    and MECM WMI dependency required to test all OpenCMTools features.
 .DESCRIPTION
     Run on LAB-CM01 while logged in as LAB\cmadmin after all 4 VMs are configured and the MECM
     client is installed on LAB-WS01 and LAB-WS02.
@@ -38,7 +38,7 @@ function Add-CheckResult {
     })
 }
 
-Write-Host "=== Running OpenRCT Lab Health Verification (Site: $SiteCode) ===" -ForegroundColor Cyan
+Write-Host "=== Running OpenCMTools Lab Health Verification (Site: $SiteCode) ===" -ForegroundColor Cyan
 
 # 1. Endpoint protocol checks for each workstation
 foreach ($ws in $Workstations) {
@@ -151,9 +151,9 @@ try {
     Add-CheckResult "LAB-CM01" "SMS Provider ($smsNs)" "FAIL" $_.Exception.Message
 }
 
-# 4. OpenRCT Installation & Optional PsExec Check
-$openRctExe = "$env:ProgramFiles\OpenRCT\OpenRCT.App.exe"
-Add-CheckResult "LAB-CM01" "OpenRCT Installation" ($(if (Test-Path $openRctExe) { "PASS" } else { "WARN" })) ($(if (Test-Path $openRctExe) { "Installed at $openRctExe" } else { "Not installed yet" }))
+# 4. OpenCMTools Installation & Optional PsExec Check
+$openCMToolsExe = "$env:ProgramFiles\OpenCMTools\OpenCMTools.App.exe"
+Add-CheckResult "LAB-CM01" "OpenCMTools Installation" ($(if (Test-Path $openCMToolsExe) { "PASS" } else { "WARN" })) ($(if (Test-Path $openCMToolsExe) { "Installed at $openCMToolsExe" } else { "Not installed yet" }))
 
 $psExecPath = "C:\Tools\PsExec64.exe"
 Add-CheckResult "LAB-CM01" "Optional Sysinternals PsExec64" ($(if (Test-Path $psExecPath) { "PASS" } else { "WARN" })) ($(if (Test-Path $psExecPath) { "Present at $psExecPath" } else { "Optional: place PsExec64.exe at C:\Tools\ for Interactive CMD" }))

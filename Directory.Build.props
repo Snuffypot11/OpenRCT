@@ -4,21 +4,21 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <Deterministic>true</Deterministic>
-    <Company>OpenRCT Contributors</Company>
-    <Product>OpenRCT — Open Source Right Click Tools for MECM</Product>
-    <Copyright>Copyright (c) 2026 OpenRCT Contributors. Licensed under the MIT License.</Copyright>
-    <Version>0.2.10</Version>
-    <AssemblyVersion>0.2.10.0</AssemblyVersion>
-    <FileVersion>0.2.10.0</FileVersion>
+    <Company>OpenCMTools Contributors</Company>
+    <Product>OpenCMTools — Open Source Endpoint &amp; Console Tools for MECM</Product>
+    <Copyright>Copyright (c) 2026 OpenCMTools Contributors. Licensed under the MIT License.</Copyright>
+    <Version>0.3.0</Version>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <FileVersion>0.3.0.0</FileVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <!-- Fork-friendly update source: automatically populated from GitHub Actions GITHUB_REPOSITORY when built in CI; blank for local builds -->
-    <OpenRctUpdateRepository Condition="'$(OpenRctUpdateRepository)' == ''">$(GITHUB_REPOSITORY)</OpenRctUpdateRepository>
+    <OpenCMToolsUpdateRepository Condition="'$(OpenCMToolsUpdateRepository)' == ''">$(GITHUB_REPOSITORY)</OpenCMToolsUpdateRepository>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(OpenRctUpdateRepository)' != ''">
+  <ItemGroup Condition="'$(OpenCMToolsUpdateRepository)' != ''">
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
       <_Parameter1>UpdateRepository</_Parameter1>
-      <_Parameter2>$(OpenRctUpdateRepository)</_Parameter2>
+      <_Parameter2>$(OpenCMToolsUpdateRepository)</_Parameter2>
     </AssemblyAttribute>
   </ItemGroup>
 

@@ -70,7 +70,7 @@ if ($Phase -eq "NetworkAndJoin") {
     Write-Host "Configured IP $IpAddress/$PrefixLength, GW $Gateway, DNS $DnsServer." -ForegroundColor Green
 
     if (-not (Test-Connection -ComputerName $DnsServer -Count 2 -Quiet)) {
-        throw "Cannot reach LAB-DC01 ($DnsServer). Verify LAB-DC01 is running and on OpenRCT-LabNet."
+        throw "Cannot reach LAB-DC01 ($DnsServer). Verify LAB-DC01 is running and on OpenCMTools-LabNet."
     }
 
     $cs = Get-CimInstance Win32_ComputerSystem
@@ -187,13 +187,13 @@ if ($Phase -eq "RolesAndDisks") {
 
     Write-Host "=== Phase 2C: Opening Local Firewall Ports for SQL, MECM, and WSUS ===" -ForegroundColor Cyan
     $fwRules = @(
-        @{ Name = "OpenRCT-CM-SQL"; DisplayName = "MECM Lab - SQL Server (TCP 1433)"; Port = "1433" },
-        @{ Name = "OpenRCT-CM-SQLBroker"; DisplayName = "MECM Lab - SQL Service Broker (TCP 4022)"; Port = "4022" },
-        @{ Name = "OpenRCT-CM-HTTP"; DisplayName = "MECM Lab - MP/DP HTTP (TCP 80)"; Port = "80" },
-        @{ Name = "OpenRCT-CM-HTTPS"; DisplayName = "MECM Lab - MP/DP HTTPS/eHTTP (TCP 443)"; Port = "443" },
-        @{ Name = "OpenRCT-CM-WSUS-HTTP"; DisplayName = "MECM Lab - WSUS HTTP (TCP 8530)"; Port = "8530" },
-        @{ Name = "OpenRCT-CM-WSUS-HTTPS"; DisplayName = "MECM Lab - WSUS HTTPS (TCP 8531)"; Port = "8531" },
-        @{ Name = "OpenRCT-CM-FastChannel"; DisplayName = "MECM Lab - Client Notification Fast Channel (TCP 10123)"; Port = "10123" }
+        @{ Name = "OpenCMTools-CM-SQL"; DisplayName = "MECM Lab - SQL Server (TCP 1433)"; Port = "1433" },
+        @{ Name = "OpenCMTools-CM-SQLBroker"; DisplayName = "MECM Lab - SQL Service Broker (TCP 4022)"; Port = "4022" },
+        @{ Name = "OpenCMTools-CM-HTTP"; DisplayName = "MECM Lab - MP/DP HTTP (TCP 80)"; Port = "80" },
+        @{ Name = "OpenCMTools-CM-HTTPS"; DisplayName = "MECM Lab - MP/DP HTTPS/eHTTP (TCP 443)"; Port = "443" },
+        @{ Name = "OpenCMTools-CM-WSUS-HTTP"; DisplayName = "MECM Lab - WSUS HTTP (TCP 8530)"; Port = "8530" },
+        @{ Name = "OpenCMTools-CM-WSUS-HTTPS"; DisplayName = "MECM Lab - WSUS HTTPS (TCP 8531)"; Port = "8531" },
+        @{ Name = "OpenCMTools-CM-FastChannel"; DisplayName = "MECM Lab - Client Notification Fast Channel (TCP 10123)"; Port = "10123" }
     )
     foreach ($r in $fwRules) {
         if (-not (Get-NetFirewallRule -Name $r.Name -ErrorAction SilentlyContinue)) {
@@ -234,13 +234,13 @@ if ($Phase -eq "PostMecmObjects") {
 
     try {
         # 1. IP Subnet Boundary & Boundary Group
-        $boundaryName = "OpenRCT Lab Subnet (10.20.30.0/24)"
+        $boundaryName = "OpenCMTools Lab Subnet (10.20.30.0/24)"
         if (-not (Get-CMBoundary -BoundaryName $boundaryName -ErrorAction SilentlyContinue)) {
             New-CMBoundary -DisplayName $boundaryName -BoundaryType IPSubnet -Value "10.20.30.0" | Out-Null
             Write-Host "  Created IP Subnet Boundary: $boundaryName" -ForegroundColor Gray
         }
 
-        $bgName = "OpenRCT Lab Primary BG"
+        $bgName = "OpenCMTools Lab Primary BG"
         if (-not (Get-CMBoundaryGroup -Name $bgName -ErrorAction SilentlyContinue)) {
             New-CMBoundaryGroup -Name $bgName -DefaultSiteCode $SiteCode | Out-Null
             Write-Host "  Created Boundary Group: $bgName" -ForegroundColor Gray
@@ -260,7 +260,7 @@ if ($Phase -eq "PostMecmObjects") {
             Write-Host "  Created Device Collection: $wsCol" -ForegroundColor Gray
         }
 
-        # 3. Device Collection with Maintenance Window (for OpenRCT 'Show Collections - Advanced')
+        # 3. Device Collection with Maintenance Window (for OpenCMTools 'Show Collections - Advanced')
         $mwCol = "Lab Maintenance Window Test"
         if (-not (Get-CMDeviceCollection -Name $mwCol -ErrorAction SilentlyContinue)) {
             New-CMDeviceCollection -Name $mwCol -LimitingCollectionName $wsCol | Out-Null
@@ -277,19 +277,19 @@ if ($Phase -eq "PostMecmObjects") {
         }
 
         # 4. Starter Package & Program (populates Remote Software Center -> Packages tab)
-        $pkgName = "OpenRCT Test Package"
+        $pkgName = "OpenCMTools Test Package"
         $pkg = Get-CMPackage -Name $pkgName -Fast -ErrorAction SilentlyContinue
         if (-not $pkg) {
-            $pkg = New-CMPackage -Name $pkgName -Description "Lightweight test package for OpenRCT Remote Software Center"
+            $pkg = New-CMPackage -Name $pkgName -Description "Lightweight test package for OpenCMTools Remote Software Center"
             New-CMProgram `
                 -PackageName $pkgName `
-                -StandardProgramName "Echo OpenRCT Test" `
-                -CommandLine "cmd.exe /c echo OpenRCT Remote Package Test OK" `
+                -StandardProgramName "Echo OpenCMTools Test" `
+                -CommandLine "cmd.exe /c echo OpenCMTools Remote Package Test OK" `
                 -RunMode RunWithAdministrativeRights `
                 -ProgramRunType WhetherOrNotUserIsLoggedOn | Out-Null
             Start-CMPackageDeployment `
                 -PackageName $pkgName `
-                -ProgramName "Echo OpenRCT Test" `
+                -ProgramName "Echo OpenCMTools Test" `
                 -CollectionName $wsCol `
                 -DeployPurpose Available `
                 -StandardProgram `

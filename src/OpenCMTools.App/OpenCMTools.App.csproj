@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>OpenCMTools.App</RootNamespace>
+    <AssemblyName>OpenCMTools.App</AssemblyName>
+    <ApplicationIcon>Assets\OpenCMTools.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenCMTools.Core\OpenCMTools.Core.csproj" />
+    <ProjectReference Include="..\OpenCMTools.Connectors\OpenCMTools.Connectors.csproj" />
+    <ProjectReference Include="..\OpenCMTools.UI\OpenCMTools.UI.csproj" />
+  </ItemGroup>
+</Project>

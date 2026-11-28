@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <RootNamespace>OpenRCT.ConfigMgrSdk.Stubs</RootNamespace>
-    <AssemblyName>OpenRCT.ConfigMgrSdk.Stubs</AssemblyName>
-  </PropertyGroup>
-</Project>

@@ -1,0 +1,24 @@
+<UserControl x:Class="OpenCMTools.UI.Views.Dashboards.Phase2PlaceholderDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource AppBackgroundBrush}">
+  <Grid Margin="24">
+    <Border Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource BorderBrushSubtle}"
+            BorderThickness="1"
+            Padding="28"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            MaxWidth="560">
+      <StackPanel>
+        <TextBlock x:Name="TitleText" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
+        <TextBlock x:Name="DescriptionText" Margin="0,10,0,0" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}" />
+        <TextBlock Text="Scheduled for OpenCMTools Phase 2. All Phase 1 Endpoint Tools and Dashboards (Active Directory Cleanup Tool, LAPS Dashboard, and Software Updates Deployment Status) are ready for use."
+                   Margin="0,14,0,0"
+                   TextWrapping="Wrap"
+                   FontSize="12"
+                   Foreground="{DynamicResource AccentBrush}" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

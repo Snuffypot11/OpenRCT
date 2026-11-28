@@ -1,7 +1,7 @@
 <#
 .SYNOPSIS
     Configures DNS, DHCP, OUs, test users/groups/orphan computer, MECM System Management container,
-    LAPS schemas/permissions, and OpenRCT endpoint management GPOs on LAB-DC01.
+    LAPS schemas/permissions, and OpenCMTools endpoint management GPOs on LAB-DC01.
 .DESCRIPTION
     Run on LAB-DC01 AFTER Active Directory promotion has rebooted and you are logged in as LAB\Administrator.
     You can re-run this script safely with -GrantCm01SystemManagementAcl after LAB-CM01 joins the domain
@@ -124,7 +124,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\ServerManager\Roles\12" -Name C
 $scope = Get-DhcpServerv4Scope -ScopeId "10.20.30.0" -ErrorAction SilentlyContinue
 if (-not $scope) {
     Add-DhcpServerv4Scope `
-        -Name "OpenRCT Lab Workstations" `
+        -Name "OpenCMTools Lab Workstations" `
         -StartRange "10.20.30.100" `
         -EndRange "10.20.30.150" `
         -SubnetMask "255.255.255.0" `
@@ -149,9 +149,9 @@ foreach ($ouName in @("Servers", "Workstations", "ServiceAccounts")) {
 }
 
 $groups = @(
-    @{ Name = "SG-Lab-Admins"; Description = "OpenRCT & MECM Lab Administrators" },
-    @{ Name = "SG-Lab-TestGroup1"; Description = "Sample AD Security Group for OpenRCT testing" },
-    @{ Name = "SG-Lab-TestGroup2"; Description = "Secondary AD Security Group for OpenRCT testing" }
+    @{ Name = "SG-Lab-Admins"; Description = "OpenCMTools & MECM Lab Administrators" },
+    @{ Name = "SG-Lab-TestGroup1"; Description = "Sample AD Security Group for OpenCMTools testing" },
+    @{ Name = "SG-Lab-TestGroup2"; Description = "Secondary AD Security Group for OpenCMTools testing" }
 )
 foreach ($g in $groups) {
     if (-not (Get-ADGroup -Filter "Name -eq '$($g.Name)'" -ErrorAction SilentlyContinue)) {
@@ -161,7 +161,7 @@ foreach ($g in $groups) {
 }
 
 $users = @(
-    @{ Sam = "cmadmin"; Name = "CM Admin"; Path = $ServiceAccountsOu; Desc = "MECM & OpenRCT Primary Admin Account" },
+    @{ Sam = "cmadmin"; Name = "CM Admin"; Path = $ServiceAccountsOu; Desc = "MECM & OpenCMTools Primary Admin Account" },
     @{ Sam = "cm_push"; Name = "CM Client Push"; Path = $ServiceAccountsOu; Desc = "MECM Client Push Installation Account" },
     @{ Sam = "testuser1"; Name = "Lab User One"; Path = $WorkstationsOu; Desc = "Primary interactive workstation test user" },
     @{ Sam = "testuser2"; Name = "Lab User Two"; Path = $WorkstationsOu; Desc = "Secondary profile test user (for User Profiles tab)" }
@@ -192,7 +192,7 @@ if (-not (Get-ADComputer -Filter "Name -eq 'LAB-ORPHAN-AD'" -ErrorAction Silentl
         -SamAccountName "LAB-ORPHAN-AD$" `
         -Path $WorkstationsOu `
         -Enabled $true `
-        -Description "AD-only orphan device for testing OpenRCT AD Cleanup & LAPS Dashboards"
+        -Description "AD-only orphan device for testing OpenCMTools AD Cleanup & LAPS Dashboards"
     Write-Host "  Created dummy AD-only computer: LAB-ORPHAN-AD" -ForegroundColor Gray
 }
 
@@ -226,7 +226,7 @@ if (Get-Module -ListAvailable -Name AdmPwd.PS) {
     Write-Host "  Import-Module AdmPwd.PS; Update-AdmPwdADSchema; Set-AdmPwdComputerSelfPermission -OrgUnit `"$WorkstationsOu`"" -ForegroundColor Yellow
 }
 
-Write-Host "=== Step 6: Creating & Linking OpenRCT Group Policy Objects ===" -ForegroundColor Cyan
+Write-Host "=== Step 6: Creating & Linking OpenCMTools Group Policy Objects ===" -ForegroundColor Cyan
 
 function Ensure-GpoLinked {
     param([string]$GpoName, [string]$TargetOu)
@@ -243,8 +243,8 @@ function Ensure-GpoLinked {
     return $gpo
 }
 
-# 6a. GPO-OpenRCT-EndpointManagement (WinRM, RemoteRegistry, AllowRemoteRPC for msg.exe, Domain Firewall Rules)
-$gpoMgmt = "GPO-OpenRCT-EndpointManagement"
+# 6a. GPO-OpenCMTools-EndpointManagement (WinRM, RemoteRegistry, AllowRemoteRPC for msg.exe, Domain Firewall Rules)
+$gpoMgmt = "GPO-OpenCMTools-EndpointManagement"
 Ensure-GpoLinked -GpoName $gpoMgmt -TargetOu $WorkstationsOu | Out-Null
 
 # AllowRemoteRPC = 1 (required for msg.exe Send Notification)
@@ -252,7 +252,7 @@ Set-GPRegistryValue -Name $gpoMgmt `
     -Key "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" `
     -ValueName "AllowRemoteRPC" -Type DWord -Value 1 | Out-Null
 
-# RemoteRegistry service -> Automatic (Start = 2) for OpenRCT System Info -> Applications tab
+# RemoteRegistry service -> Automatic (Start = 2) for OpenCMTools System Info -> Applications tab
 Set-GPRegistryValue -Name $gpoMgmt `
     -Key "HKLM\SYSTEM\CurrentControlSet\Services\RemoteRegistry" `
     -ValueName "Start" -Type DWord -Value 2 | Out-Null
@@ -275,11 +275,11 @@ Set-GPRegistryValue -Name $gpoMgmt `
 $gpoSession = Open-NetGPO -PolicyStore "$DomainFqdn\$gpoMgmt"
 try {
     $fwSpecs = @(
-        @{ Name = "OpenRCT-Allow-ICMPv4"; DisplayName = "OpenRCT Lab - Allow ICMPv4 Ping"; Protocol = "ICMPv4"; IcmpType = "8" },
-        @{ Name = "OpenRCT-Allow-SMB"; DisplayName = "OpenRCT Lab - Allow SMB (TCP 445)"; Protocol = "TCP"; LocalPort = "445" },
-        @{ Name = "OpenRCT-Allow-WinRM"; DisplayName = "OpenRCT Lab - Allow WinRM HTTP (TCP 5985)"; Protocol = "TCP"; LocalPort = "5985" },
-        @{ Name = "OpenRCT-Allow-RPC-EPM"; DisplayName = "OpenRCT Lab - Allow RPC Endpoint Mapper (TCP 135)"; Protocol = "TCP"; LocalPort = "135" },
-        @{ Name = "OpenRCT-Allow-RPC-Dynamic"; DisplayName = "OpenRCT Lab - Allow WMI/DCOM/EventLog Dynamic RPC"; Protocol = "TCP"; LocalPort = "49152-65535" }
+        @{ Name = "OpenCMTools-Allow-ICMPv4"; DisplayName = "OpenCMTools Lab - Allow ICMPv4 Ping"; Protocol = "ICMPv4"; IcmpType = "8" },
+        @{ Name = "OpenCMTools-Allow-SMB"; DisplayName = "OpenCMTools Lab - Allow SMB (TCP 445)"; Protocol = "TCP"; LocalPort = "445" },
+        @{ Name = "OpenCMTools-Allow-WinRM"; DisplayName = "OpenCMTools Lab - Allow WinRM HTTP (TCP 5985)"; Protocol = "TCP"; LocalPort = "5985" },
+        @{ Name = "OpenCMTools-Allow-RPC-EPM"; DisplayName = "OpenCMTools Lab - Allow RPC Endpoint Mapper (TCP 135)"; Protocol = "TCP"; LocalPort = "135" },
+        @{ Name = "OpenCMTools-Allow-RPC-Dynamic"; DisplayName = "OpenCMTools Lab - Allow WMI/DCOM/EventLog Dynamic RPC"; Protocol = "TCP"; LocalPort = "49152-65535" }
     )
     foreach ($fw in $fwSpecs) {
         if (-not (Get-NetFirewallRule -GPOSession $gpoSession -Name $fw.Name -ErrorAction SilentlyContinue)) {
@@ -303,7 +303,7 @@ try {
     Write-Warning "Could not save firewall rules via Open-NetGPO: $($_.Exception.Message)"
 }
 
-# 6b. GPO-Windows-LAPS (Cleartext AD backup matching OpenRCT ActiveDirectoryClient.cs)
+# 6b. GPO-Windows-LAPS (Cleartext AD backup matching OpenCMTools ActiveDirectoryClient.cs)
 $gpoWinLaps = "GPO-Windows-LAPS"
 Ensure-GpoLinked -GpoName $gpoWinLaps -TargetOu $WorkstationsOu | Out-Null
 $lapsKey = "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\LAPS"

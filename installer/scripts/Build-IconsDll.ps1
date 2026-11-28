@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Builds OpenRCT.Icons.dll with a native .NET Framework 4.8 ConsoleIcons.resources stream
+    Builds OpenCMTools.Icons.dll with a native .NET Framework 4.8 ConsoleIcons.resources stream
     for MECM Admin Console <ImagesDescription> tree and context-menu icons.
 #>
 [CmdletBinding()]
@@ -54,11 +54,11 @@ if ($icoFiles.Count -eq 0) {
     throw "No .ico files found in '$resolvedIconsDir'."
 }
 
-$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("OpenRCT_Icons_" + [Guid]::NewGuid().ToString("N"))
+$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("OpenCMTools_Icons_" + [Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
 try {
-    $resPath = Join-Path $tempDir "OpenRCT.Icons.ConsoleIcons.resources"
+    $resPath = Join-Path $tempDir "OpenCMTools.Icons.ConsoleIcons.resources"
     $rw = New-Object System.Resources.ResourceWriter($resPath)
     $loadedIcons = New-Object System.Collections.Generic.List[System.Drawing.Icon]
     try {
@@ -79,9 +79,9 @@ try {
     $asmInfoPath = Join-Path $tempDir "AssemblyInfo.cs"
     $asmInfo = @"
 using System.Reflection;
-[assembly: AssemblyTitle("OpenRCT Console Icons")]
-[assembly: AssemblyProduct("OpenRCT")]
-[assembly: AssemblyCompany("OpenRCT Contributors")]
+[assembly: AssemblyTitle("OpenCMTools Console Icons")]
+[assembly: AssemblyProduct("OpenCMTools")]
+[assembly: AssemblyCompany("OpenCMTools Contributors")]
 [assembly: AssemblyVersion("$Version")]
 [assembly: AssemblyFileVersion("$Version")]
 "@
@@ -101,12 +101,12 @@ using System.Reflection;
         "/target:library",
         "/optimize+",
         "/out:$resolvedOutputDll",
-        "/resource:$resPath,OpenRCT.Icons.ConsoleIcons.resources",
+        "/resource:$resPath,OpenCMTools.Icons.ConsoleIcons.resources",
         $asmInfoPath
     )
     & $csc @args
     if ($LASTEXITCODE -ne 0) {
-        throw "csc.exe failed while building OpenRCT.Icons.dll (exit code $LASTEXITCODE)."
+        throw "csc.exe failed while building OpenCMTools.Icons.dll (exit code $LASTEXITCODE)."
     }
 
     Write-Host "Built $resolvedOutputDll with $($icoFiles.Count) native .NET 4.8 icon resource(s)."

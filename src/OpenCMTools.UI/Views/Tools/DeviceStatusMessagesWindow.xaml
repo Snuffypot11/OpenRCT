@@ -1,0 +1,51 @@
+<Window x:Class="OpenCMTools.UI.Views.Tools.DeviceStatusMessagesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:OpenCMTools.UI.Controls"
+        Title="Device Status Messages"
+        Width="980" Height="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource AppBackgroundBrush}">
+  <Grid Margin="14">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <DockPanel Grid.Row="0" Margin="0,0,0,10">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+        <ComboBox x:Name="DaysCombo" Width="110" Margin="0,0,6,0" SelectedIndex="1" SelectionChanged="Filter_Changed">
+          <ComboBoxItem Tag="1" Content="Last 24 Hours" />
+          <ComboBoxItem Tag="7" Content="Last 7 Days" />
+          <ComboBoxItem Tag="30" Content="Last 30 Days" />
+        </ComboBox>
+        <ComboBox x:Name="SeverityCombo" Width="125" Margin="0,0,6,0" SelectedIndex="0" SelectionChanged="Filter_Changed">
+          <ComboBoxItem Content="All Severities" />
+          <ComboBoxItem Content="Error" />
+          <ComboBoxItem Content="Warning" />
+          <ComboBoxItem Content="Informational" />
+        </ComboBox>
+        <Button Content="Refresh" Style="{DynamicResource PrimaryButton}" Click="Refresh_Click" />
+      </StackPanel>
+      <TextBox x:Name="SearchBox" Padding="6,4" Margin="0,0,10,0" TextChanged="SearchBox_TextChanged" />
+    </DockPanel>
+
+    <DataGrid x:Name="MessagesGrid" Grid.Row="1" Style="{DynamicResource OpenCMToolsDataGrid}" Margin="0,0,0,8">
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="Device" Binding="{Binding DeviceName}" Width="130" />
+        <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="140" />
+        <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="95" />
+        <DataGridTextColumn Header="Message ID" Binding="{Binding MessageId}" Width="85" />
+        <DataGridTextColumn Header="Component" Binding="{Binding Component}" Width="165" />
+        <DataGridTextColumn Header="Site" Binding="{Binding SiteCode}" Width="55" />
+        <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" MinWidth="200" />
+      </DataGrid.Columns>
+    </DataGrid>
+
+    <DockPanel Grid.Row="2">
+      <Button Content="Export to CSV" DockPanel.Dock="Right" Style="{DynamicResource StandardButton}" Click="ExportCsv_Click" />
+      <controls:ErrorDrawerControl x:Name="ErrorDrawer" />
+    </DockPanel>
+  </Grid>
+</Window>
